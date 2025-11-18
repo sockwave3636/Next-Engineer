@@ -563,7 +563,13 @@ export default function AdminPanel() {
                     No blog posts yet. Click "Add Blog/Notice/Article" to create one.
                   </div>
                 ) : (
-                  blogPosts.map((post) => (
+                  blogPosts.map((post) => {
+                    const createdAtDate =
+                      post.createdAt instanceof Timestamp
+                        ? post.createdAt.toDate()
+                        : new Date(post.createdAt || Date.now());
+
+                    return (
                     <div key={post.id} className="border-2 rounded-lg p-3 sm:p-4 transition-colors duration-200" style={{ borderColor: 'var(--accent)', backgroundColor: 'var(--background)' }}>
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-2">
                         <div className="flex-1">
@@ -587,7 +593,7 @@ export default function AdminPanel() {
                             {post.description}
                           </p>
                           <div className="text-xs mt-2" style={{ color: '#4a4a4a' }}>
-                            Media: {post.mediaType} | Created: {new Date(post.createdAt?.toMillis?.() || post.createdAt).toLocaleDateString()}
+                            Media: {post.mediaType} | Created: {createdAtDate.toLocaleDateString()}
                           </div>
                         </div>
                         <div className="flex gap-2">
@@ -612,7 +618,8 @@ export default function AdminPanel() {
                         </div>
                       </div>
                     </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>
