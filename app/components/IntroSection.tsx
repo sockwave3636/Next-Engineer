@@ -138,7 +138,7 @@ export default function IntroSection({
             </div>
 
             <div
-              className="absolute -bottom-10 -left-8 w-52 rounded-3xl border shadow-xl overflow-hidden"
+              className="relative sm:absolute sm:-bottom-10 sm:-left-8 bottom-0 left-0 w-40 sm:w-52 rounded-3xl border shadow-xl overflow-hidden mx-auto sm:mx-0"
               style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}
             >
               <Image
@@ -150,14 +150,14 @@ export default function IntroSection({
               />
             </div>
 
-            <div
+            {/* <div
               className="absolute top-6 -right-6 rounded-2xl px-5 py-4 shadow-lg"
               style={{ backgroundColor: 'var(--accent)', color: 'var(--text-primary)' }}
             >
               <p className="text-sm font-medium opacity-80">Live sessions</p>
               <p className="text-3xl font-bold">+28</p>
               <p className="text-xs opacity-70 mt-1">happening across cohorts</p>
-            </div>
+            </div> */}
           </div>
         </div>
 
