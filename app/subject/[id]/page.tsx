@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { useAuth } from '@/app/context/AuthContext';
 import { getSubject, Subject } from '@/lib/firebase/firestore';
 import ThemeToggle from '@/app/components/ThemeToggle';
 import { useAuthPrompt } from '@/app/context/AuthPromptContext';
 
-export default function SubjectDetailPage() {
+function SubjectDetailContent() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -267,5 +267,19 @@ export default function SubjectDetailPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function SubjectDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center transition-colors duration-200" style={{ backgroundColor: 'var(--background)' }}>
+          <div className="text-xl transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>Loading...</div>
+        </div>
+      }
+    >
+      <SubjectDetailContent />
+    </Suspense>
   );
 }
