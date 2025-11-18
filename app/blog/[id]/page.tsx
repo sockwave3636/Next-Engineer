@@ -1,30 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useAuth } from '@/app/context/AuthContext';
-import { getBlogPost, BlogPost } from '@/lib/firebase/firestore';
 import ThemeToggle from '@/app/components/ThemeToggle';
+import { getBlogPost, BlogPost } from '@/lib/firebase/firestore';
+import { useAuth } from '@/app/context/AuthContext';
+import { useAuthPrompt } from '@/app/context/AuthPromptContext';
 
-export default function BlogDetailPage() {
-  const { user, loading: authLoading } = useAuth();
+function BlogDetailContent() {
   const router = useRouter();
   const params = useParams();
+  const { user, logout } = useAuth();
+  const { openAuthPrompt } = useAuthPrompt();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
 
   const postId = params?.id as string;
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/');
-      return;
-    }
-
     if (postId) {
       loadPost();
     }
-  }, [user, authLoading, postId, router]);
+  }, [postId]);
 
   const loadPost = async () => {
     try {
@@ -67,7 +64,7 @@ export default function BlogDetailPage() {
     }
   };
 
-  if (authLoading || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center transition-colors duration-200" style={{ backgroundColor: 'var(--background)' }}>
         <div className="text-xl transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>Loading...</div>
@@ -75,8 +72,12 @@ export default function BlogDetailPage() {
     );
   }
 
-  if (!user || !post) {
-    return null;
+  if (!post) {
+    return (
+      <div className="min-h-screen flex items-center justify-center transition-colors duration-200" style={{ backgroundColor: 'var(--background)' }}>
+        <div className="text-xl transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>Post not found.</div>
+      </div>
+    );
   }
 
   return (
@@ -95,9 +96,39 @@ export default function BlogDetailPage() {
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
               <ThemeToggle />
-              <span className="text-sm sm:text-base transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>
-                {user.name}
-              </span>
+              {user?.isOwner ? (
+                <>
+                  <div className="px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold" style={{ backgroundColor: 'var(--accent)', color: 'var(--text-primary)' }}>
+                    👑 Owner
+                  </div>
+                  <button
+                    onClick={() => router.push('/admin')}
+                    className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+                    style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
+                  >
+                    Admin Panel
+                  </button>
+                  <button
+                    onClick={logout}
+                    className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-200"
+                    style={{ backgroundColor: 'var(--error)', color: '#ffffff' }}
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() =>
+                    openAuthPrompt({
+                      reason: 'Admin access is restricted. Please sign in as the owner.',
+                    })
+                  }
+                  className="text-xs sm:text-sm px-4 py-2 rounded-lg font-semibold transition-all duration-200 shadow-md"
+                  style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
+                >
+                  Admin Login
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -105,7 +136,6 @@ export default function BlogDetailPage() {
 
       <main className="max-w-4xl mx-auto py-6 sm:py-8 px-4">
         <div className="rounded-xl shadow-lg overflow-hidden transition-colors duration-200" style={{ backgroundColor: 'var(--secondary)' }}>
-          {/* Media Section */}
           {post.mediaType === 'image' && post.mediaUrl && (
             <div className="w-full h-64 sm:h-80">
               <img
@@ -127,7 +157,6 @@ export default function BlogDetailPage() {
           )}
 
           <div className="p-6 sm:p-8">
-            {/* Header */}
             <div className="flex items-center gap-3 mb-4">
               <span className="text-3xl">{getTypeIcon(post.type)}</span>
               <div>
@@ -140,17 +169,14 @@ export default function BlogDetailPage() {
               </div>
             </div>
 
-            {/* Title */}
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>
               {post.title}
             </h1>
 
-            {/* Description */}
             <p className="text-lg mb-6 transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>
               {post.description}
             </p>
 
-            {/* Article URL Link */}
             {post.mediaType === 'article' && post.mediaUrl && (
               <div className="mb-6">
                 <a
@@ -167,7 +193,6 @@ export default function BlogDetailPage() {
               </div>
             )}
 
-            {/* File Download Button */}
             {post.mediaType === 'file' && post.fileUrl && (
               <div className="mb-6">
                 <button
@@ -182,7 +207,6 @@ export default function BlogDetailPage() {
               </div>
             )}
 
-            {/* Content */}
             <div className="prose max-w-none">
               <div
                 className="text-base sm:text-lg leading-relaxed whitespace-pre-wrap transition-colors duration-200"
@@ -191,7 +215,6 @@ export default function BlogDetailPage() {
               />
             </div>
 
-            {/* Author */}
             <div className="mt-8 pt-6 border-t transition-colors duration-200" style={{ borderColor: 'var(--accent)' }}>
               <p className="text-sm transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>
                 <span className="font-semibold">Author:</span> {post.author}
@@ -204,5 +227,16 @@ export default function BlogDetailPage() {
   );
 }
 
-
-
+export default function BlogDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center transition-colors duration-200" style={{ backgroundColor: 'var(--background)' }}>
+          <div className="text-xl transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>Loading...</div>
+        </div>
+      }
+    >
+      <BlogDetailContent />
+    </Suspense>
+  );
+}

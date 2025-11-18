@@ -32,11 +32,19 @@ const features = [
 
 const stats = [
   { label: 'Avg. study streak', value: '18 days' },
-  { label: 'Notes downloaded', value: '12k+' },
-  { label: 'Articles published', value: '320+' },
+  { label: 'Notes downloaded', value: '2k+' },
+  { label: 'Articles published', value: '90+' },
 ];
 
-export default function IntroSection() {
+interface IntroSectionProps {
+  onExploreCourses?: () => void;
+  onBrowseArticles?: () => void;
+}
+
+export default function IntroSection({
+  onExploreCourses,
+  onBrowseArticles,
+}: IntroSectionProps) {
   return (
     <section className="relative isolate overflow-hidden py-16 sm:py-24 px-4">
       <div
@@ -75,12 +83,14 @@ export default function IntroSection() {
 
             <div className="flex flex-wrap gap-4">
               <button
+                onClick={onExploreCourses}
                 className="px-7 py-3 text-base font-semibold rounded-full shadow-lg transition-all duration-200"
                 style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
               >
                 Explore Courses
               </button>
               <button
+                onClick={onBrowseArticles}
                 className="px-7 py-3 text-base font-semibold rounded-full border transition-all duration-200"
                 style={{ borderColor: 'var(--border)', color: 'var(--text-primary)', backgroundColor: 'var(--background)' }}
               >

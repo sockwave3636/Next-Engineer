@@ -12,13 +12,8 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 
-// IMPORTANT: Replace with your actual owner email address
-// This email will have access to the admin panel
-// Example: const OWNER_EMAIL = 'admin@example.com';
 const OWNER_EMAIL = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'aahabhisheksingh@gmail.com';
 
-// If NEXT_PUBLIC_OWNER_EMAIL is not set, update the line above with your email
-// Or create a .env.local file with: NEXT_PUBLIC_OWNER_EMAIL=your-email@example.com
 
 interface User {
   email: string;

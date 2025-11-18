@@ -44,7 +44,7 @@ export default function LandingPage() {
         </div>
         <div className="text-center mb-6 sm:mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-            Learn Platform
+            Next Engineer
           </h1>
           <p className="text-base sm:text-lg" style={{ color: 'var(--text-secondary)' }}>
             Access your courses and study materials

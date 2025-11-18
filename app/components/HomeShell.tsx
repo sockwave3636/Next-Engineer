@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef, RefObject } from 'react';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from './ThemeToggle';
 import IntroSection from './IntroSection';
@@ -12,11 +13,17 @@ export default function HomeShell() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const { openAuthPrompt } = useAuthPrompt();
+  const blogSectionRef = useRef<HTMLDivElement>(null);
+  const coursesSectionRef = useRef<HTMLDivElement>(null);
 
   const handleAdminLogin = () => {
     openAuthPrompt({
       reason: 'Admin access is restricted. Please sign in as the owner.',
     });
+  };
+
+  const scrollToSection = (ref: RefObject<HTMLDivElement>) => {
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (
@@ -71,11 +78,16 @@ export default function HomeShell() {
       </nav>
 
       <main>
-        <IntroSection />
-        <BlogSlider />
-        <div className="py-4 sm:py-8">
+        <IntroSection
+          onExploreCourses={() => scrollToSection(coursesSectionRef)}
+          onBrowseArticles={() => scrollToSection(blogSectionRef)}
+        />
+        <section ref={blogSectionRef} id="blog-section">
+          <BlogSlider />
+        </section>
+        <section ref={coursesSectionRef} id="courses-section" className="py-4 sm:py-8">
           <CourseSelector />
-        </div>
+        </section>
       </main>
     </div>
   );
