@@ -3,8 +3,8 @@
 import Image from 'next/image';
 
 const highlights = [
-  { label: 'New', text: 'Smart study workflows now live' },
-  { label: 'Trusted', text: '4K+ students collaborate daily' },
+  { label: 'New', text: 'AKTU - To the point in two minutes' },
+  { label: 'Trusted', text: 'Quick Recap - Quick Preparation - Outstanding CGPA' },
 ];
 
 const features = [
@@ -73,7 +73,7 @@ export default function IntroSection({
 
             <div>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight bg-gradient-to-r from-[var(--text-primary)] to-[var(--accent)] bg-clip-text text-transparent">
-                A modern study HQ for ambitious learners.
+                A modern Way to study ambitious learners.
               </h1>
               <p className="mt-6 text-lg sm:text-xl leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                 Plan your week, download updated notes, browse fresh articles, and move from doubt to clarity

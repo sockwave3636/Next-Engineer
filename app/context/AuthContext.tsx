@@ -12,7 +12,13 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 
-const OWNER_EMAIL = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'aahabhisheksingh@gmail.com';
+// IMPORTANT: Replace with your actual owner email addresses
+// These emails will have access to the admin panel
+// Example: const OWNER_EMAILS = ['admin@example.com', 'second@example.com'];
+const OWNER_EMAILS = [
+  process.env.NEXT_PUBLIC_OWNER_EMAIL || 'aahabhisheksingh@gmail.com',
+  'adityanathncert@gmail.com',
+];
 
 
 interface User {
@@ -44,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: firebaseUser.email || '',
           name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
           uid: firebaseUser.uid,
-          isOwner: firebaseUser.email === OWNER_EMAIL
+          isOwner: OWNER_EMAILS.includes(firebaseUser.email || '')
         });
       } else {
         setUser(null);
