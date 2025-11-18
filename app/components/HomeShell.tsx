@@ -81,8 +81,8 @@ export default function HomeShell() {
 
       <main>
         <IntroSection
-          onExploreCourses={() => scrollToSection(coursesSectionRef)}
-          onBrowseArticles={() => scrollToSection(blogSectionRef)}
+          onExploreCourses={() => scrollToSection(coursesSectionRef as React.RefObject<HTMLDivElement>)}
+          onBrowseArticles={() => scrollToSection(blogSectionRef as React.RefObject<HTMLDivElement>)}
         />
         <section ref={blogSectionRef} id="blog-section">
           <BlogSlider />
