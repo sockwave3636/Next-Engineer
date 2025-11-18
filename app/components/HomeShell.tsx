@@ -22,8 +22,10 @@ export default function HomeShell() {
     });
   };
 
-  const scrollToSection = (ref: RefObject<HTMLDivElement>) => {
-    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   return (
