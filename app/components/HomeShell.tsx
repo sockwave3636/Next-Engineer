@@ -29,14 +29,6 @@ export default function HomeShell() {
     }
   };
 
-  useEffect(() => {
-    try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-      // ignore ad init errors (ads won't render in dev or without approval)
-    }
-  }, []);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
@@ -89,15 +81,7 @@ export default function HomeShell() {
         </div>
       </nav>
 
-      {/* AdSense ad slot (ensure data-ad-slot matches your Ad Unit) */}
-      <ins
-        className="adsbygoogle"
-        style={{ display: 'block' }}
-        data-ad-client="ca-pub-2968140045653690"
-        data-ad-slot="1048575234"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      ></ins>
+      
 
       {/* University logo/image, responsive under navbar */}
       <div className="w-full flex justify-center items-center py-2 bg-white">

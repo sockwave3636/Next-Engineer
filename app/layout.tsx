@@ -32,8 +32,8 @@ export default function RootLayout({
         <Script
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968140045653690"
           strategy="afterInteractive"
-          crossOrigin="anonymous"
-        />
+          crossOrigin="anonymous">
+        </Script>
         <ThemeProvider>
           <AuthProvider>
             <AuthPromptProvider>
