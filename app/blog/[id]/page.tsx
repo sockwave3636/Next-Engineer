@@ -14,6 +14,7 @@ function BlogDetailContent() {
   const { openAuthPrompt } = useAuthPrompt();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const postId = params?.id as string;
 
@@ -29,6 +30,8 @@ function BlogDetailContent() {
       const postData = await getBlogPost(postId);
       if (postData) {
         setPost(postData);
+        // Reset image index when post changes
+        setCurrentImageIndex(0);
       } else {
         router.push('/home');
       }
@@ -138,24 +141,70 @@ function BlogDetailContent() {
         <div className="rounded-xl shadow-lg overflow-hidden transition-colors duration-200" style={{ backgroundColor: 'var(--secondary)' }}>
           {post.mediaType === 'image' && (post.mediaUrls?.length || post.mediaUrl) && (
             <div className="w-full">
-              {/* Primary image */}
-              <div className="w-full h-64 sm:h-80">
+              {/* Main image with simple carousel controls when multiple images exist */}
+              <div className="relative w-full h-64 sm:h-80">
                 <img
-                  src={post.mediaUrls?.[0] || post.mediaUrl!}
+                  src={
+                    post.mediaUrls && post.mediaUrls.length > 0
+                      ? post.mediaUrls[Math.min(currentImageIndex, post.mediaUrls.length - 1)]
+                      : post.mediaUrl!
+                  }
                   alt={post.title}
                   className="w-full h-full object-cover"
                 />
+                {post.mediaUrls && post.mediaUrls.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentImageIndex((prev) =>
+                          prev === 0 ? post.mediaUrls!.length - 1 : prev - 1
+                        );
+                      }}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 px-3 py-2 rounded-full shadow-md text-sm"
+                      style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
+                    >
+                      ←
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentImageIndex((prev) =>
+                          prev === post.mediaUrls!.length - 1 ? 0 : prev + 1
+                        );
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-2 rounded-full shadow-md text-sm"
+                      style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
+                    >
+                      →
+                    </button>
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+                      {currentImageIndex + 1} / {post.mediaUrls.length}
+                    </div>
+                  </>
+                )}
               </div>
               {/* Thumbnails if multiple images */}
               {post.mediaUrls && post.mediaUrls.length > 1 && (
                 <div className="flex gap-2 p-3 overflow-x-auto bg-black/5">
                   {post.mediaUrls.map((url, index) => (
-                    <img
+                    <button
                       key={index}
-                      src={url}
-                      alt={`${post.title} ${index + 1}`}
-                      className="h-16 w-24 object-cover rounded border"
-                    />
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentImageIndex(index);
+                      }}
+                      className={`border-2 rounded ${index === currentImageIndex ? 'border-[var(--primary)]' : 'border-transparent'}`}
+                    >
+                      <img
+                        src={url}
+                        alt={`${post.title} ${index + 1}`}
+                        className="h-16 w-24 object-cover rounded"
+                      />
+                    </button>
                   ))}
                 </div>
               )}
