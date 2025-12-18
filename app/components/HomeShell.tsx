@@ -29,6 +29,14 @@ export default function HomeShell() {
     }
   };
 
+  useEffect(() => {
+    try {
+      // @ts-ignore
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) {
+      // ignore ad init errors (ads won't render in dev or without approval)
+    }
+  }, []);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
@@ -81,7 +89,15 @@ export default function HomeShell() {
         </div>
       </nav>
 
-      
+      {/* AdSense ad slot (ensure data-ad-slot matches your Ad Unit) */}
+      <ins
+        className="adsbygoogle"
+        style={{ display: 'block' }}
+        data-ad-client="ca-pub-2968140045653690"
+        data-ad-slot="1048575234"
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      ></ins>
 
       {/* University logo/image, responsive under navbar */}
       <div className="w-full flex justify-center items-center py-2 bg-white">
@@ -108,6 +124,44 @@ export default function HomeShell() {
           <CourseSelector />
         </section>
       </main>
+
+      {/* Support / Payment section + legal links */}
+      <footer className="w-full border-t mt-6 py-6 flex flex-col items-center gap-4 px-4" style={{ borderColor: 'var(--border-color)' }}>
+        <div className="flex flex-col items-center gap-3 max-w-md text-center">
+          <Image
+            src="/poi.jpeg"
+            alt="Support Next Engineer"
+            width={220}
+            height={220}
+            className="rounded-xl shadow-md max-h-56 w-auto object-contain"
+          />
+          <p className="text-xs sm:text-sm" style={{ color: 'var(--text-secondary)' }}>
+            If this platform is helping you in your journey, you can support its growth and maintenance with a small UPI
+            contribution. Every bit of support motivates us to bring better resources for more students.
+          </p>
+          <button
+            onClick={() => {
+              const upiUrl =
+                'upi://pay?pa=adityanathncert@okaxis&pn=Next%20Engineer&cu=INR';
+              // Use window.location for mobile apps, fallback to opening new tab
+              if (typeof window !== 'undefined') {
+                window.location.href = upiUrl;
+              }
+            }}
+            className="px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-200"
+            style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
+          >
+            Support via UPI (adityanathncert@okaxis)
+          </button>
+        </div>
+        <div className="text-[11px] sm:text-xs flex flex-wrap justify-center gap-3" style={{ color: 'var(--text-secondary)' }}>
+          <a href="/privacy-policy" className="underline hover:opacity-80">
+            Privacy Policy
+          </a>
+          <span>·</span>
+          <span>This site uses cookies and may show ads through Google AdSense.</span>
+        </div>
+      </footer>
     </div>
   );
 }
