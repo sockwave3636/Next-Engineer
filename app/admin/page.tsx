@@ -558,7 +558,7 @@ export default function AdminPanel() {
                       mediaUrl: '',
                       published: true
                     });
-                    setBlogMediaFile(null);
+                    setBlogMediaFiles([]);
                     setShowBlogForm(true);
                     console.log('showBlogForm set to true');
                   }}
