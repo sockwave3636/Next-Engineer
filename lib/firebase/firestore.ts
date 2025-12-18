@@ -174,7 +174,10 @@ export interface BlogPost {
   content: string;
   type: 'blog' | 'notice' | 'article';
   mediaType: 'video' | 'article' | 'image' | 'file' | 'none';
+  // Primary media URL (for backward compatibility and single-media posts)
   mediaUrl?: string;
+  // Optional list of media URLs for posts with multiple images/videos
+  mediaUrls?: string[];
   fileUrl?: string;
   fileName?: string;
   author: string;

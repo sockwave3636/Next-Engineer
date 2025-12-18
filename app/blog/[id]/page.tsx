@@ -136,13 +136,29 @@ function BlogDetailContent() {
 
       <main className="max-w-4xl mx-auto py-6 sm:py-8 px-4">
         <div className="rounded-xl shadow-lg overflow-hidden transition-colors duration-200" style={{ backgroundColor: 'var(--secondary)' }}>
-          {post.mediaType === 'image' && post.mediaUrl && (
-            <div className="w-full h-64 sm:h-80">
-              <img
-                src={post.mediaUrl}
-                alt={post.title}
-                className="w-full h-full object-cover"
-              />
+          {post.mediaType === 'image' && (post.mediaUrls?.length || post.mediaUrl) && (
+            <div className="w-full">
+              {/* Primary image */}
+              <div className="w-full h-64 sm:h-80">
+                <img
+                  src={post.mediaUrls?.[0] || post.mediaUrl!}
+                  alt={post.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              {/* Thumbnails if multiple images */}
+              {post.mediaUrls && post.mediaUrls.length > 1 && (
+                <div className="flex gap-2 p-3 overflow-x-auto bg-black/5">
+                  {post.mediaUrls.map((url, index) => (
+                    <img
+                      key={index}
+                      src={url}
+                      alt={`${post.title} ${index + 1}`}
+                      className="h-16 w-24 object-cover rounded border"
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

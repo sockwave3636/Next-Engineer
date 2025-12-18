@@ -45,7 +45,7 @@ export default function AdminPanel() {
     mediaUrl: '',
     published: true
   });
-  const [blogMediaFile, setBlogMediaFile] = useState<File | null>(null);
+  const [blogMediaFiles, setBlogMediaFiles] = useState<File[]>([]);
   const [uploadingBlog, setUploadingBlog] = useState(false);
 
   useEffect(() => {
@@ -233,7 +233,7 @@ export default function AdminPanel() {
   };
 
   const handleAddBlogPost = async () => {
-    console.log('handleAddBlogPost called', { blogFormData, blogMediaFile });
+    console.log('handleAddBlogPost called', { blogFormData, blogMediaFiles });
     
     if (!blogFormData.title.trim() || !blogFormData.description.trim() || !blogFormData.content.trim()) {
       alert('Please fill in all required fields (Title, Description, and Content)');
@@ -249,22 +249,33 @@ export default function AdminPanel() {
     try {
       const postId = editingBlog || `post-${Date.now()}`;
       let mediaUrl = blogFormData.mediaUrl;
+      let mediaUrls: string[] = [];
       let fileUrl = '';
       let fileName = '';
 
-      // Upload media file if provided
-      if (blogMediaFile && blogFormData.mediaType !== 'none' && blogFormData.mediaType !== 'article') {
+      // Upload media file(s) if provided
+      if (blogMediaFiles.length > 0 && blogFormData.mediaType !== 'none' && blogFormData.mediaType !== 'article') {
         try {
-          const timestamp = Date.now();
-          const path = `blog/${postId}/${timestamp}-${blogMediaFile.name}`;
-          console.log('Uploading media file:', { path, mediaType: blogFormData.mediaType });
-          
+          const timestampBase = Date.now();
+
           if (blogFormData.mediaType === 'image' || blogFormData.mediaType === 'video') {
-            mediaUrl = await uploadBlogMedia(blogMediaFile, path);
-            console.log('Media uploaded, URL:', mediaUrl);
+            for (let i = 0; i < blogMediaFiles.length; i++) {
+              const file = blogMediaFiles[i];
+              const path = `blog/${postId}/${timestampBase + i}-${file.name}`;
+              console.log('Uploading media file:', { path, mediaType: blogFormData.mediaType });
+              const url = await uploadBlogMedia(file, path);
+              mediaUrls.push(url);
+            }
+            if (mediaUrls.length > 0) {
+              mediaUrl = mediaUrls[0]; // primary for previews/backwards compatibility
+            }
+            console.log('Media uploaded, URLs:', mediaUrls);
           } else if (blogFormData.mediaType === 'file') {
-            fileUrl = await uploadBlogMedia(blogMediaFile, path);
-            fileName = blogMediaFile.name;
+            const file = blogMediaFiles[0];
+            const path = `blog/${postId}/${timestampBase}-${file.name}`;
+            console.log('Uploading file:', { path, mediaType: blogFormData.mediaType });
+            fileUrl = await uploadBlogMedia(file, path);
+            fileName = file.name;
             console.log('File uploaded, URL:', fileUrl);
           }
         } catch (uploadError) {
@@ -293,6 +304,9 @@ export default function AdminPanel() {
       if (mediaUrl && mediaUrl.trim()) {
         postData.mediaUrl = mediaUrl;
       }
+      if (mediaUrls.length > 0) {
+        postData.mediaUrls = mediaUrls;
+      }
       if (fileUrl && fileUrl.trim()) {
         postData.fileUrl = fileUrl;
       }
@@ -315,7 +329,7 @@ export default function AdminPanel() {
         mediaUrl: '',
         published: true
       });
-      setBlogMediaFile(null);
+      setBlogMediaFiles([]);
       setEditingBlog(null);
       alert('Blog post saved successfully!');
     } catch (error) {
@@ -902,7 +916,7 @@ export default function AdminPanel() {
                       mediaUrl: '',
                       published: true
                     });
-                    setBlogMediaFile(null);
+                    setBlogMediaFiles([]);
                     setEditingBlog(null);
                   }}
                   className="text-2xl font-bold hover:opacity-70 transition-opacity"
@@ -1012,14 +1026,19 @@ export default function AdminPanel() {
                     <input
                       type="file"
                       accept={blogFormData.mediaType === 'image' ? 'image/*' : blogFormData.mediaType === 'video' ? 'video/*' : '*'}
-                      onChange={(e) => setBlogMediaFile(e.target.files?.[0] || null)}
+                      multiple={blogFormData.mediaType === 'image' || blogFormData.mediaType === 'video'}
+                      onChange={(e) => {
+                        const files = e.target.files ? Array.from(e.target.files) : [];
+                        setBlogMediaFiles(files);
+                      }}
                       className="w-full px-4 py-2 border rounded-lg focus:outline-none transition-all"
                       style={{ backgroundColor: 'var(--background)', borderColor: 'var(--accent)' }}
                     />
-                    {blogMediaFile && (
-                    <p className="text-xs mt-1 transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>
-                      Selected: {blogMediaFile.name} ({(blogMediaFile.size / 1024 / 1024).toFixed(2)} MB)
-                    </p>
+                    {blogMediaFiles.length > 0 && (
+                      <p className="text-xs mt-1 transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>
+                        Selected {blogMediaFiles.length} file{blogMediaFiles.length > 1 ? 's' : ''}:{' '}
+                        {blogMediaFiles.map(f => f.name).join(', ')}
+                      </p>
                     )}
                   </div>
                 )}

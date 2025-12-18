@@ -15,19 +15,19 @@
   --success: #28a745;
 }
 
-/* Dark Theme - Blue/Gray Palette */
+/* Dark Theme - Modern Deep Blue/Gray Palette */
 [data-theme="dark"] {
-  --background: #1B3C53;
-  --foreground: #ffffff;
-  --primary: #456882;
-  --primary-hover: #5a7a94;
-  --secondary: #234C6A;
-  --accent: #456882;
-  --text-primary: #ffffff;
-  --text-secondary: #D2C1B6;
-  --border: #234C6A;
-  --error: #ff6b6b;
-  --success: #51cf66;
+  --background: #050816;          /* almost-black deep blue */
+  --foreground: #f9fafb;          /* main body text */
+  --primary: #3b82f6;             /* bright blue accent */
+  --primary-hover: #2563eb;       /* slightly darker on hover */
+  --secondary: #020617;           /* navbar / cards background */
+  --accent: #1f2937;              /* subtle card borders / chips */
+  --text-primary: #f9fafb;        /* primary text on dark */
+  --text-secondary: #9ca3af;      /* muted text */
+  --border: #1f2937;              /* border color */
+  --error: #f97373;               /* soft red */
+  --success: #4ade80;             /* soft green */
 }
 
 @theme inline {
@@ -66,6 +66,12 @@
 .animate-fade-in-up {
   opacity: 0;
   animation: fade-in-up 0.8s ease-out forwards;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
 }
 
 body {

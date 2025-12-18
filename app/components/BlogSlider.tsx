@@ -52,10 +52,11 @@ export default function BlogSlider() {
   };
 
   const getMediaPreview = (post: BlogPost) => {
-    if (post.mediaType === 'image' && post.mediaUrl) {
+    const primaryImage = post.mediaUrls?.[0] || post.mediaUrl;
+    if (post.mediaType === 'image' && primaryImage) {
       return (
         <img
-          src={post.mediaUrl}
+          src={primaryImage}
           alt={post.title}
           className="w-full h-40 sm:h-48 object-cover rounded-t-lg"
         />

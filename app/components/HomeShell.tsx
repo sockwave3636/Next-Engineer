@@ -136,8 +136,7 @@ export default function HomeShell() {
             className="rounded-xl shadow-md max-h-56 w-auto object-contain"
           />
           <p className="text-xs sm:text-sm" style={{ color: 'var(--text-secondary)' }}>
-            If this platform is helping you in your journey, you can support its growth and maintenance with a small UPI
-            contribution. Every bit of support motivates us to bring better resources for more students.
+          Every bit of small UPI contribution will motivate us to bring better resources for your upcoming exams 🤍
           </p>
           <button
             onClick={() => {
