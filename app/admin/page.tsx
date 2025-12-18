@@ -989,7 +989,7 @@ export default function AdminPanel() {
                     value={blogFormData.mediaType}
                     onChange={(e) => {
                       setBlogFormData({ ...blogFormData, mediaType: e.target.value as any });
-                      setBlogMediaFile(null);
+                      setBlogMediaFiles([]);
                     }}
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none transition-all"
                     style={{ backgroundColor: 'var(--background)', borderColor: 'var(--accent)', color: 'var(--text-primary)' }}
