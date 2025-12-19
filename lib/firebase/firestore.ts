@@ -4,6 +4,7 @@ import {
   getDoc, 
   getDocs, 
   setDoc, 
+  addDoc,
   updateDoc, 
   deleteDoc,
   query,
@@ -229,6 +230,47 @@ export async function getAllBlogPosts(): Promise<BlogPost[]> {
   const snapshot = await getDocs(q);
   
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost));
+}
+
+// Contact Message types
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  createdAt: Timestamp;
+  read: boolean;
+}
+
+// Contact Message operations
+export async function saveContactMessage(messageData: Omit<ContactMessage, 'id' | 'createdAt' | 'read'>): Promise<string> {
+  const messagesRef = collection(db, "contactMessages");
+  const messageToSave = {
+    ...messageData,
+    createdAt: Timestamp.now(),
+    read: false,
+  };
+  const docRef = await addDoc(messagesRef, messageToSave);
+  return docRef.id;
+}
+
+export async function getContactMessages(): Promise<ContactMessage[]> {
+  const messagesRef = collection(db, "contactMessages");
+  const q = query(messagesRef, orderBy("createdAt", "desc"));
+  const snapshot = await getDocs(q);
+  
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContactMessage));
+}
+
+export async function markMessageAsRead(messageId: string): Promise<void> {
+  const messageRef = doc(db, "contactMessages", messageId);
+  await updateDoc(messageRef, { read: true });
+}
+
+export async function deleteContactMessage(messageId: string): Promise<void> {
+  const messageRef = doc(db, "contactMessages", messageId);
+  await deleteDoc(messageRef);
 }
 
 

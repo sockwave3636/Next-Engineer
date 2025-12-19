@@ -5,6 +5,7 @@ import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { useAuth } from '@/app/context/AuthContext';
 import { getSubject, Subject } from '@/lib/firebase/firestore';
 import ThemeToggle from '@/app/components/ThemeToggle';
+import Footer from '@/app/components/Footer';
 import { useAuthPrompt } from '@/app/context/AuthPromptContext';
 
 function SubjectDetailContent() {
@@ -266,6 +267,7 @@ function SubjectDetailContent() {
           )}
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

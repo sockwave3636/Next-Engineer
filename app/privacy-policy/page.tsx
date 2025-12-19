@@ -27,13 +27,75 @@ export default function PrivacyPolicyPage() {
           Cookies and Third-Party Services (including Google AdSense)
         </h2>
         <p>
-          We use cookies and similar technologies to improve your experience on our website. We may also use third-party
-          services, including Google AdSense, to serve advertisements.
+          We use cookies and similar technologies to improve your experience on our website. Cookies are small text files 
+          that are placed on your device when you visit our website. We use both session cookies (which expire when you close 
+          your browser) and persistent cookies (which remain on your device until deleted or expired).
         </p>
         <p>
-          Google and its partners may use cookies to serve ads based on your visits to this and other websites. You can
-          learn more about how Google uses data and how to control your ad preferences by visiting the Google Ads
-          Settings and the Google Privacy Policy.
+          We use Google AdSense, a third-party advertising service provided by Google Inc., to serve advertisements on our 
+          website. Google AdSense uses cookies and similar technologies to:
+        </p>
+        <ul className="list-disc list-inside ml-2 space-y-1">
+          <li>Display personalized advertisements based on your browsing history and interests</li>
+          <li>Measure the effectiveness of advertisements</li>
+          <li>Prevent fraud and abuse</li>
+          <li>Limit the number of times you see an ad</li>
+        </ul>
+        <p>
+          Google and its partners may use cookies to serve ads based on your visits to this and other websites. This means 
+          that when you visit other websites, you may see ads based on your previous visit to Next Engineer. Google may also 
+          use information about your device and browsing activity to show you relevant ads.
+        </p>
+        <p>
+          You can learn more about how Google uses data and how to control your ad preferences by visiting:
+        </p>
+        <ul className="list-disc list-inside ml-2 space-y-1">
+          <li>
+            <a 
+              href="https://www.google.com/settings/ads" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="underline hover:opacity-80"
+              style={{ color: 'var(--primary)' }}
+            >
+              Google Ads Settings
+            </a>
+          </li>
+          <li>
+            <a 
+              href="https://policies.google.com/privacy" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="underline hover:opacity-80"
+              style={{ color: 'var(--primary)' }}
+            >
+              Google Privacy Policy
+            </a>
+          </li>
+          <li>
+            <a 
+              href="https://www.google.com/adsense/new/localized-terms" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="underline hover:opacity-80"
+              style={{ color: 'var(--primary)' }}
+            >
+              Google AdSense Terms
+            </a>
+          </li>
+        </ul>
+        <p>
+          You can opt out of personalized advertising by visiting{' '}
+          <a 
+            href="https://www.google.com/settings/ads/onweb" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="underline hover:opacity-80"
+            style={{ color: 'var(--primary)' }}
+          >
+            Google&apos;s Ad Settings
+          </a>
+          {' '}or by using browser extensions that block tracking cookies.
         </p>
 
         <h2 className="text-lg font-semibold mt-4" style={{ color: 'var(--text-primary)' }}>
@@ -57,11 +119,27 @@ export default function PrivacyPolicyPage() {
         </p>
 
         <h2 className="text-lg font-semibold mt-4" style={{ color: 'var(--text-primary)' }}>
-          Your Choices
+          Your Choices and Cookie Consent
         </h2>
         <p>
-          You can control cookies through your browser settings and can opt out of personalized advertising from Google
-          and other providers using their respective ad settings pages.
+          When you first visit our website, we will ask for your consent to use cookies, including those used by Google 
+          AdSense. You can choose to accept or decline cookies. If you decline, we will not use cookies for advertising 
+          purposes, but some website features may not function properly.
+        </p>
+        <p>
+          You can control cookies through your browser settings. Most browsers allow you to:
+        </p>
+        <ul className="list-disc list-inside ml-2 space-y-1">
+          <li>See what cookies you have and delete them individually</li>
+          <li>Block third-party cookies</li>
+          <li>Block cookies from specific sites</li>
+          <li>Block all cookies</li>
+          <li>Delete all cookies when you close your browser</li>
+        </ul>
+        <p>
+          You can also opt out of personalized advertising from Google and other providers using their respective ad 
+          settings pages. Please note that opting out does not mean you will not see ads; it means the ads you see may 
+          be less relevant to your interests.
         </p>
 
         <h2 className="text-lg font-semibold mt-4" style={{ color: 'var(--text-primary)' }}>
@@ -81,11 +159,32 @@ export default function PrivacyPolicyPage() {
         </p>
 
         <h2 className="text-lg font-semibold mt-4" style={{ color: 'var(--text-primary)' }}>
+          Data Retention
+        </h2>
+        <p>
+          We retain your personal information only for as long as necessary to provide our services and fulfill the 
+          purposes outlined in this Privacy Policy. We may retain certain information for longer periods if required by 
+          law or for legitimate business purposes.
+        </p>
+
+        <h2 className="text-lg font-semibold mt-4" style={{ color: 'var(--text-primary)' }}>
+          Security
+        </h2>
+        <p>
+          We take reasonable measures to protect your personal information from unauthorized access, use, or disclosure. 
+          However, no method of transmission over the Internet or electronic storage is 100% secure, and we cannot 
+          guarantee absolute security.
+        </p>
+
+        <h2 className="text-lg font-semibold mt-4" style={{ color: 'var(--text-primary)' }}>
           Contact Us
         </h2>
         <p>
-          If you have any questions or concerns about this Privacy Policy, you can contact us through the website
-          contact options or by email if provided on the platform.
+          If you have any questions or concerns about this Privacy Policy, please contact us through our{' '}
+          <a href="/contact" className="underline hover:opacity-80" style={{ color: 'var(--primary)' }}>
+            Contact Us
+          </a>{' '}
+          page. We will respond to your inquiries as soon as possible.
         </p>
       </section>
     </main>

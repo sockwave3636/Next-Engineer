@@ -1,11 +1,13 @@
 "use client";
 
-import { useRef, RefObject, useEffect } from 'react';
+import { useRef, RefObject } from 'react';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from './ThemeToggle';
 import IntroSection from './IntroSection';
 import BlogSlider from './BlogSlider';
 import CourseSelector from './CourseSelector';
+import AdSenseAd from './AdSenseAd';
+import Footer from './Footer';
 import { useAuth } from '../context/AuthContext';
 import { useAuthPrompt } from '../context/AuthPromptContext';
 import Image from 'next/image';
@@ -28,15 +30,6 @@ export default function HomeShell() {
       ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
-
-  useEffect(() => {
-    try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-      // ignore ad init errors (ads won't render in dev or without approval)
-    }
-  }, []);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
@@ -89,16 +82,6 @@ export default function HomeShell() {
         </div>
       </nav>
 
-      {/* AdSense ad slot (ensure data-ad-slot matches your Ad Unit) */}
-      <ins
-        className="adsbygoogle"
-        style={{ display: 'block' }}
-        data-ad-client="ca-pub-2968140045653690"
-        data-ad-slot="1048575234"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      ></ins>
-
       {/* University logo/image, responsive under navbar */}
       <div className="w-full flex justify-center items-center py-2 bg-white">
         <Image
@@ -110,6 +93,18 @@ export default function HomeShell() {
           className="max-h-[200px] w-auto h-auto"
           priority
         />
+      </div>
+
+      {/* AdSense Ad - Top of content (after header) */}
+      <div className="w-full flex justify-center py-4">
+        <div className="w-full max-w-7xl px-4">
+          <AdSenseAd
+            adSlot="1048575234"
+            adFormat="auto"
+            fullWidthResponsive={true}
+            className="w-full"
+          />
+        </div>
       </div>
 
       <main>
@@ -126,7 +121,7 @@ export default function HomeShell() {
       </main>
 
       {/* Support / Payment section + legal links */}
-      <footer className="w-full border-t mt-6 py-6 flex flex-col items-center gap-4 px-4" style={{ borderColor: 'var(--border-color)' }}>
+      <div className="w-full border-t mt-6 py-6 flex flex-col items-center gap-4 px-4" style={{ borderColor: 'var(--border-color)' }}>
         <div className="flex flex-col items-center gap-3 max-w-md text-center">
           <Image
             src="/poi.jpeg"
@@ -153,14 +148,8 @@ export default function HomeShell() {
             Support via UPI (adityanathncert@okaxis)
           </button>
         </div>
-        <div className="text-[11px] sm:text-xs flex flex-wrap justify-center gap-3" style={{ color: 'var(--text-secondary)' }}>
-          <a href="/privacy-policy" className="underline hover:opacity-80">
-            Privacy Policy
-          </a>
-          <span>·</span>
-          <span>This site uses cookies and may show ads through Google AdSense.</span>
-        </div>
-      </footer>
+      </div>
+      <Footer />
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
-import { getCourses, saveCourse, deleteCourse, Course, getSubject, saveSubject, deleteSubject, getAllBlogPosts, saveBlogPost, deleteBlogPost, BlogPost } from '@/lib/firebase/firestore';
+import { getCourses, saveCourse, deleteCourse, Course, getSubject, saveSubject, deleteSubject, getAllBlogPosts, saveBlogPost, deleteBlogPost, BlogPost, getContactMessages, markMessageAsRead, deleteContactMessage, ContactMessage } from '@/lib/firebase/firestore';
 import { uploadNoteFile, getFileSize, uploadBlogMedia } from '@/lib/firebase/storage';
 import { Timestamp } from 'firebase/firestore';
 import ThemeToggle from '../components/ThemeToggle';
@@ -13,7 +13,8 @@ export default function AdminPanel() {
   const router = useRouter();
   const [courses, setCourses] = useState<Record<string, Course>>({});
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'courses' | 'subjects' | 'blogs'>('courses');
+  const [activeTab, setActiveTab] = useState<'courses' | 'subjects' | 'blogs' | 'messages'>('courses');
+  const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedSemester, setSelectedSemester] = useState<string>('');
@@ -59,6 +60,9 @@ export default function AdminPanel() {
       if (activeTab === 'blogs') {
         loadBlogPosts();
       }
+      if (activeTab === 'messages') {
+        loadContactMessages();
+      }
     }
   }, [user, authLoading, router, activeTab]);
 
@@ -79,6 +83,36 @@ export default function AdminPanel() {
       setBlogPosts(posts);
     } catch (error) {
       console.error('Error loading blog posts:', error);
+    }
+  };
+
+  const loadContactMessages = async () => {
+    try {
+      const messages = await getContactMessages();
+      setContactMessages(messages);
+    } catch (error) {
+      console.error('Error loading contact messages:', error);
+    }
+  };
+
+  const handleMarkAsRead = async (messageId: string) => {
+    try {
+      await markMessageAsRead(messageId);
+      await loadContactMessages();
+    } catch (error) {
+      console.error('Error marking message as read:', error);
+      alert('Error marking message as read');
+    }
+  };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!confirm('Are you sure you want to delete this message?')) return;
+    try {
+      await deleteContactMessage(messageId);
+      await loadContactMessages();
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      alert('Error deleting message');
     }
   };
 
@@ -443,6 +477,21 @@ export default function AdminPanel() {
               }
             >
               Manage Blogs/Notices
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('messages');
+                loadContactMessages();
+              }}
+              className={`px-4 sm:px-6 py-2 rounded-lg font-medium transition-all duration-200 text-sm sm:text-base ${
+                activeTab === 'messages' ? 'shadow-md' : ''
+              }`}
+              style={activeTab === 'messages'
+                ? { backgroundColor: 'var(--primary)', color: '#ffffff' }
+                : { backgroundColor: 'var(--background)', color: 'var(--text-secondary)' }
+              }
+            >
+              Contact Messages {contactMessages.length > 0 && contactMessages.filter(m => !m.read).length > 0 && `(${contactMessages.filter(m => !m.read).length})`}
             </button>
           </div>
 
@@ -1102,6 +1151,94 @@ export default function AdminPanel() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === 'messages' && (
+          <div>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4">
+              <h2 className="text-lg sm:text-xl font-bold transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>
+                Contact Messages
+              </h2>
+              <button
+                onClick={loadContactMessages}
+                className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+                style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
+              >
+                Refresh
+              </button>
+            </div>
+
+            {contactMessages.length === 0 ? (
+              <div className="text-center py-8 transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>
+                No messages yet.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {contactMessages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`border-2 rounded-lg p-4 transition-colors duration-200 ${
+                      !message.read ? 'border-l-4' : ''
+                    }`}
+                    style={{
+                      borderColor: message.read ? 'var(--accent)' : 'var(--primary)',
+                      backgroundColor: message.read ? 'var(--background)' : 'var(--secondary)',
+                    }}
+                  >
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-base sm:text-lg font-semibold transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>
+                            {message.subject}
+                          </h3>
+                          {!message.read && (
+                            <span className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}>
+                              New
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>
+                          <p><strong>From:</strong> {message.name} ({message.email})</p>
+                          <p className="mt-1">
+                            <strong>Date:</strong> {message.createdAt?.toMillis ? new Date(message.createdAt.toMillis()).toLocaleString() : 'N/A'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        {!message.read && (
+                          <button
+                            onClick={() => handleMarkAsRead(message.id)}
+                            className="text-xs sm:text-sm px-3 py-1 rounded transition-all duration-200"
+                            style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-hover)'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
+                          >
+                            Mark as Read
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDeleteMessage(message.id)}
+                          className="text-xs sm:text-sm px-3 py-1 rounded transition-all duration-200"
+                          style={{ backgroundColor: 'var(--error)', color: '#ffffff' }}
+                          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-3 pt-3 border-t transition-colors duration-200" style={{ borderColor: 'var(--border-color)' }}>
+                      <p className="text-sm sm:text-base whitespace-pre-wrap transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>
+                        {message.message}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

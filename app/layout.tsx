@@ -5,6 +5,7 @@ import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthPromptProvider } from "./context/AuthPromptContext";
+import CookieConsent from "./components/CookieConsent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,8 +18,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Learn Platform",
-  description: "Access your courses and study materials",
+  title: "Next Engineer - Engineering Study Materials & Resources",
+  description: "Access comprehensive engineering courses, study materials, and resources for Dr. A.P.J. Abdul Kalam Technical University, Uttar Pradesh. Get notes, articles, and exam preparation materials.",
+  keywords: "engineering, study materials, AKTU, technical university, engineering courses, exam preparation, notes, resources",
+  authors: [{ name: "Next Engineer" }],
+  openGraph: {
+    title: "Next Engineer - Engineering Study Materials & Resources",
+    description: "Access comprehensive engineering courses, study materials, and resources",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -38,6 +46,7 @@ export default function RootLayout({
           <AuthProvider>
             <AuthPromptProvider>
               {children}
+              <CookieConsent />
             </AuthPromptProvider>
           </AuthProvider>
         </ThemeProvider>

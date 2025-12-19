@@ -28,6 +28,20 @@ service cloud.firestore {
       allow write: if request.auth != null && 
                      request.auth.token.email == 'aahabhisheksingh@gmail.com';
     }
+    
+    // Contact messages - anyone can create (no auth required), only owner can read/update/delete
+    match /contactMessages/{messageId} {
+      // Allow anyone to create contact messages (no authentication required)
+      allow create: if request.resource.data.name is string &&
+                      request.resource.data.email is string &&
+                      request.resource.data.subject is string &&
+                      request.resource.data.message is string &&
+                      request.resource.data.createdAt is timestamp &&
+                      request.resource.data.read == false;
+      // Only owner can read, update, or delete messages
+      allow read, update, delete: if request.auth != null && 
+                                     request.auth.token.email == 'aahabhisheksingh@gmail.com';
+    }
   }
 }
 ```
