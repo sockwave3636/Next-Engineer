@@ -133,28 +133,7 @@ export default function HomeShell() {
           <p className="text-xs sm:text-sm" style={{ color: 'var(--text-secondary)' }}>
           Every bit of small UPI contribution will motivate us to bring better resources for your upcoming exams 🤍
           </p>
-          <button
-            onClick={async () => {
-              const upiId = 'adityanathncert@okaxis';
-              try {
-                await navigator.clipboard.writeText(upiId);
-                alert('UPI ID copied to clipboard!');
-              } catch (err) {
-                // fallback: create a temporary input 
-                const input = document.createElement('input');
-                input.value = upiId;
-                document.body.appendChild(input);
-                input.select();
-                document.execCommand('copy');
-                document.body.removeChild(input);
-                alert('UPI ID copied to clipboard!');
-              }
-            }}
-            className="px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-200"
-            style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
-          >
-            Copy UPI ID to Clipboard (adityanathncert@okaxis)
-          </button>
+          
         </div>
       </div>
       <Footer />
