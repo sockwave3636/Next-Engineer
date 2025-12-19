@@ -96,7 +96,7 @@ export default function HomeShell() {
       </div>
 
       {/* AdSense Ad - Top of content (after header) */}
-      <div className="w-full flex justify-center py-4">
+      {/* <div className="w-full flex justify-center py-4">
         <div className="w-full max-w-7xl px-4">
           <AdSenseAd
             adSlot="1048575234"
@@ -105,7 +105,7 @@ export default function HomeShell() {
             className="w-full"
           />
         </div>
-      </div>
+      </div> */}
 
       <main>
         <IntroSection
@@ -134,18 +134,26 @@ export default function HomeShell() {
           Every bit of small UPI contribution will motivate us to bring better resources for your upcoming exams 🤍
           </p>
           <button
-            onClick={() => {
-              const upiUrl =
-                'upi://pay?pa=adityanathncert@okaxis&pn=Next%20Engineer&cu=INR';
-              // Use window.location for mobile apps, fallback to opening new tab
-              if (typeof window !== 'undefined') {
-                window.location.href = upiUrl;
+            onClick={async () => {
+              const upiId = 'adityanathncert@okaxis';
+              try {
+                await navigator.clipboard.writeText(upiId);
+                alert('UPI ID copied to clipboard!');
+              } catch (err) {
+                // fallback: create a temporary input 
+                const input = document.createElement('input');
+                input.value = upiId;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                alert('UPI ID copied to clipboard!');
               }
             }}
             className="px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-200"
             style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
           >
-            Support via UPI (adityanathncert@okaxis)
+            Copy UPI ID to Clipboard (adityanathncert@okaxis)
           </button>
         </div>
       </div>
