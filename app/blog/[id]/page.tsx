@@ -15,6 +15,7 @@ function BlogDetailContent() {
   const { openAuthPrompt } = useAuthPrompt();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const postId = params?.id as string;
 
@@ -140,22 +141,25 @@ function BlogDetailContent() {
           {post.mediaType === 'image' && (post.mediaUrls?.length || post.mediaUrl) && (
             <div className="w-full">
               {/* Primary image */}
-              <div className="w-full h-full ">
+              <div className="w-full h-full">
                 <img
-                  src={post.mediaUrls?.[0] || post.mediaUrl!}
+                  src={selectedImage || post.mediaUrls?.[0] || post.mediaUrl!}
                   alt={post.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-all duration-200 rounded-md"
+                  style={{ maxHeight: 280, objectFit: 'contain', background: '#fff' }}
                 />
               </div>
               {/* Thumbnails if multiple images */}
               {post.mediaUrls && post.mediaUrls.length > 1 && (
-                <div className="flex gap-2 p-3 overflow-x-auto bg-black/5">
+                <div className="flex gap-2 p-3 overflow-x-auto bg-black/5 mt-2">
                   {post.mediaUrls.map((url, index) => (
                     <img
                       key={index}
                       src={url}
                       alt={`${post.title} ${index + 1}`}
-                      className="h-16 w-24 object-cover rounded border"
+                      onClick={() => setSelectedImage(url)}
+                      className={`h-16 w-24 object-cover rounded border transition-all duration-200 cursor-pointer ${selectedImage === url ? 'ring-2 ring-primary border-primary' : 'hover:opacity-80'}`}
+                      style={{ borderColor: selectedImage === url ? 'var(--primary)' : '' }}
                     />
                   ))}
                 </div>
