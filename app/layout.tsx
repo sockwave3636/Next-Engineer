@@ -36,12 +36,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>  
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968140045653690"
+     crossOrigin="anonymous" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Script
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968140045653690"
-          strategy="afterInteractive"
-          crossOrigin="anonymous">
-        </Script>
+        
         <ThemeProvider>
           <AuthProvider>
             <AuthPromptProvider>
