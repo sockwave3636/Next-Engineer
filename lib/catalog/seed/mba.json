@@ -1,0 +1,76 @@
+{
+  "programId": "mba",
+  "note": "MBA (common): 1st year from the 2024-25 scheme, 2nd year from the 2025-26 scheme. Students pick two specialization groups in the 2nd year: three electives from each in semester 3 and two from each in semester 4.",
+  "sources": [
+    "https://fms.aktu.ac.in/Resources/aktu/pdf/syllabus/Syllabus2425/MBA Common First Year Syllabus _2024-25.pdf",
+    "https://fms.aktu.ac.in/Resources/aktu/pdf/syllabus/Syllabus2526/MBA Second Year (Common) Syllabus_2025-26_V3.pdf"
+  ],
+  "semesters": {
+    "1": [
+      { "code": "BMB101", "name": "Management Concepts and Organisational Behaviour", "credits": 3 },
+      { "code": "BMB102", "name": "Managerial Economics", "credits": 3 },
+      { "code": "BMB103", "name": "Financial Accounting and Analysis", "credits": 3 },
+      { "code": "BMB104", "name": "Business Statistics & Analytics", "credits": 3 },
+      { "code": "BMB105", "name": "Marketing Management", "credits": 3 },
+      { "code": "BMB106", "name": "Creativity, Innovation and Entrepreneurship", "credits": 2 },
+      { "code": "BMB107", "name": "Business Communication", "credits": 3 },
+      { "code": "BMB151", "name": "IT Skills-1", "credits": 3, "kind": "practical" },
+      { "code": "BMB152", "name": "Mini Project-1 (Scanning of Ideas for Opportunities)", "credits": 3, "kind": "project" }
+    ],
+    "2": [
+      { "code": "BMB201", "name": "Business Environment & Legal Aspects of Business", "credits": 3 },
+      { "code": "BMB202", "name": "Human Resource Management", "credits": 3 },
+      { "code": "BMB203", "name": "Business Research Methods", "credits": 3 },
+      { "code": "BMB204", "name": "Financial Management and Corporate Finance", "credits": 3 },
+      { "code": "BMB205", "name": "Operations Management", "credits": 3 },
+      { "code": "BMB206", "name": "Quantitative Techniques for Managers", "credits": 3 },
+      { "code": "BMB207", "name": "Cost and Management Accounting", "credits": 3 },
+      { "code": "BMB208", "name": "Management Information Systems", "credits": 3 },
+      { "code": "BMB251", "name": "IT Skills-2", "credits": 1, "kind": "practical" },
+      { "code": "BMB252", "name": "Mini Project-2 (Business Ideas Validation & Feasibility)", "credits": 2, "kind": "project" }
+    ],
+    "3": [
+      { "code": "BMB301", "name": "Strategic Management", "credits": 3 },
+      { "code": "BMB308", "name": "Summer Training Project Report & Viva Voce", "credits": 4, "kind": "project" },
+      { "code": "BMBMK01", "name": "Consumer Behaviour and Neuro Marketing", "credits": 3, "kind": "elective", "group": "Marketing" },
+      { "code": "BMBMK02", "name": "Marketing & Web Analytics", "credits": 3, "kind": "elective", "group": "Marketing" },
+      { "code": "BMBMK03", "name": "Sales and Distribution Management", "credits": 3, "kind": "elective", "group": "Marketing" },
+      { "code": "BMBHR01", "name": "Talent Acquisition Management", "credits": 3, "kind": "elective", "group": "Human Resource Management" },
+      { "code": "BMBHR02", "name": "Employee Relations and Labour Laws", "credits": 3, "kind": "elective", "group": "Human Resource Management" },
+      { "code": "BMBHR03", "name": "Performance and Reward Management", "credits": 3, "kind": "elective", "group": "Human Resource Management" },
+      { "code": "BMBFM01", "name": "Investment and Portfolio Management", "credits": 3, "kind": "elective", "group": "Financial Management" },
+      { "code": "BMBFM02", "name": "Tax Planning and Management", "credits": 3, "kind": "elective", "group": "Financial Management" },
+      { "code": "BMBFM03", "name": "Financial and Credit Risk Analysis", "credits": 3, "kind": "elective", "group": "Financial Management" },
+      { "code": "BMBOM01", "name": "Supply Chain and Logistics Management", "credits": 3, "kind": "elective", "group": "Operations Management" },
+      { "code": "BMBOM02", "name": "Business Process Reengineering", "credits": 3, "kind": "elective", "group": "Operations Management" },
+      { "code": "BMBOM03", "name": "Quality Management", "credits": 3, "kind": "elective", "group": "Operations Management" },
+      { "code": "BMBIB01", "name": "International Business Management", "credits": 3, "kind": "elective", "group": "International Business" },
+      { "code": "BMBIB02", "name": "Export Import Documentation", "credits": 3, "kind": "elective", "group": "International Business" },
+      { "code": "BMBIB03", "name": "Geo-Politics and Trade", "credits": 3, "kind": "elective", "group": "International Business" },
+      { "code": "BMBIT01", "name": "Software Engineering and Management", "credits": 3, "kind": "elective", "group": "Information Technology" },
+      { "code": "BMBIT02", "name": "Emerging Technologies for Business", "credits": 3, "kind": "elective", "group": "Information Technology" },
+      { "code": "BMBIT03", "name": "Database Management System", "credits": 3, "kind": "elective", "group": "Information Technology" },
+      { "code": "BMBCM01", "name": "Principles and Practices of Co-operation", "credits": 3, "kind": "elective", "group": "Cooperative Management" },
+      { "code": "BMBCM02", "name": "Co-operative Legislation", "credits": 3, "kind": "elective", "group": "Cooperative Management" },
+      { "code": "BMBCM03", "name": "Credit Co-operatives", "credits": 3, "kind": "elective", "group": "Cooperative Management" }
+    ],
+    "4": [
+      { "id": "mba-bve401", "code": "BVE401", "name": "Universal Human Values and Professional Ethics", "credits": 3 },
+      { "code": "BMB406", "name": "Research Project Report & Viva Voce", "credits": 10, "kind": "project" },
+      { "code": "BMBMK04", "name": "Services & Retail Marketing", "credits": 3, "kind": "elective", "group": "Marketing" },
+      { "code": "BMBMK05", "name": "B2B Marketing", "credits": 3, "kind": "elective", "group": "Marketing" },
+      { "code": "BMBHR04", "name": "HR Analytics", "credits": 3, "kind": "elective", "group": "Human Resource Management" },
+      { "code": "BMBHR05", "name": "Organizational Change and Development", "credits": 3, "kind": "elective", "group": "Human Resource Management" },
+      { "code": "BMBFM04", "name": "Behavioural Finance", "credits": 3, "kind": "elective", "group": "Financial Management" },
+      { "code": "BMBFM05", "name": "Strategic Financial Management", "credits": 3, "kind": "elective", "group": "Financial Management" },
+      { "code": "BMBOM04", "name": "Service Operations Management", "credits": 3, "kind": "elective", "group": "Operations Management" },
+      { "code": "BMBOM05", "name": "Project and Sourcing Management", "credits": 3, "kind": "elective", "group": "Operations Management" },
+      { "code": "BMBIB04", "name": "Managing Global Supply Chains", "credits": 3, "kind": "elective", "group": "International Business" },
+      { "code": "BMBIB05", "name": "International Finance", "credits": 3, "kind": "elective", "group": "International Business" },
+      { "code": "BMBIT04", "name": "E-Business", "credits": 3, "kind": "elective", "group": "Information Technology" },
+      { "code": "BMBIT05", "name": "Business Data Warehousing and Data Mining", "credits": 3, "kind": "elective", "group": "Information Technology" },
+      { "code": "BMBCM04", "name": "Non-Credit Co-operatives", "credits": 3, "kind": "elective", "group": "Cooperative Management" },
+      { "code": "BMBCM05", "name": "Co-operative Accounting & Audit", "credits": 3, "kind": "elective", "group": "Cooperative Management" }
+    ]
+  }
+}

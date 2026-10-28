@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+
 interface AdSenseAdProps {
   adSlot: string;
   adFormat?: string;
@@ -74,8 +76,8 @@ export default function AdSenseAd({
     };
   }, []);
 
-  // Don't render ad if user hasn't consented
-  if (!hasConsent) {
+  // Don't render ad if user hasn't consented or AdSense isn't configured
+  if (!hasConsent || !ADSENSE_CLIENT_ID) {
     return null;
   }
 
@@ -84,7 +86,7 @@ export default function AdSenseAd({
       <ins
         className="adsbygoogle"
         style={{ display: 'block' }}
-        data-ad-client="ca-pub-2968140045653690"
+        data-ad-client={ADSENSE_CLIENT_ID}
         data-ad-slot={adSlot}
         data-ad-format={adFormat}
         data-full-width-responsive={fullWidthResponsive ? 'true' : 'false'}

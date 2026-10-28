@@ -1,0 +1,67 @@
+{
+  "programId": "bca",
+  "note": "BCA (3-year): 1st and 2nd year from the 2025-26 schemes, 3rd year from the 2026-27 scheme. The non-credit Elementary Mathematics bridge course (BBC107/BBC207) is left out.",
+  "sources": [
+    "https://fms.aktu.ac.in/Resources/aktu/pdf/syllabus/Syllabus2526/BCA 1st Year Syllabus 2025-26 updated.pdf",
+    "https://fms.aktu.ac.in/Resources/aktu/pdf/syllabus/Syllabus2526/BCA 2nd Year Syllabus 2025-26.pdf",
+    "https://fms.aktu.ac.in/Resources/aktu/pdf/syllabus/Syllabus2627/Syllabus of BCA_Third_Year_2026-27.pdf"
+  ],
+  "semesters": {
+    "1": [
+      { "code": "BBC101", "name": "Fundamentals of Computer", "credits": 4 },
+      { "code": "BBC102", "name": "Information Systems", "credits": 3 },
+      { "code": "BBC103", "name": "Problem Solving Using C", "credits": 4 },
+      { "code": "BBC104", "name": "Communication Skills", "credits": 3 },
+      { "code": "BBC105", "name": "Environment and Ecology", "credits": 3 },
+      { "code": "BBC151", "name": "Problem Solving Using C Lab", "credits": 2, "kind": "practical" },
+      { "code": "BBC152", "name": "Communication Skills Lab", "credits": 2, "kind": "practical" }
+    ],
+    "2": [
+      { "code": "BBC201", "name": "Digital Electronics", "credits": 4 },
+      { "code": "BBC202", "name": "Discrete Mathematics", "credits": 4 },
+      { "code": "BBC203", "name": "Data Structure", "credits": 4 },
+      { "code": "BBC204", "name": "Professional Communication", "credits": 3 },
+      { "code": "BBC205A", "name": "Mathematical Foundation", "credits": 4 },
+      { "code": "BBC251", "name": "Data Structure Lab", "credits": 2, "kind": "practical" },
+      { "code": "BBC252", "name": "Professional Communication Lab", "credits": 2, "kind": "practical" }
+    ],
+    "3": [
+      { "code": "BBC301", "name": "Object Oriented Programming in C++", "credits": 4 },
+      { "code": "BBC302", "name": "Web Technology", "credits": 4 },
+      { "code": "BBC303", "name": "Business Communication", "credits": 3 },
+      { "code": "BBC304", "name": "Computer Organization", "credits": 4 },
+      { "id": "bca-bve301", "code": "BVE301", "name": "Universal Human Values and Professional Ethics", "credits": 3 },
+      { "code": "BBC351", "name": "Object Oriented Programming in C++ Lab", "credits": 2, "kind": "practical" },
+      { "code": "BBC352", "name": "Web Technology Lab", "credits": 2, "kind": "practical" }
+    ],
+    "4": [
+      { "code": "BBC401", "name": "Java Programming", "credits": 4 },
+      { "code": "BBC402", "name": "Database Management Systems", "credits": 4 },
+      { "code": "BBC403", "name": "Operating Systems", "credits": 4 },
+      { "code": "BBC404", "name": "Technical Communication", "credits": 3 },
+      { "code": "BBC405", "name": "Indian Tradition, Culture and Society", "credits": 3 },
+      { "code": "BBC451", "name": "Java Programming Lab", "credits": 2, "kind": "practical" },
+      { "code": "BBC452", "name": "Database Management Systems Lab", "credits": 2, "kind": "practical" }
+    ],
+    "5": [
+      { "code": "BBC501", "name": "Artificial Intelligence & Machine Learning", "credits": 3 },
+      { "code": "BBC502", "name": "Python Programming", "credits": 3 },
+      { "code": "BBC503", "name": "Computer Networks", "credits": 3 },
+      { "code": "BBC504", "name": "Software Project Management", "credits": 2 },
+      { "code": "BBC551", "name": "Artificial Intelligence & Machine Learning Lab", "credits": 1, "kind": "practical" },
+      { "code": "BBC552", "name": "Mini Project Lab", "credits": 2, "kind": "project" },
+      { "code": "BBC011", "name": "Cryptography & Network Security", "credits": 2, "kind": "elective", "group": "Elective-I" },
+      { "code": "BBC012", "name": "Internet of Things", "credits": 2, "kind": "elective", "group": "Elective-I" },
+      { "code": "BBC013", "name": "Theory of Computation", "credits": 2, "kind": "elective", "group": "Elective-I" },
+      { "code": "BBC014", "name": "Cloud Computing", "credits": 2, "kind": "elective", "group": "Elective-I" },
+      { "code": "BBC015", "name": "Distributed DBMS", "credits": 2, "kind": "elective", "group": "Elective-I" }
+    ],
+    "6": [
+      { "code": "BBC601", "name": "Cyber Security", "credits": 2 },
+      { "code": "BBC602", "name": "Digital Marketing", "credits": 2 },
+      { "code": "BBC603", "name": "Software Testing & Quality Assurance", "credits": 3 },
+      { "code": "BBC651", "name": "Startup and Entrepreneurial Activity Assessment", "credits": 2, "kind": "project" },
+      { "code": "BBC652", "name": "Project", "credits": 7, "kind": "project" }
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "programId": "bba",
+  "note": "BBA (3-year): 1st year from the 2024-25 scheme, 2nd year from the revised 2025-26 scheme, 3rd year from the 2026-27 scheme. In the 3rd year students choose one specialization and take two of its electives each semester.",
+  "sources": [
+    "https://fms.aktu.ac.in/Resources/aktu/pdf/syllabus/Syllabus2425/Bachelor of Business Administration (BBA) First Yr 2024-25.pdf",
+    "https://fms.aktu.ac.in/Resources/aktu/pdf/syllabus/Syllabus2526/BBA Second Year Syllabus_2025-26_Revised.pdf",
+    "https://fms.aktu.ac.in/Resources/aktu/pdf/syllabus/Syllabus2627/BBA_Third_Year_Syllabus_2026-27.pdf"
+  ],
+  "semesters": {
+    "1": [
+      { "code": "BBA101", "name": "Principles of Management", "credits": 3 },
+      { "code": "BBA102", "name": "Business Mathematics", "credits": 3 },
+      { "code": "BBA103", "name": "Financial Accounting", "credits": 3 },
+      { "code": "BBA104", "name": "Business Communication", "credits": 3 },
+      { "code": "BBA105", "name": "Business English", "credits": 3 },
+      { "code": "BBA106", "name": "IT Application-I", "credits": 3 },
+      { "code": "BBA107", "name": "Environmental Science", "credits": 3 }
+    ],
+    "2": [
+      { "code": "BBA201", "name": "Organizational Behaviour", "credits": 3 },
+      { "code": "BBA202", "name": "Principles of Economics", "credits": 3 },
+      { "code": "BBA203", "name": "Management Accounting", "credits": 3 },
+      { "code": "BBA204", "name": "Soft Skills-I", "credits": 3 },
+      { "code": "BBA205", "name": "Basics of Statistics", "credits": 3 },
+      { "code": "BBA206", "name": "IT Application-II", "credits": 3 },
+      { "code": "BBA207", "name": "Indian Constitution", "credits": 3 }
+    ],
+    "3": [
+      { "code": "BBA301", "name": "Human Resource Management", "credits": 3 },
+      { "code": "BBA302", "name": "Financial Management", "credits": 3 },
+      { "code": "BBA303", "name": "Marketing Management-I", "credits": 3 },
+      { "code": "BBA304", "name": "Quantitative Techniques", "credits": 3 },
+      { "code": "BBA305", "name": "Soft Skills-II", "credits": 3 },
+      { "code": "BBA306", "name": "Customer Relationship Management", "credits": 3 },
+      { "code": "BBA307", "name": "Holistic Health & Happiness", "credits": 3 }
+    ],
+    "4": [
+      { "code": "BBA401", "name": "Business Law", "credits": 3 },
+      { "code": "BBA402", "name": "Production and Operation Management", "credits": 3 },
+      { "code": "BBA403", "name": "Business Environment", "credits": 3 },
+      { "code": "BBA404", "name": "Design Thinking & Innovation", "credits": 3 },
+      { "code": "BBA405", "name": "Business Organisation", "credits": 3 },
+      { "code": "BBA406", "name": "Marketing Management-II", "credits": 3 },
+      { "code": "BBA407", "name": "Human Values", "credits": 3 }
+    ],
+    "5": [
+      { "code": "BBA501", "name": "Introduction to Research Methodology", "credits": 3 },
+      { "code": "BBA502", "name": "Logistics and Supply Chain Management", "credits": 3 },
+      { "code": "BBA503", "name": "Fundamentals of Consumer Behaviour", "credits": 3 },
+      { "code": "BBA504", "name": "Foundations of Analytics and Artificial Intelligence", "credits": 3 },
+      { "code": "BBA551", "name": "Analytics and AI Lab-1", "credits": 1, "kind": "practical" },
+      { "code": "BBA507", "name": "Internship", "credits": 3, "kind": "project" },
+      { "code": "BBAMK01", "name": "Digital Marketing", "credits": 3, "kind": "elective", "group": "Marketing" },
+      { "code": "BBAMK02", "name": "Marketing of Services", "credits": 3, "kind": "elective", "group": "Marketing" },
+      { "code": "BBAMK03", "name": "Industrial Marketing", "credits": 3, "kind": "elective", "group": "Marketing" },
+      { "code": "BBAFM01", "name": "Investment Analysis and Portfolio Management", "credits": 3, "kind": "elective", "group": "Finance" },
+      { "code": "BBAFM02", "name": "Financial Markets, Products and Services", "credits": 3, "kind": "elective", "group": "Finance" },
+      { "code": "BBAFM03", "name": "Financial Analytics", "credits": 3, "kind": "elective", "group": "Finance" },
+      { "code": "BBAHR01", "name": "Industrial Relations and Labour Laws", "credits": 3, "kind": "elective", "group": "Human Resource Management" },
+      { "code": "BBAHR02", "name": "Performance Management", "credits": 3, "kind": "elective", "group": "Human Resource Management" },
+      { "code": "BBAHR03", "name": "HR Analytics", "credits": 3, "kind": "elective", "group": "Human Resource Management" },
+      { "code": "BBABA01", "name": "Introduction to Business Analytics", "credits": 3, "kind": "elective", "group": "Business Analytics" },
+      { "code": "BBABA02", "name": "Data Analytics Using R", "credits": 3, "kind": "elective", "group": "Business Analytics" },
+      { "code": "BBABA03", "name": "Data Visualization and Storytelling", "credits": 3, "kind": "elective", "group": "Business Analytics" },
+      { "code": "BBAIB01", "name": "International Trade Policy and Strategy", "credits": 3, "kind": "elective", "group": "International Business" },
+      { "code": "BBAIB02", "name": "International Supply Chain Management", "credits": 3, "kind": "elective", "group": "International Business" },
+      { "code": "BBAIB03", "name": "Export-Import Policy and Documentation", "credits": 3, "kind": "elective", "group": "International Business" }
+    ],
+    "6": [
+      { "code": "BBA601", "name": "Business Policy and Strategy", "credits": 3 },
+      { "code": "BBA602", "name": "Entrepreneurship Development", "credits": 3 },
+      { "code": "BBA603", "name": "Corporate Governance & Business Ethics", "credits": 3 },
+      { "code": "BBA604", "name": "Business Taxation", "credits": 3 },
+      { "code": "BBA651", "name": "Analytics and AI Lab-2", "credits": 1, "kind": "practical" },
+      { "code": "BBA607", "name": "Dissertation", "credits": 3, "kind": "project" },
+      { "code": "BBAMK04", "name": "Rural Marketing", "credits": 3, "kind": "elective", "group": "Marketing" },
+      { "code": "BBAMK05", "name": "Integrated Marketing Communication and Brand Management", "credits": 3, "kind": "elective", "group": "Marketing" },
+      { "code": "BBAMK06", "name": "Sales and Distribution Management", "credits": 3, "kind": "elective", "group": "Marketing" },
+      { "code": "BBAFM04", "name": "Introduction to Financial Derivatives", "credits": 3, "kind": "elective", "group": "Finance" },
+      { "code": "BBAFM05", "name": "Introduction to Corporate Finance", "credits": 3, "kind": "elective", "group": "Finance" },
+      { "code": "BBAFM06", "name": "Fundamentals of Financial Modelling", "credits": 3, "kind": "elective", "group": "Finance" },
+      { "code": "BBAHR04", "name": "Negotiation Skills", "credits": 3, "kind": "elective", "group": "Human Resource Management" },
+      { "code": "BBAHR05", "name": "Talent Acquisition and Management", "credits": 3, "kind": "elective", "group": "Human Resource Management" },
+      { "code": "BBAHR06", "name": "Employee Life Cycle Management", "credits": 3, "kind": "elective", "group": "Human Resource Management" },
+      { "code": "BBABA04", "name": "Data Analytics with Python", "credits": 3, "kind": "elective", "group": "Business Analytics" },
+      { "code": "BBABA05", "name": "Social Media & Web Analytics", "credits": 3, "kind": "elective", "group": "Business Analytics" },
+      { "code": "BBABA06", "name": "Introduction to Predictive Analytics", "credits": 3, "kind": "elective", "group": "Business Analytics" },
+      { "code": "BBAIB04", "name": "International Ventures, Mergers and Acquisitions", "credits": 3, "kind": "elective", "group": "International Business" },
+      { "code": "BBAIB05", "name": "Global Business Environment", "credits": 3, "kind": "elective", "group": "International Business" },
+      { "code": "BBAIB06", "name": "Transnational and Cross-Cultural Marketing", "credits": 3, "kind": "elective", "group": "International Business" }
+    ]
+  }
+}

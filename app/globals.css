@@ -1,40 +1,355 @@
 @import "tailwindcss";
 
-/* Light Theme (Default) - Purple/Lavender Palette */
+/* dark: utilities follow the in-app theme toggle, not the OS setting */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* "Next Engineer System" from Stitch: engineering cobalt, amber for passes and locks,
+   emerald for credits and success, on cool lavender-slate surfaces */
 :root {
-  --background: #F5EFFF;
-  --foreground: #1a1a1a;
-  --primary: #A594F9;
-  --primary-hover: #8B7AE8;
-  --secondary: #E5D9F2;
-  --accent: #CDC1FF;
-  --text-primary: #1a1a1a;
-  --text-secondary: #4a4a4a;
-  --border: #CDC1FF;
-  --error: #dc3545;
-  --success: #28a745;
+  color-scheme: light;
+  --page: #faf8ff;
+  --surface: #ffffff;
+  --surface-muted: #f2f3ff;
+  --surface-strong: #eaedff;
+  --line: #e2e6f0;
+  --line-strong: #cbd2e1;
+  --ink: #131b2e;
+  --ink-muted: #434655;
+  --ink-faint: #6b6e80;
+
+  --brand: #1d4ed8;
+  --brand-hover: #1e40af;
+  --brand-bright: #3b82f6;
+  --brand-soft: #e3e8ff;
+  --brand-ink: #0039b5;
+  --on-brand: #ffffff;
+
+  --leaf: #047857;
+  --leaf-soft: #e3f8ee;
+  --leaf-ink: #065f46;
+  --sun: #f59e0b;
+  --on-sun: #1f1300;
+  --sun-soft: #fef3c7;
+  --sun-ink: #92400e;
+  --berry-soft: #f1e8ff;
+  --berry-ink: #6b21a8;
+  --sky-soft: #e0f2fe;
+  --sky-ink: #075985;
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+  --danger-ink: #991b1b;
+
+  --elev-soft: 0 1px 3px 0 rgb(15 23 42 / 0.04), 0 1px 2px -1px rgb(15 23 42 / 0.03);
+  --elev-lift: 0 8px 20px -4px rgb(29 78 216 / 0.1), 0 4px 6px -2px rgb(15 23 42 / 0.04);
+  --elev-float: 0 20px 25px -5px rgb(15 23 42 / 0.15), 0 8px 10px -6px rgb(15 23 42 / 0.08);
+
+  /* Legacy names still used by a few components */
+  --background: var(--page);
+  --foreground: var(--ink);
+  --primary: var(--brand);
+  --primary-hover: var(--brand-hover);
+  --secondary: var(--surface);
+  --accent: var(--brand-soft);
+  --text-primary: var(--ink);
+  --text-secondary: var(--ink-muted);
+  --border: var(--line);
+  --border-color: var(--line);
+  --error: var(--danger);
+  --success: var(--leaf);
 }
 
-/* Dark Theme - Modern Deep Blue/Gray Palette */
+/* Slate dark mode for late-night revision */
 [data-theme="dark"] {
-  --background: #050816;          /* almost-black deep blue */
-  --foreground: #f9fafb;          /* main body text */
-  --primary: #3b82f6;             /* bright blue accent */
-  --primary-hover: #2563eb;       /* slightly darker on hover */
-  --secondary: #020617;           /* navbar / cards background */
-  --accent: #1f2937;              /* subtle card borders / chips */
-  --text-primary: #f9fafb;        /* primary text on dark */
-  --text-secondary: #9ca3af;      /* muted text */
-  --border: #1f2937;              /* border color */
-  --error: #f97373;               /* soft red */
-  --success: #4ade80;             /* soft green */
+  color-scheme: dark;
+  --page: #0f172a;
+  --surface: #1e293b;
+  --surface-muted: #243146;
+  --surface-strong: #2c3b53;
+  --line: #334155;
+  --line-strong: #475569;
+  --ink: #f1f5f9;
+  --ink-muted: #aab4c6;
+  --ink-faint: #8090a6;
+
+  /* Light cobalt reads well as text on slate; buttons on it use dark text */
+  --brand: #60a5fa;
+  --brand-hover: #93c5fd;
+  --brand-bright: #3b82f6;
+  --brand-soft: #1c2c55;
+  --brand-ink: #bfdbfe;
+  --on-brand: #0b1533;
+
+  --leaf: #34d399;
+  --leaf-soft: #0b3a2d;
+  --leaf-ink: #6ee7b7;
+  --sun: #fbbf24;
+  --on-sun: #1f1300;
+  --sun-soft: #3d2b07;
+  --sun-ink: #fcd34d;
+  --berry-soft: #2e1a47;
+  --berry-ink: #d8b4fe;
+  --sky-soft: #0c2a3d;
+  --sky-ink: #7dd3fc;
+  --danger: #f87171;
+  --danger-soft: #3b1414;
+  --danger-ink: #fca5a5;
+
+  --elev-soft: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.25);
+  --elev-lift: 0 8px 20px -4px rgb(0 0 0 / 0.45), 0 4px 6px -2px rgb(0 0 0 / 0.3);
+  --elev-float: 0 20px 25px -5px rgb(0 0 0 / 0.55), 0 8px 10px -6px rgb(0 0 0 / 0.4);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-strong: var(--surface-strong);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-bright: var(--brand-bright);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-ink: var(--brand-ink);
+  --color-on-brand: var(--on-brand);
+  --color-leaf: var(--leaf);
+  --color-leaf-soft: var(--leaf-soft);
+  --color-leaf-ink: var(--leaf-ink);
+  --color-sun: var(--sun);
+  --color-on-sun: var(--on-sun);
+  --color-sun-soft: var(--sun-soft);
+  --color-sun-ink: var(--sun-ink);
+  --color-berry-soft: var(--berry-soft);
+  --color-berry-ink: var(--berry-ink);
+  --color-sky-soft: var(--sky-soft);
+  --color-sky-ink: var(--sky-ink);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-ink: var(--danger-ink);
+  --shadow-soft: var(--elev-soft);
+  --shadow-lift: var(--elev-lift);
+  --shadow-float: var(--elev-float);
+  /* Inter for reading, Plus Jakarta Sans for headings and prices, JetBrains Mono for subject codes */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* @theme inline doesn't emit --font-sans/--font-display as variables, so base styles
+     point at the next/font variables set on <body> directly */
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  ::selection {
+    background: var(--brand-soft);
+    color: var(--brand-ink);
+  }
+
+  /* Matches Google's own class, in case the icon stylesheet loads after this one */
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .card {
+    @apply rounded-2xl border border-line bg-surface shadow-soft;
+  }
+
+  .card-pad {
+    @apply p-5 sm:p-6;
+  }
+
+  .card-hover {
+    @apply transition duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-lift;
+  }
+
+  .section-title {
+    @apply font-display text-2xl font-bold tracking-tight text-ink sm:text-[2rem] sm:leading-10;
+  }
+
+  /* Pill label above a hero title */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full bg-surface-strong px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-ink-muted;
+  }
+
+  /* Plain coloured label above a section title */
+  .kicker {
+    @apply text-[11px] font-bold uppercase tracking-wider text-brand;
+  }
+
+  .btn {
+    @apply inline-flex select-none items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-sm {
+    @apply rounded-md px-3 py-1.5 text-xs;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-base;
+  }
+
+  .btn-primary {
+    @apply bg-brand text-on-brand shadow-soft hover:bg-brand-hover;
+  }
+
+  .btn-secondary {
+    @apply border border-line bg-surface text-ink hover:bg-surface-muted;
+  }
+
+  .btn-soft {
+    @apply bg-brand-soft text-brand-ink hover:brightness-95;
+  }
+
+  .btn-ghost {
+    @apply text-ink-muted hover:bg-surface-muted hover:text-ink;
+  }
+
+  .btn-danger {
+    @apply bg-danger-soft text-danger-ink hover:brightness-95;
+  }
+
+  .btn-leaf {
+    @apply bg-leaf text-white shadow-soft hover:brightness-110 dark:text-[#052e16];
+  }
+
+  /* Pass purchases and unlocks */
+  .btn-amber {
+    @apply bg-sun text-on-sun shadow-soft hover:brightness-95;
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-ink-faint focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-semibold text-ink;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide;
+  }
+
+  .badge-brand {
+    @apply bg-brand-soft text-brand-ink;
+  }
+
+  .badge-leaf {
+    @apply bg-leaf-soft text-leaf-ink;
+  }
+
+  .badge-sun {
+    @apply bg-sun-soft text-sun-ink;
+  }
+
+  .badge-muted {
+    @apply bg-surface-strong text-ink-muted;
+  }
+
+  /* University subject codes (BCS301), sessions (2023-24) and other metadata */
+  .code {
+    @apply inline-flex items-center whitespace-nowrap rounded-md bg-surface-strong px-2 py-0.5 font-mono text-[13px] font-semibold tracking-wide text-ink;
+  }
+
+  .code-brand {
+    @apply bg-brand-soft text-brand-ink;
+  }
+
+  /* Filter chips, e.g. resource types and semester sections */
+  .chip {
+    @apply inline-flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink-muted transition hover:border-line-strong hover:text-ink;
+  }
+
+  .chip[data-active="true"] {
+    @apply border-brand bg-brand text-on-brand hover:text-on-brand;
+  }
+
+  /* Selectable option tile, e.g. pickers in the admin panel */
+  .tile {
+    @apply rounded-xl border border-line bg-surface px-4 py-3 text-left text-sm font-semibold text-ink transition duration-150 hover:border-brand/40 sm:text-base;
+  }
+
+  .tile[data-active="true"] {
+    @apply border-brand bg-brand-soft text-brand-ink shadow-soft;
+  }
+
+  .alert {
+    @apply rounded-xl border px-4 py-3 text-sm font-medium;
+  }
+
+  .alert-error {
+    @apply border-danger/30 bg-danger-soft text-danger-ink;
+  }
+
+  .alert-success {
+    @apply border-leaf/30 bg-leaf-soft text-leaf-ink;
+  }
+
+  .link {
+    @apply font-semibold text-brand underline-offset-4 hover:underline;
+  }
+
+  .modal-backdrop {
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-[#0f172a]/60 p-4 backdrop-blur-sm;
+  }
+
+  .modal {
+    @apply max-h-[92vh] w-full max-w-md overflow-y-auto rounded-2xl border border-line bg-surface p-6 shadow-float sm:p-8;
+  }
+
+  /* Long-form text pages (about, terms, privacy) */
+  .prose-page {
+    @apply space-y-4 text-[15px] leading-relaxed text-ink-muted sm:text-base;
+  }
+
+  .prose-page h2 {
+    @apply pt-4 font-display text-xl font-bold text-ink;
+  }
+
+  .prose-page ul {
+    @apply ml-1 list-inside list-disc space-y-1.5 marker:text-brand-bright;
+  }
+
+  .prose-page a {
+    @apply font-semibold text-brand underline-offset-4 hover:underline;
+  }
 }
 
 /* Animations */
@@ -50,7 +365,7 @@
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -65,18 +380,33 @@
 
 .animate-fade-in-up {
   opacity: 0;
-  animation: fade-in-up 0.8s ease-out forwards;
+  animation: fade-in-up 0.7s ease-out forwards;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
+/* Hide scrollbars on horizontal chip rows while keeping them scrollable */
+.no-scrollbar {
+  scrollbar-width: none;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Printing while the premium reader is open produces a blank page */
+@media print {
+  html.reader-open body {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-fade-in-up {
+    opacity: 1;
+    animation: none;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
 }

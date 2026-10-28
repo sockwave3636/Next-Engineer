@@ -1,0 +1,32 @@
+{
+  "programs": [
+    { "id": "btech", "name": "B.Tech", "fullName": "Bachelor of Technology", "level": "UG", "durationYears": 4, "semesters": 8, "hasBranches": true, "order": 1 },
+    { "id": "mba", "name": "MBA", "fullName": "Master of Business Administration", "level": "PG", "durationYears": 2, "semesters": 4, "hasBranches": false, "order": 2 },
+    { "id": "mca", "name": "MCA", "fullName": "Master of Computer Applications", "level": "PG", "durationYears": 2, "semesters": 4, "hasBranches": false, "order": 3 },
+    { "id": "bpharm", "name": "B.Pharm", "fullName": "Bachelor of Pharmacy", "level": "UG", "durationYears": 4, "semesters": 8, "hasBranches": false, "order": 4 },
+    { "id": "mtech", "name": "M.Tech", "fullName": "Master of Technology", "level": "PG", "durationYears": 2, "semesters": 4, "hasBranches": true, "order": 5 },
+    { "id": "bca", "name": "BCA", "fullName": "Bachelor of Computer Applications", "level": "UG", "durationYears": 3, "semesters": 6, "hasBranches": false, "order": 6 },
+    { "id": "bba", "name": "BBA", "fullName": "Bachelor of Business Administration", "level": "UG", "durationYears": 3, "semesters": 6, "hasBranches": false, "order": 7 }
+  ],
+  "branches": {
+    "btech": [
+      { "id": "cse", "shortName": "CSE", "name": "Computer Science & Engineering" },
+      { "id": "it", "shortName": "IT", "name": "Information Technology" },
+      { "id": "cse-aiml", "shortName": "CSE (AI & ML)", "name": "CSE (Artificial Intelligence & Machine Learning)" },
+      { "id": "cse-ds", "shortName": "CSE (Data Science)", "name": "CSE (Data Science)" },
+      { "id": "aids", "shortName": "AI & DS", "name": "Artificial Intelligence & Data Science" },
+      { "id": "ece", "shortName": "ECE", "name": "Electronics & Communication Engineering" },
+      { "id": "ee", "shortName": "EE", "name": "Electrical Engineering" },
+      { "id": "me", "shortName": "ME", "name": "Mechanical Engineering" },
+      { "id": "ce", "shortName": "CE", "name": "Civil Engineering" },
+      { "id": "che", "shortName": "Chemical", "name": "Chemical Engineering" },
+      { "id": "bt", "shortName": "Biotech", "name": "Biotechnology" }
+    ],
+    "mtech": [
+      { "id": "cse", "shortName": "CSE", "name": "Computer Science & Engineering" },
+      { "id": "ece", "shortName": "ECE", "name": "Electronics & Communication Engineering" },
+      { "id": "me", "shortName": "ME", "name": "Mechanical Engineering" },
+      { "id": "ce", "shortName": "CE", "name": "Civil Engineering" }
+    ]
+  }
+}
