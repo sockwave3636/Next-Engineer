@@ -1,34 +1,20 @@
 'use client';
 
 import { useTheme } from '@/app/context/ThemeContext';
+import Icon from './Icon';
 
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+  const nextTheme = theme === 'light' ? 'dark' : 'light';
 
   return (
     <button
       onClick={toggleTheme}
-      className="relative flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2"
-      style={{
-        backgroundColor: theme === 'dark' ? 'var(--primary)' : 'var(--accent)',
-        color: 'var(--text-primary)',
-        border: '1px solid var(--border)'
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.opacity = '0.9';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.opacity = '1';
-      }}
-      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      className="grid h-9 w-9 place-items-center rounded-lg bg-surface-muted text-ink-muted transition hover:bg-surface-strong hover:text-ink"
+      aria-label={`Switch to ${nextTheme} mode`}
+      title={`Switch to ${nextTheme} mode`}
     >
-      <span className="text-lg sm:text-xl transition-transform duration-300">
-        {theme === 'light' ? '🌙' : '☀️'}
-      </span>
-      <span className="hidden sm:inline text-xs sm:text-sm font-medium">
-        {theme === 'light' ? 'Dark' : 'Light'}
-      </span>
+      <Icon name={theme === 'light' ? 'dark_mode' : 'light_mode'} />
     </button>
   );
 }
-

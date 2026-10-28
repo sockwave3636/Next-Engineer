@@ -1,234 +1,109 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { getBlogPosts, BlogPost } from '@/lib/firebase/firestore';
+import { formatPostDate } from '@/lib/format';
+import Icon, { IconName } from './Icon';
+
+const TYPE_STYLES: Record<BlogPost['type'], { icon: IconName; tint: string; badge: string }> = {
+  blog: { icon: 'description', tint: 'bg-brand-soft text-brand-ink', badge: 'badge-brand' },
+  notice: { icon: 'campaign', tint: 'bg-sun-soft text-sun-ink', badge: 'badge-sun' },
+  article: { icon: 'newspaper', tint: 'bg-sky-soft text-sky-ink', badge: 'badge-muted' },
+};
+
+function PostCard({ post }: { post: BlogPost }) {
+  const style = TYPE_STYLES[post.type] || TYPE_STYLES.blog;
+  const primaryImage = post.mediaUrls?.[0] || post.mediaUrl;
+  // Fall back to the illustrated tile if the image can't load
+  const [imageFailed, setImageFailed] = useState(false);
+
+  return (
+    <Link href={`/blog/${post.id}`} className="card card-hover group flex h-full flex-col overflow-hidden">
+      {post.mediaType === 'image' && primaryImage && !imageFailed ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={primaryImage}
+          alt=""
+          onError={() => setImageFailed(true)}
+          className="aspect-[16/9] w-full bg-surface-muted object-cover"
+        />
+      ) : post.mediaType === 'video' && post.mediaUrl ? (
+        <div className="aspect-[16/9] w-full bg-black">
+          <video src={post.mediaUrl} className="h-full w-full object-contain" controls={false} muted />
+        </div>
+      ) : (
+        <div className={`grid aspect-[16/9] w-full place-items-center ${style.tint}`}>
+          <Icon name={style.icon} size={56} />
+        </div>
+      )}
+      <div className="flex flex-1 flex-col p-5">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <span className={`badge ${style.badge}`}>{post.type}</span>
+          <span className="font-mono text-xs text-ink-muted">{formatPostDate(post.createdAt)}</span>
+        </div>
+        <h3 className="mb-2 line-clamp-2 font-display text-lg font-semibold leading-snug text-ink group-hover:text-brand">
+          {post.title}
+        </h3>
+        <p className="line-clamp-3 text-sm leading-relaxed text-ink-muted">{post.description}</p>
+        <span className="mt-auto flex items-center gap-1 pt-4 text-sm font-semibold text-brand">
+          Read more <Icon name="arrow_forward" size={16} />
+        </span>
+      </div>
+    </Link>
+  );
+}
 
 export default function BlogSlider() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   useEffect(() => {
-    loadPosts();
+    getBlogPosts(10)
+      .then(setPosts)
+      .catch((error) => console.error('Error loading posts:', error))
+      .finally(() => setLoading(false));
   }, []);
 
-  const loadPosts = async () => {
-    try {
-      const postsData = await getBlogPosts(10);
-      setPosts(postsData);
-    } catch (error) {
-      console.error('Error loading posts:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % posts.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + posts.length) % posts.length);
-  };
-
-  const goToSlide = (index: number) => {
-    setCurrentIndex(index);
-  };
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'blog':
-        return '📝';
-      case 'notice':
-        return '📢';
-      case 'article':
-        return '📰';
-      default:
-        return '📄';
-    }
-  };
-
-  const getMediaPreview = (post: BlogPost) => {
-    const primaryImage = post.mediaUrls?.[0] || post.mediaUrl;
-    if (post.mediaType === 'image' && primaryImage) {
-      return (
-        <img
-          src={primaryImage}
-          alt={post.title}
-          className="w-full h-40 sm:h-48 object-cover rounded-t-lg"
-        />
-      );
-    }
-    if (post.mediaType === 'video' && post.mediaUrl) {
-      return (
-        <div className="w-full h-40 sm:h-48 bg-black rounded-t-lg flex items-center justify-center">
-          <video src={post.mediaUrl} className="w-full h-full object-contain" controls={false} />
-        </div>
-      );
-    }
-    return (
-      <div className="w-full h-40 sm:h-48 flex items-center justify-center text-6xl rounded-t-lg transition-colors duration-200" style={{ backgroundColor: 'var(--accent)' }}>
-        {getTypeIcon(post.type)}
-      </div>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="py-8 px-4">
-        <div className="text-center transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>Loading posts...</div>
-      </div>
-    );
-  }
-
-  if (posts.length === 0) {
-    return (
-      <div className="py-8 px-4">
-        <div className="text-center transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>No posts available yet.</div>
-      </div>
-    );
-  }
-
-  // Display multiple cards in a grid on larger screens, slider on mobile
-  const visiblePosts = posts.slice(0, 3); // Show 3 posts at a time on desktop
-
   return (
-    <div className="py-6 sm:py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>
-          Latest Updates & Articles
-        </h2>
+    <div>
+      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <span className="kicker">Notices and articles</span>
+          <h2 className="section-title mt-1">Latest updates</h2>
+        </div>
+        <p className="max-w-sm text-sm text-ink-muted">Notices, exam news and study tips. Swipe for more on mobile.</p>
+      </div>
 
-        {/* Desktop Grid View */}
-        <div className="hidden md:grid md:grid-cols-3 gap-4 lg:gap-6">
-          {visiblePosts.map((post) => (
-            <div
-              key={post.id}
-              onClick={() => router.push(`/blog/${post.id}`)}
-              className="rounded-lg shadow-md overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-xl border-2"
-              style={{ backgroundColor: 'var(--secondary)', borderColor: 'var(--accent)' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--primary)';
-                e.currentTarget.style.transform = 'translateY(-4px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'var(--accent)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              {getMediaPreview(post)}
-              <div className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xl">{getTypeIcon(post.type)}</span>
-                  <span className="text-xs px-2 py-1 rounded transition-colors duration-200" style={{ backgroundColor: 'var(--accent)', color: 'var(--text-primary)' }}>
-                    {post.type}
-                  </span>
-                </div>
-                <h3 className="text-lg font-semibold mb-2 line-clamp-2 transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>
-                  {post.title}
-                </h3>
-                <p className="text-sm line-clamp-3 mb-3 transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>
-                  {post.description}
-                </p>
-                <div className="text-xs transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>
-                  {post.createdAt?.toMillis ? new Date(post.createdAt.toMillis()).toLocaleDateString() : new Date(post.createdAt as any).toLocaleDateString()}
-                </div>
-              </div>
-            </div>
+      {loading ? (
+        <div className="grid gap-5 md:grid-cols-3">
+          {[0, 1, 2].map((key) => (
+            <div key={key} className="card h-72 animate-pulse bg-surface-muted" />
           ))}
         </div>
-
-        {/* Mobile Slider View */}
-        <div className="md:hidden relative">
-          <div className="overflow-hidden rounded-lg">
-            <div
-              ref={sliderRef}
-              className="flex transition-transform duration-300 ease-in-out"
-              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-            >
-              {posts.map((post) => (
-                <div
-                  key={post.id}
-                  className="min-w-full"
-                  onClick={() => router.push(`/blog/${post.id}`)}
-                >
-                  <div
-                    className="mx-2 rounded-lg shadow-md overflow-hidden cursor-pointer border-2"
-                    style={{ backgroundColor: 'var(--secondary)', borderColor: 'var(--accent)' }}
-                  >
-                    {getMediaPreview(post)}
-                    <div className="p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xl">{getTypeIcon(post.type)}</span>
-                        <span className="text-xs px-2 py-1 rounded transition-colors duration-200" style={{ backgroundColor: 'var(--accent)', color: 'var(--text-primary)' }}>
-                          {post.type}
-                        </span>
-                      </div>
-                      <h3 className="text-base font-semibold mb-2 line-clamp-2 transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>
-                        {post.title}
-                      </h3>
-                      <p className="text-sm line-clamp-2 mb-3 transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>
-                        {post.description}
-                      </p>
-                      <div className="text-xs transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>
-                        {post.createdAt?.toMillis ? new Date(post.createdAt.toMillis()).toLocaleDateString() : new Date(post.createdAt as any).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Navigation Buttons */}
-          {posts.length > 1 && (
-            <>
-              <button
-                onClick={prevSlide}
-                className="absolute left-2 top-1/2 -translate-y-1/2 px-3 py-2 rounded-full shadow-lg transition-all"
-                style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-hover)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
-              >
-                ←
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-2 rounded-full shadow-lg transition-all"
-                style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-hover)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
-              >
-                →
-              </button>
-            </>
-          )}
-
-          {/* Dots Indicator */}
-          {posts.length > 1 && (
-            <div className="flex justify-center gap-2 mt-4">
-              {posts.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => goToSlide(index)}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    index === currentIndex ? 'w-6' : ''
-                  }`}
-                  style={{
-                    backgroundColor: index === currentIndex ? 'var(--primary)' : 'var(--accent)'
-                  }}
-                />
-              ))}
-            </div>
-          )}
+      ) : posts.length === 0 ? (
+        <div className="card card-pad flex flex-col items-center text-center">
+          <Icon name="newspaper" size={36} className="text-ink-faint" />
+          <p className="mt-2 font-display font-semibold text-ink">Updates will show up here soon</p>
+          <p className="text-sm text-ink-muted">Check back for notices and new articles.</p>
         </div>
-      </div>
+      ) : (
+        <>
+          <div className="hidden gap-5 md:grid md:grid-cols-3">
+            {posts.slice(0, 3).map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+          {/* Mobile: native swipe with scroll snapping */}
+          <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-4 sm:-mx-6 sm:scroll-px-6 sm:px-6 md:hidden">
+            {posts.map((post) => (
+              <div key={post.id} className="w-[85%] shrink-0 snap-start sm:w-[calc(50%-0.5rem)]">
+                <PostCard post={post} />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
-
-
-

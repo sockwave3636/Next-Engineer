@@ -1,0 +1,31 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Keep in sync with OWNER_EMAILS in lib/owners.ts
+    function isOwner() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['aahabhisheksingh@gmail.com', 'adityanathncert@gmail.com'];
+    }
+
+    // Free study material: resources/{subjectId}/{file}. Like premium files, browsers can't
+    // read these directly; students read them in the in-site viewer via /api/resources/view.
+    match /resources/{allPaths=**} {
+      allow read: if false;
+      allow write: if isOwner();
+    }
+
+    // Blog images, videos and files
+    match /blog/{allPaths=**} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // Premium PDFs: no client can read them. Pass holders read them in the
+    // in-site viewer, which streams byte ranges from /api/resources/view.
+    match /premium/{allPaths=**} {
+      allow read: if false;
+      allow write: if isOwner();
+    }
+  }
+}

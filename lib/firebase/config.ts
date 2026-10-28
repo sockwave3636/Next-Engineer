@@ -4,15 +4,25 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
+// Firebase web config from env (see .env.example). Next.js only inlines
+// NEXT_PUBLIC_ variables that are referenced literally, so list each one.
 const firebaseConfig = {
-  apiKey: "AIzaSyApQCcon4dWkA4_9BFMr9YVoL19i54tOYw",
-  authDomain: "learn-2f2c9.firebaseapp.com",
-  projectId: "learn-2f2c9",
-  storageBucket: "learn-2f2c9.firebasestorage.app",
-  messagingSenderId: "574563184229",
-  appId: "1:574563184229:web:d753d1b527c8b55e94e08c",
-  measurementId: "G-51H3272VJ4"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
+
+const requiredKeys = ["apiKey", "authDomain", "projectId", "storageBucket", "appId"] as const;
+const missingKeys = requiredKeys.filter((key) => !firebaseConfig[key]);
+if (missingKeys.length > 0) {
+  throw new Error(
+    `Firebase config is missing: ${missingKeys.join(", ")}. Set the NEXT_PUBLIC_FIREBASE_* variables in .env (or in Vercel) and restart.`
+  );
+}
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -22,22 +32,8 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
-// Initialize Analytics (only on client side)
-export const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
+// Initialize Analytics (only on client side, and only when a measurement ID is configured)
+export const analytics =
+  typeof window !== "undefined" && firebaseConfig.measurementId ? getAnalytics(app) : null;
 
 export default app;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

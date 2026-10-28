@@ -1,264 +1,99 @@
-'use client';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import PageShell from '@/app/components/PageShell';
+import Breadcrumbs from '@/app/components/Breadcrumbs';
+import PostGallery from './PostGallery';
+import { getPost } from '@/lib/posts-server';
+import { formatPostDate } from '@/lib/format';
 
-import { Suspense, useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import ThemeToggle from '@/app/components/ThemeToggle';
-import Footer from '@/app/components/Footer';
-import { getBlogPost, BlogPost } from '@/lib/firebase/firestore';
-import { useAuth } from '@/app/context/AuthContext';
-import { useAuthPrompt } from '@/app/context/AuthPromptContext';
+export const revalidate = 3600;
 
-function BlogDetailContent() {
-  const router = useRouter();
-  const params = useParams();
-  const { user, logout } = useAuth();
-  const { openAuthPrompt } = useAuthPrompt();
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+type Params = Promise<{ id: string }>;
 
-  const postId = params?.id as string;
+const TYPE_STYLES: Record<string, { icon: string; badge: string }> = {
+  blog: { icon: '📝', badge: 'badge-brand' },
+  notice: { icon: '📢', badge: 'badge-sun' },
+  article: { icon: '📰', badge: 'badge-muted' },
+};
 
-  useEffect(() => {
-    if (postId) {
-      loadPost();
-    }
-  }, [postId]);
-
-  const loadPost = async () => {
-    try {
-      setLoading(true);
-      const postData = await getBlogPost(postId);
-      if (postData) {
-        setPost(postData);
-      } else {
-        router.push('/home');
-      }
-    } catch (error) {
-      console.error('Error loading post:', error);
-      router.push('/home');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDownload = () => {
-    if (post?.fileUrl) {
-      const link = document.createElement('a');
-      link.href = post.fileUrl;
-      link.download = post.fileName || 'download';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'blog':
-        return '📝';
-      case 'notice':
-        return '📢';
-      case 'article':
-        return '📰';
-      default:
-        return '📄';
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center transition-colors duration-200" style={{ backgroundColor: 'var(--background)' }}>
-        <div className="text-xl transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>Loading...</div>
-      </div>
-    );
-  }
-
-  if (!post) {
-    return (
-      <div className="min-h-screen flex items-center justify-center transition-colors duration-200" style={{ backgroundColor: 'var(--background)' }}>
-        <div className="text-xl transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>Post not found.</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen transition-colors duration-200" style={{ backgroundColor: 'var(--background)' }}>
-      <nav className="shadow-md transition-colors duration-200" style={{ backgroundColor: 'var(--secondary)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 py-4 sm:h-16">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <button
-                onClick={() => router.push('/home')}
-                className="text-sm sm:text-base hover:underline transition-all"
-                style={{ color: 'var(--primary)' }}
-              >
-                ← Back to Home
-              </button>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-4">
-              <ThemeToggle />
-              {user?.isOwner ? (
-                <>
-                  <div className="px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold" style={{ backgroundColor: 'var(--accent)', color: 'var(--text-primary)' }}>
-                    👑 Owner
-                  </div>
-                  <button
-                    onClick={() => router.push('/admin')}
-                    className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
-                    style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
-                  >
-                    Admin Panel
-                  </button>
-                  <button
-                    onClick={logout}
-                    className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-200"
-                    style={{ backgroundColor: 'var(--error)', color: '#ffffff' }}
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() =>
-                    openAuthPrompt({
-                      reason: 'Admin access is restricted. Please sign in as the owner.',
-                    })
-                  }
-                  className="text-xs sm:text-sm px-4 py-2 rounded-lg font-semibold transition-all duration-200 shadow-md"
-                  style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
-                >
-                  Admin Login
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <main className="max-w-4xl mx-auto py-6 sm:py-8 px-4">
-        <div className="rounded-xl shadow-lg overflow-hidden transition-colors duration-200" style={{ backgroundColor: 'var(--secondary)' }}>
-          {post.mediaType === 'image' && (post.mediaUrls?.length || post.mediaUrl) && (
-            <div className="w-full">
-              {/* Primary image */}
-              <div className="w-full h-full">
-                <img
-                  src={selectedImage || post.mediaUrls?.[0] || post.mediaUrl!}
-                  alt={post.title}
-                  className="w-full h-full object-cover transition-all duration-200 rounded-md"
-                  style={{ maxHeight: 280, objectFit: 'contain', background: '#fff' }}
-                />
-              </div>
-              {/* Thumbnails if multiple images */}
-              {post.mediaUrls && post.mediaUrls.length > 1 && (
-                <div className="flex gap-2 p-3 overflow-x-auto bg-black/5 mt-2">
-                  {post.mediaUrls.map((url, index) => (
-                    <img
-                      key={index}
-                      src={url}
-                      alt={`${post.title} ${index + 1}`}
-                      onClick={() => setSelectedImage(url)}
-                      className={`h-16 w-24 object-cover rounded border transition-all duration-200 cursor-pointer ${selectedImage === url ? 'ring-2 ring-primary border-primary' : 'hover:opacity-80'}`}
-                      style={{ borderColor: selectedImage === url ? 'var(--primary)' : '' }}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {post.mediaType === 'video' && post.mediaUrl && (
-            <div className="w-full bg-black">
-              <video
-                src={post.mediaUrl}
-                controls
-                className="w-full h-auto max-h-96"
-              />
-            </div>
-          )}
-
-          <div className="p-6 sm:p-8">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-3xl">{getTypeIcon(post.type)}</span>
-              <div>
-                <span className="px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200" style={{ backgroundColor: 'var(--accent)', color: 'var(--text-primary)' }}>
-                  {post.type}
-                </span>
-              </div>
-              <div className="text-sm ml-auto transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>
-                {post.createdAt?.toMillis ? new Date(post.createdAt.toMillis()).toLocaleDateString() : new Date(post.createdAt as any).toLocaleDateString()}
-              </div>
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>
-              {post.title}
-            </h1>
-
-            <p className="text-lg mb-6 transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>
-              {post.description}
-            </p>
-
-            {post.mediaType === 'article' && post.mediaUrl && (
-              <div className="mb-6">
-                <a
-                  href={post.mediaUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium"
-                  style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-hover)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
-                >
-                  🔗 Read Full Article →
-                </a>
-              </div>
-            )}
-
-            {post.mediaType === 'file' && post.fileUrl && (
-              <div className="mb-6">
-                <button
-                  onClick={handleDownload}
-                  className="px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium"
-                  style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-hover)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
-                >
-                  📥 Download {post.fileName || 'File'}
-                </button>
-              </div>
-            )}
-
-            <div className="prose max-w-none">
-              <div
-                className="text-base sm:text-lg leading-relaxed whitespace-pre-wrap transition-colors duration-200"
-                style={{ color: 'var(--text-primary)' }}
-                dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
-              />
-            </div>
-
-            <div className="mt-8 pt-6 border-t transition-colors duration-200" style={{ borderColor: 'var(--accent)' }}>
-              <p className="text-sm transition-colors duration-200" style={{ color: 'var(--text-secondary)' }}>
-                <span className="font-semibold">Author:</span> {post.author}
-              </p>
-            </div>
-          </div>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
+async function loadPost(params: Params) {
+  const post = await getPost((await params).id);
+  if (!post || !post.published) notFound();
+  return post;
 }
 
-export default function BlogDetailPage() {
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const post = await loadPost(params);
+  return {
+    title: post.title,
+    description: post.description,
+    alternates: { canonical: `/blog/${post.id}` },
+    openGraph: { title: post.title, description: post.description, type: 'article' },
+  };
+}
+
+export default async function BlogPostPage({ params }: { params: Params }) {
+  const post = await loadPost(params);
+  const style = TYPE_STYLES[post.type] || TYPE_STYLES.blog;
+  const images = post.mediaUrls.length ? post.mediaUrls : post.mediaUrl ? [post.mediaUrl] : [];
+
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center transition-colors duration-200" style={{ backgroundColor: 'var(--background)' }}>
-          <div className="text-xl transition-colors duration-200" style={{ color: 'var(--text-primary)' }}>Loading...</div>
-        </div>
-      }
-    >
-      <BlogDetailContent />
-    </Suspense>
+    <PageShell>
+      <div className="container-page max-w-3xl py-10">
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Updates', href: '/#updates' }, { label: post.title }]} />
+
+        <article className="card overflow-hidden">
+          {post.mediaType === 'image' && images.length > 0 && <PostGallery images={images} title={post.title} />}
+
+          {post.mediaType === 'video' && post.mediaUrl && (
+            <div className="bg-black">
+              <video src={post.mediaUrl} controls className="max-h-[420px] w-full" />
+            </div>
+          )}
+
+          <div className="p-6 sm:p-10">
+            <div className="mb-5 flex flex-wrap items-center gap-2">
+              <span className={`badge capitalize ${style.badge}`}>
+                <span aria-hidden="true">{style.icon}</span> {post.type}
+              </span>
+              <span className="text-sm font-semibold text-ink-muted">{formatPostDate(post.createdAt)}</span>
+            </div>
+
+            <h1 className="text-3xl font-black leading-tight tracking-tight text-ink sm:text-4xl">{post.title}</h1>
+            <p className="mt-4 text-lg leading-relaxed text-ink-muted">{post.description}</p>
+
+            {((post.mediaType === 'article' && post.mediaUrl) || (post.mediaType === 'file' && post.fileUrl)) && (
+              <div className="mt-6 flex flex-wrap gap-3">
+                {post.mediaType === 'article' && post.mediaUrl && (
+                  <a href={post.mediaUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                    Read the full article <span aria-hidden="true">→</span>
+                  </a>
+                )}
+                {post.mediaType === 'file' && post.fileUrl && (
+                  <a href={post.fileUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                    Download {post.fileName || 'file'}
+                  </a>
+                )}
+              </div>
+            )}
+
+            {/* Plain text, not HTML: post content can't inject scripts into the page */}
+            <div className="mt-8 whitespace-pre-wrap border-t border-line pt-8 text-base leading-relaxed text-ink sm:text-lg">
+              {post.content}
+            </div>
+
+            <div className="mt-10 flex items-center gap-3 rounded-2xl bg-surface-muted p-4">
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-brand text-sm font-black text-on-brand" aria-hidden="true">
+                {(post.author || 'N').charAt(0).toUpperCase()}
+              </span>
+              <div>
+                <p className="text-xs font-semibold text-ink-muted">Written by</p>
+                <p className="font-extrabold text-ink">{post.author}</p>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </PageShell>
   );
 }

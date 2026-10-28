@@ -1,11 +1,15 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import { useAuth } from './AuthContext';
 
 type AuthPromptOptions = {
   reason?: string;
+  // false hides "Sign up", e.g. on the admin sign-in where new accounts are no use
+  allowSignUp?: boolean;
 };
+
+type AuthMode = 'login' | 'signup';
 
 interface AuthPromptContextType {
   isPromptOpen: boolean;
@@ -16,15 +20,19 @@ interface AuthPromptContextType {
 const AuthPromptContext = createContext<AuthPromptContextType | undefined>(undefined);
 
 export function AuthPromptProvider({ children }: { children: React.ReactNode }) {
-  const { user, login } = useAuth();
+  const { user, login, signup, loginWithGoogle } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [promptReason, setPromptReason] = useState<string | null>(null);
+  const [allowSignUp, setAllowSignUp] = useState(true);
+  const [mode, setMode] = useState<AuthMode>('login');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const resetForm = useCallback(() => {
+    setName('');
     setEmail('');
     setPassword('');
     setError('');
@@ -34,114 +42,154 @@ export function AuthPromptProvider({ children }: { children: React.ReactNode }) 
   const closeAuthPrompt = useCallback(() => {
     setIsOpen(false);
     setPromptReason(null);
+    setAllowSignUp(true);
+    setMode('login');
     resetForm();
   }, [resetForm]);
 
-  useEffect(() => {
-    if (!isOpen || !user?.isOwner) {
-      return;
-    }
-    closeAuthPrompt();
-  }, [user, isOpen, closeAuthPrompt]);
-
   const openAuthPrompt = useCallback(
-    ({ reason }: AuthPromptOptions = {}) => {
-      if (user?.isOwner) {
+    ({ reason, allowSignUp = true }: AuthPromptOptions = {}) => {
+      if (user) {
         return;
       }
-      setPromptReason(reason || 'Admin access is restricted to the owner.');
+      setPromptReason(reason || null);
+      setAllowSignUp(allowSignUp);
+      setMode('login');
       setIsOpen(true);
     },
     [user]
   );
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const runAuth = async (action: () => Promise<void>) => {
     setError('');
     setLoading(true);
-
     try {
-      await login(email, password);
+      await action();
+      closeAuthPrompt();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong';
       setError(message);
-    } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    runAuth(() => (mode === 'login' ? login(email, password) : signup(email, password, name)));
+  };
+
+  const switchMode = (nextMode: AuthMode) => {
+    setMode(nextMode);
+    setError('');
   };
 
   return (
     <AuthPromptContext.Provider value={{ openAuthPrompt, closeAuthPrompt, isPromptOpen: isOpen }}>
       {children}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 backdrop-blur-sm bg-black/40">
-          <div className="w-full max-w-md rounded-2xl shadow-2xl p-6 sm:p-8 relative" style={{ backgroundColor: 'var(--secondary)' }}>
-            {promptReason && (
-              <p className="text-xs uppercase font-semibold mb-3 tracking-wide" style={{ color: 'var(--text-secondary)' }}>
-                {promptReason}
-              </p>
-            )}
-            <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-              Admin Login
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={closeAuthPrompt}>
+          <div className="modal relative" onClick={(event) => event.stopPropagation()}>
+            <button
+              type="button"
+              onClick={closeAuthPrompt}
+              className="btn btn-ghost absolute right-4 top-4 h-9 w-9 rounded-full p-0"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+
+            <div className="mb-5 grid h-12 w-12 place-items-center rounded-2xl bg-brand-soft text-2xl" aria-hidden="true">
+              {mode === 'login' ? '👋' : '🎓'}
+            </div>
+            {promptReason && <p className="eyebrow mb-3">{promptReason}</p>}
+            <h2 id="auth-title" className="text-2xl font-black text-ink">
+              {mode === 'login' ? 'Welcome back' : 'Create your account'}
             </h2>
-            <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
-              Only the platform owner can access the admin dashboard.
+            <p className="mb-6 mt-1 text-sm text-ink-muted">
+              {allowSignUp
+                ? 'Sign in to read notes on the site and unlock premium passes.'
+                : 'Sign in with an owner account.'}
             </p>
 
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => runAuth(loginWithGoogle)}
+              className="btn btn-secondary w-full py-3"
+            >
+              <span className="font-black text-brand" aria-hidden="true">G</span> Continue with Google
+            </button>
+
+            <div className="my-5 flex items-center gap-3 text-xs font-bold text-ink-muted">
+              <div className="flex-1 border-t border-line" />
+              or use email
+              <div className="flex-1 border-t border-line" />
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-1 block" style={{ color: 'var(--text-primary)' }}>
-                  Owner Email
-                </label>
-                <input
-                  required
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-all text-sm"
-                  style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
-                  placeholder="owner@example.com"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-1 block" style={{ color: 'var(--text-primary)' }}>
-                  Password
-                </label>
-                <input
-                  required
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-all text-sm"
-                  style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
-                  placeholder="Enter your password"
-                />
-              </div>
-
-              {error && (
-                <div className="rounded-lg border px-4 py-3 text-sm" style={{ borderColor: 'var(--error)', color: 'var(--error)', backgroundColor: 'var(--background)' }}>
-                  {error}
+              {mode === 'signup' && (
+                <div>
+                  <label htmlFor="auth-name" className="label">Name</label>
+                  <input
+                    id="auth-name"
+                    required
+                    type="text"
+                    autoComplete="name"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    className="input"
+                    placeholder="Your name"
+                  />
                 </div>
               )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 rounded-lg font-semibold shadow-lg transition-all disabled:opacity-60"
-                style={{ backgroundColor: 'var(--primary)', color: '#ffffff' }}
-              >
-                {loading ? 'Signing in...' : 'Sign in as Admin'}
+              <div>
+                <label htmlFor="auth-email" className="label">Email</label>
+                <input
+                  id="auth-email"
+                  required
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  className="input"
+                  placeholder="you@example.com"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="auth-password" className="label">Password</label>
+                <input
+                  id="auth-password"
+                  required
+                  type="password"
+                  autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                  minLength={mode === 'signup' ? 6 : undefined}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  className="input"
+                  placeholder={mode === 'signup' ? 'At least 6 characters' : 'Your password'}
+                />
+              </div>
+
+              {error && <div className="alert alert-error">{error}</div>}
+
+              <button type="submit" disabled={loading} className="btn btn-primary w-full py-3">
+                {loading ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create account'}
               </button>
 
-              <button
-                type="button"
-                onClick={closeAuthPrompt}
-                className="w-full py-3 rounded-lg font-semibold transition-all"
-                style={{ backgroundColor: 'transparent', color: 'var(--text-secondary)' }}
-              >
-                Cancel
-              </button>
+              {allowSignUp && (
+                <p className="text-center text-sm text-ink-muted">
+                  {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
+                  <button
+                    type="button"
+                    onClick={() => switchMode(mode === 'login' ? 'signup' : 'login')}
+                    className="link"
+                  >
+                    {mode === 'login' ? 'Sign up' : 'Sign in'}
+                  </button>
+                </p>
+              )}
             </form>
           </div>
         </div>
@@ -157,4 +205,3 @@ export function useAuthPrompt() {
   }
   return context;
 }
-

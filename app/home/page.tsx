@@ -1,8 +1,6 @@
-'use client';
+import { permanentRedirect } from 'next/navigation';
 
-import HomeShell from '../components/HomeShell';
-
-export default function HomePage() {
-  return <HomeShell />;
+// Old address of the home page
+export default function HomeRedirect() {
+  permanentRedirect('/');
 }
-

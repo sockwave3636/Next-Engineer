@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Keep in sync with OWNER_EMAILS in lib/owners.ts.
+    // email_verified stops someone registering an unclaimed owner address
+    // through email/password sign-up.
+    function isOwner() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['aahabhisheksingh@gmail.com', 'adityanathncert@gmail.com'];
+    }
+
+    // Catalog: programs → branches, subjects, resources. Public to read, owner to edit.
+    // Premium files stay protected by Storage rules and /api/resources/view,
+    // and their resource records carry no download URL.
+    match /programs/{programId} {
+      allow read: if true;
+      allow write: if isOwner();
+
+      match /branches/{branchId} {
+        allow read: if true;
+        allow write: if isOwner();
+      }
+    }
+
+    match /subjects/{subjectId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // The admin panel's "Lock all material" switch (settings/site.materialLocked)
+    function materialLocked() {
+      return exists(/databases/$(database)/documents/settings/site)
+        && get(/databases/$(database)/documents/settings/site).data.get('materialLocked', false) == true;
+    }
+
+    // While material is locked, only owners can see resource records
+    match /resources/{resourceId} {
+      allow read: if isOwner() || !materialLocked();
+      allow write: if isOwner();
+    }
+
+    // Site switches; changed only by the server (/api/admin/material-lock)
+    match /settings/{settingId} {
+      allow read: if isOwner();
+      allow write: if false;
+    }
+
+    // Published filtering is done client-side
+    match /blogPosts/{postId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // Contact form and "request a resource". Anyone can send; only the owner reads.
+    match /contactMessages/{messageId} {
+      allow create: if request.resource.data.name is string &&
+                      request.resource.data.email is string &&
+                      request.resource.data.subject is string &&
+                      request.resource.data.message is string &&
+                      request.resource.data.message.size() <= 5000 &&
+                      request.resource.data.createdAt is timestamp &&
+                      request.resource.data.read == false &&
+                      (!('kind' in request.resource.data) || request.resource.data.kind in ['contact', 'request']);
+      allow read, update, delete: if isOwner();
+    }
+
+    // Premium passes are granted only by the server (Admin SDK bypasses rules)
+    match /users/{uid}/passes/{scopeKey} {
+      allow read: if request.auth != null && (request.auth.uid == uid || isOwner());
+      allow write: if false;
+    }
+
+    // Payment records are written only by the server
+    match /payments/{orderId} {
+      allow read: if isOwner();
+      allow write: if false;
+    }
+  }
+}

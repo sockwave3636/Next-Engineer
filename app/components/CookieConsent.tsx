@@ -18,9 +18,7 @@ export default function CookieConsent() {
     localStorage.setItem('cookieConsent', 'accepted');
     setShowBanner(false);
     // Dispatch custom event to notify AdSense components
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new Event('cookieConsentChanged'));
-    }
+    window.dispatchEvent(new Event('cookieConsentChanged'));
   };
 
   const handleDecline = () => {
@@ -31,55 +29,20 @@ export default function CookieConsent() {
   if (!showBanner) return null;
 
   return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-50 p-4 shadow-lg"
-      style={{
-        backgroundColor: 'var(--secondary)',
-        borderTop: '2px solid var(--border-color)',
-      }}
-    >
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex-1">
-          <p className="text-sm sm:text-base" style={{ color: 'var(--text-primary)' }}>
-            We use cookies and similar technologies to improve your experience and show personalized ads through Google AdSense. 
-            By clicking &quot;Accept&quot;, you consent to our use of cookies. 
-            <Link href="/privacy-policy" className="underline ml-1 hover:opacity-80">
-              Learn more
-            </Link>
-          </p>
-        </div>
-        <div className="flex gap-3 flex-shrink-0">
-          <button
-            onClick={handleDecline}
-            className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-            style={{
-              backgroundColor: 'transparent',
-              color: 'var(--text-secondary)',
-              border: '1px solid var(--border-color)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.8';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '1';
-            }}
-          >
+    <div className="fixed inset-x-0 bottom-0 z-50 p-3 sm:p-5">
+      <div className="card mx-auto flex max-w-3xl flex-col gap-4 p-5 shadow-lift sm:flex-row sm:items-center">
+        <span className="hidden text-3xl sm:block" aria-hidden="true">🍪</span>
+        <p className="flex-1 text-sm text-ink">
+          We use cookies to improve your experience and show personalised ads through Google AdSense.{' '}
+          <Link href="/privacy-policy" className="link">
+            Learn more
+          </Link>
+        </p>
+        <div className="flex shrink-0 gap-2">
+          <button onClick={handleDecline} className="btn btn-secondary btn-sm">
             Decline
           </button>
-          <button
-            onClick={handleAccept}
-            className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg"
-            style={{
-              backgroundColor: 'var(--primary)',
-              color: '#ffffff',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--primary-hover)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--primary)';
-            }}
-          >
+          <button onClick={handleAccept} className="btn btn-primary btn-sm">
             Accept
           </button>
         </div>
@@ -87,4 +50,3 @@ export default function CookieConsent() {
     </div>
   );
 }
-

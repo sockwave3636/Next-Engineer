@@ -1,154 +1,107 @@
-# Learn Platform
+# Next Engineer
 
-A modern web application built with Next.js, React, Tailwind CSS, and Firebase for students to access their courses, study materials, and download notes.
+Study material for AKTU students: notes, PYQs, important questions, syllabus, lab manuals,
+videos and books, organised the way the university is (program → branch → semester → subject).
+Built with Next.js, React, Tailwind CSS and Firebase.
 
 ## Features
 
-- **Firebase Authentication**: Secure login and sign up using Firebase Auth
-- **Owner/Admin Panel**: Special access for owner email to manage courses, subjects, links, and notes
-- **Course Selection**: Multi-step selection process (Course → Year → Semester → Subjects)
-- **Study Materials**: Access study links (videos, articles, tutorials) for each subject
-- **Notes Download**: Download course notes stored in Firebase Storage
-- **Real-time Data**: All data stored in Firestore database
-- **Responsive Design**: Beautiful UI that works on all devices
-- **Dark Mode Support**: Built-in dark mode
+- **Programs:** B.Tech, M.Tech, MBA, MCA, B.Pharm, BCA and BBA. Programs without branches skip
+  the branch step.
+- **Shared subjects:** a subject such as first-year Physics is added once and offered in many
+  branches and semesters.
+- **Subject pages:** unit-wise notes, PYQs grouped by year and odd or even semester, important
+  questions, syllabus, lab, videos and books.
+- **Server-rendered pages with clean addresses** (`/btech/cse/sem-3/bcs301-data-structure`), so
+  search engines can index them. Each page has its own title, description and canonical link.
+- **Subject search** by code or name, from the header or at `/search`.
+- **Request a resource:** students ask for missing material from the subject page, and requests
+  show up in the admin panel.
+- **Premium:** subject passes and semester passes, paid through Razorpay. Premium PDFs
+  need a pass. Every PDF, free or premium, opens only in a watermarked, read-only reader; nothing
+  can be downloaded.
+- **Admin panel:** programs and branches, subjects and their material, blog and notices, and
+  messages.
+- Light and dark mode, and works on phones.
 
-## Getting Started
+## Getting started
 
-### Prerequisites
-
-- Node.js 18+ and npm
-- Firebase project with Authentication, Firestore, and Storage enabled
-
-### Installation
+You need Node.js 20 or newer and a Firebase project with Authentication, Firestore and Storage
+(Storage needs the Blaze plan).
 
 1. Install dependencies:
-```bash
-npm install
-```
+   ```bash
+   npm install
+   ```
+2. Copy `.env.example` to `.env` and fill in every value. No keys or IDs are hard-coded in the
+   source.
+   - `NEXT_PUBLIC_FIREBASE_*` comes from Firebase Console → Project settings → Your apps.
+   - `FIREBASE_CLIENT_EMAIL` and `FIREBASE_PRIVATE_KEY` come from a service-account key. The
+     server reads the catalog with them, including during the build.
+   - `NEXT_PUBLIC_OWNER_EMAILS` lists the admin emails, comma-separated.
+   - `NEXT_PUBLIC_SITE_URL` is the public address, used for canonical links.
+   - Add the same variables in Vercel → Project → Settings → Environment Variables.
+3. Owner emails also appear in `firestore.rules` and `storage.rules`, because Firebase rules can't
+   read environment variables. Keep those lists in sync with `NEXT_PUBLIC_OWNER_EMAILS`.
+4. Publish the rules (see below), then run:
+   ```bash
+   npm run dev
+   ```
+5. Load the AKTU programs, branches and subjects (about 900 subjects) into Firestore:
+   ```bash
+   npm run seed:catalog
+   ```
+   Then open http://localhost:3000 and sign in to `/admin` with an owner account to add material.
 
-2. Configure Firebase:
-   - The Firebase config is already set up in `lib/firebase/config.ts`
-   - Make sure your Firebase project has:
-     - Authentication enabled (Email/Password)
-     - Firestore Database enabled
-     - Storage enabled
+## Firebase rules
 
-3. Set Owner Email:
-   - Open `app/context/AuthContext.tsx`
-   - Replace `your-email@example.com` with your actual email address
-   - Only this email will have access to the admin panel
+The security rules live in this repo:
 
-4. Run the development server:
-```bash
-npm run dev
-```
+- [`firestore.rules`](firestore.rules): programs, branches, subjects and resources are public to
+  read and owner-only to write. Passes and payments are written only by the server.
+- [`storage.rules`](storage.rules): `resources/` and `blog/` are public; `premium/` can't be read
+  from the browser.
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
+Paste each file into Firebase Console (Firestore → Rules, Storage → Rules), or run
+`firebase deploy --only firestore:rules,storage`.
 
-## Firebase Setup & Rules
+[PREMIUM_SETUP.md](PREMIUM_SETUP.md) covers authentication, the service account, Razorpay and
+adding content.
 
-### Firestore Rules
+## Data model
 
-Update your Firestore security rules in Firebase Console:
+| Collection | Holds |
+|---|---|
+| `programs/{programId}` | name, level (UG/PG), years, semesters, whether it has branches |
+| `programs/{programId}/branches/{branchId}` | branch name and its semester pass prices. Branchless programs keep theirs on a hidden `all` branch |
+| `settings/site` | the admin's "Lock all material" switch (server-written) |
+| `subjects/{subjectId}` | code, name, credits, type, unit titles, the branches and semesters it's taught in, subject pass, material counts |
+| `resources/{id}` | one note, PYQ, link or book, with its unit, year and session, and whether it's premium |
+| `users/{uid}/passes/{scope}` | a student's active passes (server-written) |
+| `payments/{orderId}` | Razorpay orders (server-written) |
+| `blogPosts`, `contactMessages` | notices, contact messages and resource requests |
 
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Allow read access to courses for authenticated users
-    match /courses/{courseId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && 
-                     request.auth.token.email == 'aahabhisheksingh@gmail.com';
-    }
-  }
-}
-```
-
-**Owner email: `aahabhisheksingh@gmail.com`**
-
-### Storage Rules
-
-Update your Firebase Storage rules:
-
-```javascript
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /notes/{course}/{year}/{semester}/{subject}/{fileName} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && 
-                     request.auth.token.email == 'aahabhisheksingh@gmail.com';
-    }
-  }
-}
-```
-
-**Owner email: `aahabhisheksingh@gmail.com`**
-
-### Authentication Setup
-
-1. Go to Firebase Console → Authentication
-2. Enable "Email/Password" sign-in method
-3. Create a user account with your owner email, or sign up through the app
-
-## Application Flow
-
-1. **Landing Page**: Users can login or sign up with Firebase Authentication
-2. **Home Page**: After authentication, users select their course details:
-   - Course (created by admin)
-   - Year (created by admin)
-   - Semester (created by admin)
-3. **Subjects Page**: View all subjects for the selected course/year/semester
-4. **Subject Details**: Access study links and download notes for each subject
-5. **Admin Panel**: (Owner only) Manage courses, years, semesters, subjects, links, and upload notes
-
-## Admin Panel Features
-
-When logged in with the owner email, you can:
-- Add/Delete Courses
-- Add/Delete Years to courses
-- Add/Delete Semesters to years
-- Add/Delete Subjects to semesters
-- Edit subject details (name, code, description)
-- Add/Remove study links
-- Upload notes (PDF, DOC, DOCX files)
-- Remove notes
-
-## Tech Stack
-
-- **Next.js 16** - React framework with App Router
-- **React 19** - UI library
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **Firebase** - Authentication, Firestore, and Storage
-- **Context API** - State management for authentication
-
-## Project Structure
+## Project structure
 
 ```
 app/
-  ├── admin/          # Admin panel page
-  ├── components/     # Reusable components
-  ├── context/        # Auth context
-  ├── home/           # Home page
-  ├── subject/        # Subject detail page
-  └── subjects/       # Subjects listing page
+  [program]/[[...path]]/  program, branch, semester and subject pages (server-rendered)
+  admin/                  admin panel; tabs live in admin/_components/
+  api/                    payments, premium reader bytes, search index, cache refresh
+  blog/[id]/              blog post page
+  components/             shared UI; catalog/ holds the catalog page views
+  context/                auth, pass, theme and sign-in prompt contexts
+  search/                 search results page
 lib/
-  └── firebase/       # Firebase configuration and services
+  catalog/                types, routes, access rule, server reads, admin writes, defaults
+    seed/                 AKTU programs, branches and subjects (loaded by npm run seed:catalog)
+  firebase/               client and admin SDK setup, blog and message helpers
+  server/                 payment, pass and premium-file helpers
+scripts/
+  seed-catalog.mjs        writes lib/catalog/seed into Firestore
 ```
 
-## Notes
+## Tech stack
 
-- The owner email is hardcoded in `app/context/AuthContext.tsx` - update it with your email
-- All data is stored in Firestore under the `courses` collection
-- Notes are stored in Firebase Storage under `notes/{course}/{year}/{semester}/{subject}/`
-- Make sure to set up the Firestore and Storage rules as mentioned above for security
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API
-- [Firebase Documentation](https://firebase.google.com/docs) - learn about Firebase services
+Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, Firebase (Auth, Firestore,
+Storage, Admin SDK), Razorpay and PDF.js.

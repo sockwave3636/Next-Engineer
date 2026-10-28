@@ -1,0 +1,69 @@
+{
+  "programId": "mca",
+  "note": "MCA: 1st year from the 2024-25 scheme, 2nd year from the 2025-26 scheme.",
+  "sources": [
+    "https://fms.aktu.ac.in/Resources/aktu/pdf/syllabus/Syllabus2425/MCA _First_Year_Detailed_Syllabus_2024-25.pdf",
+    "https://fms.aktu.ac.in/Resources/aktu/pdf/syllabus/Syllabus2526/MCA 2nd Year Syllabus 2025-26.pdf"
+  ],
+  "semesters": {
+    "1": [
+      { "code": "BMC101", "name": "Fundamental of Computers & Emerging Technologies", "credits": 3 },
+      { "code": "BMC102", "name": "Problem Solving using C", "credits": 4 },
+      { "code": "BMC103", "name": "Principles of Management & Communication", "credits": 3 },
+      { "code": "BMC104", "name": "Discrete Mathematics", "credits": 3 },
+      { "code": "BMC105", "name": "Computer Organization & Architecture", "credits": 4 },
+      { "code": "BMC106", "name": "Cyber Security", "credits": 0 },
+      { "code": "BMC151", "name": "Problem Solving using C Lab", "credits": 2, "kind": "practical" },
+      { "code": "BMC152", "name": "Computer Organization & Architecture Lab", "credits": 2, "kind": "practical" },
+      { "code": "BMC153", "name": "Professional Communication Lab", "credits": 2, "kind": "practical" }
+    ],
+    "2": [
+      { "code": "BMC201", "name": "Web Technology", "credits": 3 },
+      { "code": "BMC202", "name": "Object Oriented Programming", "credits": 3 },
+      { "code": "BMC203", "name": "Operating Systems", "credits": 3 },
+      { "code": "BMC204", "name": "Database Management Systems", "credits": 3 },
+      { "code": "BMC205", "name": "Data Structures & Analysis of Algorithms", "credits": 4 },
+      { "code": "BMC251", "name": "Web Technology Lab", "credits": 2, "kind": "practical" },
+      { "code": "BMC252", "name": "Object Oriented Programming Lab", "credits": 2, "kind": "practical" },
+      { "code": "BMC253", "name": "DBMS Lab", "credits": 1, "kind": "practical" },
+      { "code": "BMC254", "name": "Data Structures & Analysis of Algorithms Lab", "credits": 2, "kind": "practical" }
+    ],
+    "3": [
+      { "code": "BMC301", "name": "Python Programming", "credits": 3 },
+      { "code": "BMC302", "name": "Software Engineering", "credits": 4 },
+      { "code": "BMC303", "name": "Computer Network", "credits": 4 },
+      { "code": "BMC351", "name": "Python Programming Lab", "credits": 2, "kind": "practical" },
+      { "code": "BMC352", "name": "Software Engineering Lab", "credits": 2, "kind": "practical" },
+      { "code": "BMC353", "name": "Mini Project", "credits": 2, "kind": "project" },
+      { "code": "BMC011", "name": "Cryptography & Network Security", "credits": 3, "kind": "elective", "group": "Elective-1" },
+      { "code": "BMC012", "name": "Data Warehousing & Data Mining", "credits": 3, "kind": "elective", "group": "Elective-1" },
+      { "code": "BMC013", "name": "Software Project Management", "credits": 3, "kind": "elective", "group": "Elective-1" },
+      { "code": "BMC014", "name": "Cloud Computing", "credits": 3, "kind": "elective", "group": "Elective-1" },
+      { "code": "BMC015", "name": "Compiler Design", "credits": 3, "kind": "elective", "group": "Elective-1" },
+      { "code": "BMC021", "name": "Artificial Intelligence", "credits": 3, "kind": "elective", "group": "Elective-2" },
+      { "code": "BMC022", "name": "Big Data", "credits": 3, "kind": "elective", "group": "Elective-2" },
+      { "code": "BMC023", "name": "Simulation & Modeling", "credits": 3, "kind": "elective", "group": "Elective-2" },
+      { "code": "BMC024", "name": "Software Testing & Quality Assurance", "credits": 3, "kind": "elective", "group": "Elective-2" },
+      { "code": "BMC025", "name": "Digital Image Processing", "credits": 3, "kind": "elective", "group": "Elective-2" }
+    ],
+    "4": [
+      { "code": "BMC451", "name": "Startup and Entrepreneurial Activity Assessment", "credits": 2, "kind": "project" },
+      { "code": "BMC452", "name": "Project", "credits": 12, "kind": "project" },
+      { "code": "BMC031", "name": "Privacy & Security in Online Social Media", "credits": 3, "kind": "elective", "group": "Elective-3" },
+      { "code": "BMC032", "name": "Soft Computing", "credits": 3, "kind": "elective", "group": "Elective-3" },
+      { "code": "BMC033", "name": "Pattern Recognition", "credits": 3, "kind": "elective", "group": "Elective-3" },
+      { "code": "BMC034", "name": "Data Analytics", "credits": 3, "kind": "elective", "group": "Elective-3" },
+      { "code": "BMC035", "name": "Software Quality Engineering", "credits": 3, "kind": "elective", "group": "Elective-3" },
+      { "code": "BMC041", "name": "Blockchain Architecture", "credits": 3, "kind": "elective", "group": "Elective-4" },
+      { "code": "BMC042", "name": "Neural Network", "credits": 3, "kind": "elective", "group": "Elective-4" },
+      { "code": "BMC043", "name": "Internet of Things", "credits": 3, "kind": "elective", "group": "Elective-4" },
+      { "code": "BMC044", "name": "Modern Application Development", "credits": 3, "kind": "elective", "group": "Elective-4" },
+      { "code": "BMC045", "name": "Distributed Database Systems", "credits": 3, "kind": "elective", "group": "Elective-4" },
+      { "code": "BMC051", "name": "Mobile Computing", "credits": 3, "kind": "elective", "group": "Elective-5" },
+      { "code": "BMC052", "name": "Computer Graphics and Animation", "credits": 3, "kind": "elective", "group": "Elective-5" },
+      { "code": "BMC053", "name": "Natural Language Processing", "credits": 3, "kind": "elective", "group": "Elective-5" },
+      { "code": "BMC054", "name": "Machine Learning", "credits": 3, "kind": "elective", "group": "Elective-5" },
+      { "code": "BMC055", "name": "Quantum Computing", "credits": 3, "kind": "elective", "group": "Elective-5" }
+    ]
+  }
+}

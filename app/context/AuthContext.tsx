@@ -8,23 +8,18 @@ import {
   GoogleAuthProvider,
   signOut,
   onAuthStateChanged,
+  updateProfile,
+  sendEmailVerification,
   User as FirebaseUser
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-
-// IMPORTANT: Replace with your actual owner email addresses
-// These emails will have access to the admin panel
-// Example: const OWNER_EMAILS = ['admin@example.com', 'second@example.com'];
-const OWNER_EMAILS = [
-  process.env.NEXT_PUBLIC_OWNER_EMAIL || 'aahabhisheksingh@gmail.com',
-  'adityanathncert@gmail.com',
-];
-
+import { isOwnerEmail } from '@/lib/owners';
 
 interface User {
   email: string;
   name: string;
   uid: string;
+  emailVerified: boolean;
   isOwner: boolean;
 }
 
@@ -35,9 +30,22 @@ interface AuthContextType {
   signup: (email: string, password: string, name: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
+  sendVerificationEmail: () => Promise<void>;
+  // Re-reads the account after the user verifies their email in another tab
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+function toUser(firebaseUser: FirebaseUser): User {
+  return {
+    email: firebaseUser.email || '',
+    name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+    uid: firebaseUser.uid,
+    emailVerified: firebaseUser.emailVerified,
+    isOwner: isOwnerEmail(firebaseUser.email, firebaseUser.emailVerified)
+  };
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -45,21 +53,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
-      if (firebaseUser) {
-        setUser({
-          email: firebaseUser.email || '',
-          name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-          uid: firebaseUser.uid,
-          isOwner: OWNER_EMAILS.includes(firebaseUser.email || '')
-        });
-      } else {
-        setUser(null);
-      }
+      setUser(firebaseUser ? toUser(firebaseUser) : null);
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
+
+  const sendVerificationEmail = async () => {
+    if (!auth.currentUser) throw new Error('Please sign in first.');
+    try {
+      await sendEmailVerification(auth.currentUser);
+    } catch (error: any) {
+      if (error.code === 'auth/too-many-requests') {
+        throw new Error('A verification email was sent recently. Check your inbox and spam folder.');
+      }
+      throw new Error(error.message || 'Could not send the verification email.');
+    }
+  };
+
+  const refreshUser = async () => {
+    const current = auth.currentUser;
+    if (!current) return;
+    await current.reload();
+    // Force a new ID token so the server and security rules also see email_verified
+    await current.getIdToken(true);
+    setUser(toUser(current));
+  };
 
   const login = async (email: string, password: string) => {
     try {
@@ -81,10 +101,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signup = async (email: string, password: string, name: string) => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // Update display name if needed
-      // User state will be updated by onAuthStateChanged
+      const { user: createdUser } = await createUserWithEmailAndPassword(auth, email, password);
+      const displayName = name.trim();
+      if (displayName) {
+        await updateProfile(createdUser, { displayName });
+        // onAuthStateChanged fired before the profile update, so patch the name in
+        setUser((prev) => (prev && prev.uid === createdUser.uid ? { ...prev, name: displayName } : prev));
+      }
     } catch (error: any) {
+      if (error.code === 'auth/email-already-in-use') {
+        throw new Error('An account with this email already exists. Please sign in instead.');
+      } else if (error.code === 'auth/weak-password') {
+        throw new Error('Password should be at least 6 characters.');
+      } else if (error.code === 'auth/invalid-email') {
+        throw new Error('Please enter a valid email address.');
+      }
       throw new Error(error.message || 'Failed to sign up');
     }
   };
@@ -115,7 +146,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, loginWithGoogle, logout, sendVerificationEmail, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
