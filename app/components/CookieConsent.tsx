@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Icon from './Icon';
 
 export default function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
@@ -31,7 +32,7 @@ export default function CookieConsent() {
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 p-3 sm:p-5">
       <div className="card mx-auto flex max-w-3xl flex-col gap-4 p-5 shadow-lift sm:flex-row sm:items-center">
-        <span className="hidden text-3xl sm:block" aria-hidden="true">🍪</span>
+        <Icon name="cookie" size={30} className="hidden text-sun-ink sm:block" />
         <p className="flex-1 text-sm text-ink">
           We use cookies to improve your experience and show personalised ads through Google AdSense.{' '}
           <Link href="/privacy-policy" className="link">

@@ -95,7 +95,6 @@ export default function SemesterView({ program, branch, semester, subjects, pass
 
       {/* Hero */}
       <section className="relative mb-6 overflow-hidden rounded-2xl bg-surface-muted p-6 shadow-soft sm:p-8">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-brand-soft blur-3xl" />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="flex flex-wrap gap-2">

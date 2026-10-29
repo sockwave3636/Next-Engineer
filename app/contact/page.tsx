@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { saveContactMessage } from '@/lib/firebase/firestore';
 import PageShell from '../components/PageShell';
 import PageIntro from '../components/PageIntro';
+import Icon, { IconName } from '../components/Icon';
 
-const REASONS = [
-  { icon: '🛠️', title: 'Support', text: 'Questions about the platform or a note that will not open.' },
-  { icon: '💡', title: 'Feedback', text: 'Ideas and suggestions to make Next Engineer better.' },
-  { icon: '🤝', title: 'Partnership', text: 'Mention it in the subject and we will get back to you.' },
+const REASONS: { icon: IconName; title: string; text: string }[] = [
+  { icon: 'support_agent', title: 'Support', text: 'Questions about the platform or a note that will not open.' },
+  { icon: 'lightbulb', title: 'Feedback', text: 'Ideas and suggestions to make Next Engineer better.' },
+  { icon: 'handshake', title: 'Partnership', text: 'Mention it in the subject and we will get back to you.' },
 ];
 
 export default function ContactPage() {
@@ -125,8 +126,8 @@ export default function ContactPage() {
           <aside className="space-y-4">
             {REASONS.map((reason) => (
               <div key={reason.title} className="card flex gap-4 p-5">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand-soft text-xl" aria-hidden="true">
-                  {reason.icon}
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand-ink">
+                  <Icon name={reason.icon} size={22} />
                 </span>
                 <div>
                   <p className="font-extrabold text-ink">{reason.title}</p>

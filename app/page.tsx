@@ -5,7 +5,8 @@ import PageShell from './components/PageShell';
 import SubjectSearch from './components/SubjectSearch';
 import BlogSlider from './components/BlogSlider';
 import MyPasses from './components/MyPasses';
-import Icon, { IconName } from './components/Icon';
+import ReaderPreview from './components/ReaderPreview';
+import Icon from './components/Icon';
 import { getPrograms, getSiteStats } from '@/lib/catalog/server';
 import { programStyle, SYLLABUS_SESSION } from '@/lib/catalog/defaults';
 import { programPath } from '@/lib/catalog/routes';
@@ -26,48 +27,19 @@ const POPULAR_SEARCHES = [
   { query: 'BMB101', label: 'BMB101 (MBA)' },
 ];
 
-const FEATURES: { icon: IconName; color: string; title: string; text: string; tag: string }[] = [
+// Three things the site does that a WhatsApp group doesn't
+const FEATURES = [
   {
-    icon: 'menu_book',
-    color: 'text-brand',
-    title: 'Unit-wise notes',
-    text: 'Notes split by unit, so sessional prep for units 1–2 or 3–4 takes minutes, not a whole evening.',
-    tag: 'Units 1 to 5',
+    title: 'Notes and important questions by unit',
+    text: 'Sessional 1 covers units 1–2 and sessional 2 covers units 3–4, so filter a subject by unit and revise only what is coming.',
   },
   {
-    icon: 'history_edu',
-    color: 'text-leaf',
-    title: 'PYQs by year and session',
-    text: 'Previous year papers grouped by academic year and odd or even semester, newest first.',
-    tag: 'Practise the latest first',
+    title: 'PYQs by year and semester',
+    text: 'Previous papers are grouped by academic year and odd or even semester, newest first, so you practise what AKTU asked most recently.',
   },
   {
-    icon: 'star',
-    color: 'text-sun-ink',
-    title: 'Important questions',
-    text: 'Exam-focused questions for each unit, for the night before the paper.',
-    tag: 'Unit by unit',
-  },
-  {
-    icon: 'visibility',
-    color: 'text-brand',
-    title: 'Premium, read online',
-    text: 'Unlock one subject or a whole semester and read premium PDFs on your phone or laptop.',
-    tag: 'Watermarked reader',
-  },
-  {
-    icon: 'schedule_send',
-    color: 'text-leaf',
-    title: "Ask for what's missing",
-    text: "Can't find an elective or a paper? Request it from the subject page and we'll add it.",
-    tag: 'From any subject page',
-  },
-  {
-    icon: 'tag',
-    color: 'text-ink',
-    title: 'Search by subject code',
-    text: 'Type BCS301 or a subject name and jump straight to its page, from any page on the site.',
-    tag: 'Ctrl K anywhere',
+    title: 'Missing something? Ask for it',
+    text: 'Request a note or paper from any subject page. Requests come straight to us, and they decide what we add next.',
   },
 ];
 
@@ -112,14 +84,12 @@ export default async function Home() {
     { title: 'Postgraduate programs (PG)', dot: 'bg-sun', programs: programs.filter((p) => p.level === 'PG') },
   ].filter((level) => level.programs.length > 0);
 
-  const statItems = [
-    { value: stats.programs.toLocaleString('en-IN'), label: 'Programs', note: 'B.Tech, MBA, MCA, B.Pharm and more', color: 'text-brand' },
-    { value: stats.subjects.toLocaleString('en-IN'), label: 'Subjects', note: 'Theory, labs, electives and projects', color: 'text-brand' },
-    ...(stats.resources > 0
-      ? [{ value: stats.resources.toLocaleString('en-IN'), label: 'Notes and papers', note: 'Unit-wise notes, PYQs and more', color: 'text-leaf' }]
-      : []),
-    { value: SYLLABUS_SESSION, label: 'AKTU schemes', note: 'Subjects follow the schemes in force', color: 'text-sun-ink' },
-  ].filter((item) => item.value !== '0');
+  const count = (n: number, word: string) => `${n.toLocaleString('en-IN')} ${word}`;
+  const facts = [
+    stats.programs > 0 && count(stats.programs, stats.programs === 1 ? 'program' : 'programs'),
+    stats.subjects > 0 && count(stats.subjects, 'subjects'),
+    stats.resources > 0 && count(stats.resources, 'notes and papers'),
+  ].filter(Boolean);
 
   return (
     <PageShell>
@@ -128,22 +98,19 @@ export default async function Home() {
             Renders nothing for everyone else. */}
         <MyPasses programs={programs.map(({ id, hasBranches }) => ({ id, hasBranches }))} />
 
-        {/* Hero */}
-        <section className="relative overflow-hidden rounded-2xl bg-surface-muted px-4 py-12 shadow-soft sm:px-10 sm:py-16">
-          <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-brand-soft blur-3xl" />
-          <div aria-hidden="true" className="pointer-events-none absolute -bottom-20 -left-20 h-80 w-80 rounded-full bg-sun-soft blur-3xl" />
-          <div className="relative mx-auto flex max-w-4xl flex-col items-center text-center">
-            <span className="eyebrow mb-5">
-              <Icon name="school" size={16} className="text-brand" />
-              Made for the AKTU syllabus
-            </span>
+        {/* Hero, on ruled answer-sheet paper */}
+        <section className="ruled-paper overflow-hidden rounded-2xl border border-line px-4 py-12 sm:px-10 sm:py-16">
+          <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
+            <p className="mb-5 font-mono text-xs font-semibold uppercase tracking-wider text-ink-muted">
+              For AKTU students · {SYLLABUS_SESSION} scheme
+            </p>
             <h1 className="max-w-3xl font-display text-[2rem] font-bold leading-[1.2] tracking-tight text-ink sm:text-5xl sm:leading-[1.15]">
-              Stop digging through WhatsApp &amp; Telegram at 2 AM.
+              Stop digging through WhatsApp &amp; Telegram at <span className="marker">2 AM</span>.
               <span className="mt-1 block text-brand">Every AKTU subject, in one place.</span>
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-ink-muted sm:text-lg">
               Unit-wise notes, previous year papers (PYQs), important questions and the syllabus for every subject at
-              Dr. A.P.J. Abdul Kalam Technical University.
+              Dr. A.P.J. Abdul Kalam Technical University, sorted by branch and semester.
             </p>
             <div className="mt-8 flex w-full justify-center">
               <SubjectSearch variant="hero" />
@@ -160,30 +127,21 @@ export default async function Home() {
                 </Link>
               ))}
             </div>
+            {/* Live counts as one plain line rather than a block of big numbers */}
+            <p className="mt-8 font-mono text-xs text-ink-muted">{facts.join('  ·  ')}</p>
           </div>
         </section>
 
-        {/* Live numbers */}
-        <section className="card grid grid-cols-2 gap-y-6 px-4 py-6 md:grid-cols-4">
-          {statItems.map((item) => (
-            <div key={item.label} className="flex flex-col items-center px-2 text-center">
-              <span className={`font-display text-[1.75rem] font-extrabold leading-8 tracking-tight ${item.color}`}>{item.value}</span>
-              <span className="mt-1 font-display text-base font-semibold text-ink">{item.label}</span>
-              <span className="text-xs text-ink-muted">{item.note}</span>
-            </div>
-          ))}
-        </section>
-
-        {/* Highlight banner */}
-        <section className="grid items-center overflow-hidden rounded-2xl bg-surface-strong lg:grid-cols-12">
-          <div className="p-6 sm:p-10 lg:col-span-7">
-            <span className="kicker">Made for exam season</span>
-            <h2 className="mt-2 font-display text-2xl font-bold leading-snug tracking-tight text-ink sm:text-[2rem] sm:leading-10">
-              Unit-wise notes and year-wise papers, ready when you are.
+        {/* What reading looks like */}
+        <section className="grid items-center gap-8 rounded-2xl bg-surface-strong p-6 sm:p-10 lg:grid-cols-12">
+          <div className="lg:col-span-6">
+            <h2 className="font-display text-2xl font-bold leading-snug tracking-tight text-ink sm:text-[2rem] sm:leading-10">
+              Notes open right here, on your phone or laptop.
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-muted sm:text-base">
-              Pick your semester, open a subject and revise unit by unit. Previous papers are grouped by academic year and
-              odd or even semester, so you can practise the latest ones first.
+              Pick your semester, open a subject and read. Notes can be filtered by unit, so before a sessional you open
+              only the units that are coming. PYQs are grouped by year and odd or even semester, newest first. Nothing to
+              download, nothing to lose in your gallery.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <a href="#programs" className="btn btn-primary">
@@ -194,19 +152,18 @@ export default async function Home() {
               </a>
             </div>
           </div>
-          <div className="relative h-64 lg:col-span-5 lg:h-80">
-            <Image
-              src="/premium_vector-1722936895524-35f678b166f7.png"
-              alt="A student studying at a desk by lamplight"
-              fill
-              sizes="(min-width: 1024px) 40vw, 100vw"
-              className="object-cover object-[50%_40%]"
-              priority
-            />
-            <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-surface-strong via-transparent to-transparent lg:bg-gradient-to-r" />
-            {/* Small photo card over the illustration's corner, as on the original home page */}
-            <div className="absolute bottom-4 left-4 z-10 w-24 -rotate-3 overflow-hidden rounded-xl border-4 border-surface shadow-lift sm:w-28 lg:bottom-6 lg:left-6">
-              <Image src="/QWE1.jpeg" alt="From the Next Engineer team" width={861} height={1535} sizes="112px" className="h-auto w-full" />
+          <div className="relative lg:col-span-6">
+            <ReaderPreview />
+            {/* Stuck on the corner like a photo on a notebook */}
+            <div className="absolute -bottom-8 -right-3 w-20 rotate-6 overflow-hidden rounded-lg border-4 border-surface shadow-lift sm:-right-6 sm:w-24">
+              <Image
+                src="/QWE1.jpeg"
+                alt="From the Next Engineer team"
+                width={861}
+                height={1535}
+                sizes="96px"
+                className="aspect-[4/5] w-full object-cover object-[50%_70%]"
+              />
             </div>
           </div>
         </section>
@@ -243,27 +200,18 @@ export default async function Home() {
           )}
         </section>
 
-        {/* Features */}
+        {/* How it's organised */}
         <section>
-          <div className="mx-auto mb-8 max-w-2xl text-center">
-            <span className="kicker">Built for exam prep</span>
-            <h2 className="section-title mt-1">What you&apos;ll find here</h2>
-            <p className="mt-2 text-ink-muted">
-              Everything you need for the last few days before an AKTU sessional or end-semester paper.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((feature) => (
-              <div key={feature.title} className="card flex flex-col p-5">
-                <span className={`mb-3 grid h-10 w-10 place-items-center rounded-lg bg-surface-strong ${feature.color}`}>
-                  <Icon name={feature.icon} size={24} />
-                </span>
-                <h3 className="font-display text-lg font-semibold text-ink">{feature.title}</h3>
-                <p className="mt-1 flex-1 text-sm leading-relaxed text-ink-muted">{feature.text}</p>
-                <span className={`mt-3 font-mono text-[13px] font-semibold ${feature.color}`}>{feature.tag}</span>
-              </div>
+          <h2 className="section-title max-w-2xl">Organised the way AKTU exams work</h2>
+          <ol className="mt-8 grid gap-8 md:grid-cols-3">
+            {FEATURES.map((feature, index) => (
+              <li key={feature.title} className="border-t-2 border-ink pt-4">
+                <span className="font-mono text-sm font-semibold text-brand">{String(index + 1).padStart(2, '0')}</span>
+                <h3 className="mt-2 font-display text-lg font-semibold text-ink">{feature.title}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-ink-muted">{feature.text}</p>
+              </li>
             ))}
-          </div>
+          </ol>
         </section>
 
         {/* Passes */}

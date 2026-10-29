@@ -32,7 +32,7 @@ export default function NavAuthControls() {
     <>
       {user.isOwner && (
         <Link href="/admin" className="btn btn-soft btn-sm">
-          <span aria-hidden="true">👑</span> Admin
+          <Icon name="admin_panel_settings" size={16} /> Admin
         </Link>
       )}
       {/* Jumps to "Your passes" at the top of the home page */}

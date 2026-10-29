@@ -32,7 +32,6 @@ export default function SubjectView({ program, branch, semester, subject, resour
       />
 
       <section className="relative mb-8 overflow-hidden rounded-2xl bg-surface-muted p-6 shadow-soft sm:p-8">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-brand-soft blur-3xl" />
         <div className="relative">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="code code-brand">{subject.code}</span>

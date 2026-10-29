@@ -75,7 +75,7 @@ export default function RequestResource({ subjectId, subjectCode, subjectName }:
               className="btn btn-ghost absolute right-4 top-4 h-9 w-9 rounded-full p-0"
               aria-label="Close"
             >
-              ✕
+              <Icon name="close" />
             </button>
             <h2 id="request-title" className="font-display text-xl font-bold text-ink">Request a resource</h2>
             <p className="mb-5 mt-1 text-sm text-ink-muted">

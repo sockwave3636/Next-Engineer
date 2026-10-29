@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import PageShell from '@/app/components/PageShell';
 import Breadcrumbs from '@/app/components/Breadcrumbs';
 import PostGallery from './PostGallery';
+import Icon, { IconName } from '@/app/components/Icon';
 import { getPost } from '@/lib/posts-server';
 import { formatPostDate } from '@/lib/format';
 
@@ -10,10 +11,10 @@ export const revalidate = 3600;
 
 type Params = Promise<{ id: string }>;
 
-const TYPE_STYLES: Record<string, { icon: string; badge: string }> = {
-  blog: { icon: '📝', badge: 'badge-brand' },
-  notice: { icon: '📢', badge: 'badge-sun' },
-  article: { icon: '📰', badge: 'badge-muted' },
+const TYPE_STYLES: Record<string, { icon: IconName; badge: string }> = {
+  blog: { icon: 'edit_note', badge: 'badge-brand' },
+  notice: { icon: 'campaign', badge: 'badge-sun' },
+  article: { icon: 'newspaper', badge: 'badge-muted' },
 };
 
 async function loadPost(params: Params) {
@@ -54,7 +55,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
           <div className="p-6 sm:p-10">
             <div className="mb-5 flex flex-wrap items-center gap-2">
               <span className={`badge capitalize ${style.badge}`}>
-                <span aria-hidden="true">{style.icon}</span> {post.type}
+                <Icon name={style.icon} size={14} /> {post.type}
               </span>
               <span className="text-sm font-semibold text-ink-muted">{formatPostDate(post.createdAt)}</span>
             </div>

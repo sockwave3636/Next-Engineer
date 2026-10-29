@@ -350,6 +350,29 @@
   .prose-page a {
     @apply font-semibold text-brand underline-offset-4 hover:underline;
   }
+
+  /* Ruled answer-sheet paper for the home page's opening block; the red margin line only shows
+     where there's room for it beside the text */
+  .ruled-paper {
+    background-color: var(--surface);
+    background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 35px, var(--line) 35px, var(--line) 36px);
+  }
+
+  @media (min-width: 640px) {
+    .ruled-paper {
+      background-image:
+        linear-gradient(to right, transparent 47px, color-mix(in srgb, var(--danger) 35%, transparent) 47px, color-mix(in srgb, var(--danger) 35%, transparent) 49px, transparent 49px),
+        repeating-linear-gradient(to bottom, transparent 0, transparent 35px, var(--line) 35px, var(--line) 36px);
+    }
+  }
+
+  /* Highlighter stroke behind a few words */
+  .marker {
+    background-image: linear-gradient(to top, color-mix(in srgb, var(--sun) 45%, transparent) 42%, transparent 42%);
+    padding: 0 0.04em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
 }
 
 /* Animations */
