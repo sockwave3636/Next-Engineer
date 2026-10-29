@@ -4,6 +4,7 @@ import Link from 'next/link';
 import PageShell from './components/PageShell';
 import SubjectSearch from './components/SubjectSearch';
 import BlogSlider from './components/BlogSlider';
+import MyPasses from './components/MyPasses';
 import Icon, { IconName } from './components/Icon';
 import { getPrograms, getSiteStats } from '@/lib/catalog/server';
 import { programStyle, SYLLABUS_SESSION } from '@/lib/catalog/defaults';
@@ -123,6 +124,10 @@ export default async function Home() {
   return (
     <PageShell>
       <div className="container-page space-y-14 pt-6">
+        {/* A signed-in student's passes come first, so they don't have to search for what they bought.
+            Renders nothing for everyone else. */}
+        <MyPasses programs={programs.map(({ id, hasBranches }) => ({ id, hasBranches }))} />
+
         {/* Hero */}
         <section className="relative overflow-hidden rounded-2xl bg-surface-muted px-4 py-12 shadow-soft sm:px-10 sm:py-16">
           <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-brand-soft blur-3xl" />
@@ -301,34 +306,6 @@ export default async function Home() {
           <BlogSlider />
         </section>
 
-        {/* Support */}
-        <section id="support" className="scroll-mt-28 rounded-2xl bg-surface-strong p-6 sm:p-10">
-          <div className="grid items-center gap-8 lg:grid-cols-12">
-            <div className="lg:col-span-7">
-              <h2 className="section-title">Enjoying the free notes?</h2>
-              <p className="mt-2 max-w-xl leading-relaxed text-ink-muted">
-                Free material stays free for everyone. If Next Engineer helped you clear a paper, a small UPI contribution
-                helps us add better notes and papers for the next exam season.
-              </p>
-              <p className="mt-4 flex items-center gap-2 text-sm text-ink-muted">
-                <Icon name="check_circle" size={18} className="text-leaf" filled />
-                Any amount helps. Scan the code with Google Pay, PhonePe or Paytm.
-              </p>
-            </div>
-            <div className="flex justify-center lg:col-span-5">
-              <div className="flex w-full max-w-xs flex-col items-center rounded-2xl bg-surface p-5 text-center shadow-lift">
-                <div className="flex w-full items-center gap-2 pb-3">
-                  <Icon name="qr_code_2" size={20} className="text-brand" />
-                  <span className="font-mono text-[13px] font-bold text-ink">Scan to support</span>
-                </div>
-                <div className="rounded-xl bg-white p-3">
-                  <Image src="/poi.jpeg" alt="UPI QR code to support Next Engineer" width={200} height={200} className="h-48 w-48 object-contain" />
-                </div>
-                <span className="mt-3 text-xs text-ink-muted">Google Pay · PhonePe · Paytm · any UPI app</span>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
     </PageShell>
   );

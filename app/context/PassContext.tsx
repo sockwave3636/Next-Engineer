@@ -7,7 +7,7 @@ import { hasSubjectAccess, PassExpiries } from '@/lib/catalog/access';
 import type { Subject } from '@/lib/catalog/types';
 
 interface PassContextType {
-  // scopeKey → pass (subject:{id} or branch:{program}:{branch})
+  // scopeKey → pass (subject:{id} or semester:{program}:{branch}:{semester})
   passes: Record<string, UserPass>;
   // Owners always have access. Display only: the server re-checks on every read.
   hasAccess: (subject: Pick<Subject, 'id' | 'programId' | 'offerings'>) => boolean;

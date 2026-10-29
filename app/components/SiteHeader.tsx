@@ -9,7 +9,6 @@ const NAV_LINKS = [
   { href: '/#programs', label: 'Programs' },
   { href: '/#passes', label: 'Passes' },
   { href: '/#updates', label: 'Updates' },
-  { href: '/#support', label: 'Support via UPI' },
   { href: '/contact', label: 'Contact' },
 ];
 

@@ -17,6 +17,7 @@ export const ICON_NAMES = [
   'dark_mode',
   'description',
   'engineering',
+  'event',
   'fit_screen',
   'history_edu',
   'layers',
@@ -29,7 +30,6 @@ export const ICON_NAMES = [
   'newspaper',
   'open_in_new',
   'precision_manufacturing',
-  'qr_code_2',
   'remove',
   'schedule_send',
   'school',
@@ -42,7 +42,6 @@ export const ICON_NAMES = [
   'terminal',
   'toc',
   'visibility',
-  'volunteer_activism',
   'workspace_premium',
 ] as const;
 

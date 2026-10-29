@@ -51,17 +51,6 @@ export default function AboutPage() {
 
           <div>
             <h2>
-              Support Us
-            </h2>
-            <p>
-              Next Engineer is maintained with dedication to provide free educational resources. Your support helps us 
-              continue improving the platform and adding more valuable content. We appreciate any contributions that help 
-              us maintain and enhance our services.
-            </p>
-          </div>
-
-          <div>
-            <h2>
               Contact
             </h2>
             <p>

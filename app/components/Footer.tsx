@@ -41,9 +41,6 @@ export default function Footer() {
           <p className="max-w-xs text-sm leading-relaxed text-ink-muted">
             Notes, PYQs and important questions for AKTU students, organised by program, branch and semester.
           </p>
-          <Link href="/#support" className="btn btn-soft btn-sm">
-            <Icon name="volunteer_activism" size={16} /> Support via UPI
-          </Link>
         </div>
         {LINK_GROUPS.map((group) => (
           <div key={group.title}>

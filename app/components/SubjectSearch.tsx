@@ -3,21 +3,8 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { describeEntry, SearchEntry, searchSubjects } from '@/lib/catalog/search';
+import { loadSearchIndex } from '@/lib/catalog/search-index-client';
 import Icon from './Icon';
-
-// Loaded once per page view, on first focus
-let indexPromise: Promise<SearchEntry[]> | null = null;
-function loadIndex(): Promise<SearchEntry[]> {
-  if (!indexPromise) {
-    indexPromise = fetch('/api/search-index')
-      .then((response) => (response.ok ? response.json() : []))
-      .catch(() => {
-        indexPromise = null;
-        return [];
-      });
-  }
-  return indexPromise;
-}
 
 interface SubjectSearchProps {
   variant?: 'header' | 'hero';
@@ -96,7 +83,8 @@ export default function SubjectSearch({ variant = 'header', initialQuery = '' }:
       }}
       onFocus={() => {
         setOpen(true);
-        if (!entries) loadIndex().then(setEntries);
+        // Loaded once per page view, on first focus
+        if (!entries) loadSearchIndex().then(setEntries);
       }}
       onKeyDown={onKeyDown}
       placeholder={isHero ? "Try 'BCS301', 'Data Structure' or 'Operating System'" : 'Search subject by code or name'}

@@ -19,7 +19,7 @@ import {
 import { db } from "./config";
 
 // Written only by the server after a verified payment (see lib/server/passes.ts).
-// Document id is the scope key: subject:{id} or branch:{program}:{branch}.
+// Document id is the scope key: subject:{id} or semester:{program}:{branch}:{semester}.
 export interface UserPass {
   scopeKey: string;
   label: string;
