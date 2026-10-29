@@ -18,7 +18,7 @@ Built with Next.js, React, Tailwind CSS and Firebase.
 - **Request a resource:** students ask for missing material from the subject page, and requests
   show up in the admin panel.
 - **Premium:** subject passes and semester passes, paid through Razorpay. Premium PDFs
-  need a pass. Every PDF, free or premium, opens only in a watermarked, read-only reader; nothing
+  need a pass, and so does every PDF of a subject whose subject or semester pass is on sale. Every PDF, free or premium, opens only in a watermarked, read-only reader; nothing
   can be downloaded.
 - **Admin panel:** programs and branches, subjects and their material, blog and notices, and
   messages.

@@ -6,8 +6,10 @@ import BranchView from '@/app/components/catalog/BranchView';
 import SemesterView from '@/app/components/catalog/SemesterView';
 import SubjectView from '@/app/components/catalog/SubjectView';
 import type { PassOption } from '@/app/components/PassOptions';
+import { needsPass, subjectOnSale } from '@/lib/catalog/access';
 import {
   getBranch,
+  getBranches,
   getMaterialLocked,
   getProgram,
   getProgramSubjects,
@@ -18,7 +20,7 @@ import {
   subjectOfferedIn,
 } from '@/lib/catalog/server';
 import { canonicalSubjectPath, resolvePath, semesterLabel, semesterPath, branchPath, programPath } from '@/lib/catalog/routes';
-import { Branch, DEFAULT_BRANCH_ID, Program, Subject, semesterPassOf } from '@/lib/catalog/types';
+import { ALL_BRANCHES, Branch, DEFAULT_BRANCH_ID, Program, Subject, semesterPassOf } from '@/lib/catalog/types';
 
 // Pages are cached; admin edits expire the 'catalog' cache tag through /api/revalidate
 export const revalidate = 3600;
@@ -39,7 +41,7 @@ function semesterPassOption(program: Program, branch: Branch, semester: number):
   ];
 }
 
-function subjectPassOptions(program: Program, branch: Branch, semester: number, subject: Subject): PassOption[] {
+function subjectPassOptions(program: Program, branch: Branch, semester: number, subject: Subject, branches: Branch[]): PassOption[] {
   const options: PassOption[] = [];
   if (subject.pass?.enabled) {
     options.push({
@@ -49,7 +51,23 @@ function subjectPassOptions(program: Program, branch: Branch, semester: number, 
       pass: subject.pass,
     });
   }
-  return [...options, ...semesterPassOption(program, branch, semester)];
+  let semesterOption = semesterPassOption(program, branch, semester);
+  // A subject shared by every branch is unlocked by any branch's semester pass, so when this
+  // branch sells none, offer the first branch's that is on sale
+  const shared = subject.offerings.some((o) => o.branchId === ALL_BRANCHES && o.semester === semester);
+  if (semesterOption.length === 0 && shared) {
+    const seller = branches.find((b) => semesterPassOf(b, semester)?.enabled);
+    if (seller) semesterOption = semesterPassOption(program, seller, semester);
+  }
+  return [...options, ...semesterOption];
+}
+
+// Every file of a paid subject is premium, so its card shows the badge and the semester's
+// pass offer appears
+function withSaleCounts(subject: Subject, branches: Branch[]): Subject {
+  if (!subjectOnSale(subject, branches)) return subject;
+  const files = Object.entries(subject.resourceCounts).reduce((sum, [type, n]) => (type === 'premium' ? sum : sum + (n ?? 0)), 0);
+  return { ...subject, resourceCounts: { ...subject.resourceCounts, premium: files } };
 }
 
 async function loadBranch(program: Program, branchId: string): Promise<Branch> {
@@ -82,27 +100,40 @@ async function loadPage(params: Params) {
     }
     case 'semester': {
       const branch = await loadBranch(program, route.branchId);
-      const subjects = await getSemesterSubjects(program.id, branch.id, route.semester);
-      return { kind: 'semester' as const, program, branch, semester: route.semester, subjects };
+      const [subjects, allBranches] = await Promise.all([
+        getSemesterSubjects(program.id, branch.id, route.semester),
+        getBranches(program.id),
+      ]);
+      return {
+        kind: 'semester' as const,
+        program,
+        branch,
+        semester: route.semester,
+        subjects: subjects.map((s) => withSaleCounts(s, allBranches)),
+      };
     }
     case 'subject': {
       const branch = await loadBranch(program, route.branchId);
       const subject = await getSubjectBySlug(program.id, route.subjectSlug);
       if (!subject || !subjectOfferedIn(subject, branch.id, route.semester)) notFound();
-      const [resources, branches, materialLocked] = await Promise.all([
+      const [resources, branches, allBranches, materialLocked] = await Promise.all([
         getResources(subject.id),
         getVisibleBranches(program),
+        getBranches(program.id),
         getMaterialLocked(),
       ]);
+      const onSale = subjectOnSale(subject, allBranches);
       return {
         kind: 'subject' as const,
         program,
         branch,
         semester: route.semester,
         subject,
-        // While the admin's master lock is on, the page doesn't even receive the list
-        resources: materialLocked ? [] : resources,
+        // While the admin's master lock is on, the page doesn't even receive the list.
+        // Files of a paid subject are shown as premium, matching the check in /api/resources/view.
+        resources: materialLocked ? [] : resources.map((r) => ({ ...r, premium: needsPass(r, onSale) })),
         materialLocked,
+        allBranches,
         canonical: canonicalSubjectPath(program, branches, subject),
       };
     }
@@ -200,7 +231,7 @@ export default async function CatalogPage({ params }: { params: Params }) {
           subject={page.subject}
           resources={page.resources}
           materialLocked={page.materialLocked}
-          passOptions={subjectPassOptions(page.program, page.branch, page.semester, page.subject)}
+          passOptions={subjectPassOptions(page.program, page.branch, page.semester, page.subject, page.allBranches)}
         />
       );
       break;

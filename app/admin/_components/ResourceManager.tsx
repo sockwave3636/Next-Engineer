@@ -244,6 +244,10 @@ export default function ResourceManager({ subject, onClose, onChanged }: Resourc
                 />
                 ⭐ Premium: only pass holders can read it
               </label>
+              <p className="text-xs text-ink-muted">
+                Once this subject, or a semester it&apos;s taught in, has a pass on sale, every file here needs a pass,
+                ticked or not.
+              </p>
               {draft.file && !isPdf(draft.file) && (
                 <p className="alert alert-error text-xs">Choose a PDF. Other file types can&apos;t open in the reader.</p>
               )}

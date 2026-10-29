@@ -52,6 +52,11 @@ Every uploaded file, free or premium, is a PDF that students **read** on the sit
 downloaded. Reading needs sign-in, so every page carries the reader's email. Premium files also
 need a pass. Links (videos, articles) still open in a new tab.
 
+A file is premium when it's ticked Premium, **or** when a pass that covers its subject is on sale:
+the subject's own pass, or a semester pass for a branch and semester the subject is taught in
+(any branch's, for subjects shared by all branches). So putting a semester pass on sale locks every
+file in that semester's subjects; files of subjects with no pass on sale stay free.
+
 - **Rendering:** the reader draws each page with PDF.js, so the browser never gets a file link.
 - **Delivery:** pages arrive in 512 KB pieces from `/api/resources/view`, and every request
   re-checks the student's pass. Small pieces fit Vercel's response limit, so large books work too.
