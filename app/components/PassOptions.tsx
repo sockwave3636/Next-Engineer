@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { PassScope, PassSettings, Subject, formatRupees, scopeKey } from '@/lib/catalog/types';
+import { PassScope, PassSettings, Subject, formatRupees, passOnSale, scopeKey } from '@/lib/catalog/types';
 import { buyPass, CheckoutDismissedError } from '@/lib/premium-client';
 import { useAuth } from '../context/AuthContext';
 import { useAuthPrompt } from '../context/AuthPromptContext';
@@ -32,7 +32,7 @@ export default function PassOptions({ options, subject }: PassOptionsProps) {
   const [error, setError] = useState('');
   const [justBought, setJustBought] = useState(false);
 
-  const available = options.filter((o) => o.pass.enabled && o.pass.price >= 1);
+  const available = options.filter((o) => passOnSale(o.pass));
   if (available.length === 0) return null;
 
   const activeOption = available.find((o) => activeUntil(scopeKey(o.scope)));

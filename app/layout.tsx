@@ -8,6 +8,7 @@ import { AuthPromptProvider } from "./context/AuthPromptContext";
 import { PassProvider } from "./context/PassContext";
 import CookieConsent from "./components/CookieConsent";
 import { ICON_FONT_URL } from "./components/Icon";
+import { SITE_URL } from "@/lib/site-url";
 
 const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
 
@@ -19,8 +20,8 @@ const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["lati
 const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t)}catch(e){}})();`;
 
 export const metadata: Metadata = {
-  // Absolute base for canonical and Open Graph URLs; set NEXT_PUBLIC_SITE_URL in production
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  // Absolute base for canonical and Open Graph URLs (see lib/site-url.ts)
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Next Engineer: AKTU notes, PYQs and study material",
     template: "%s | Next Engineer",

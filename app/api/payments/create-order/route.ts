@@ -1,6 +1,6 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/firebase/admin';
-import { DEFAULT_BRANCH_ID, PassScope, PassSettings, scopeKey } from '@/lib/catalog/types';
+import { DEFAULT_BRANCH_ID, PassScope, PassSettings, passOnSale, scopeKey } from '@/lib/catalog/types';
 import { errorResponse, HttpError, isOwnerToken, readJson, requireString, requireUser } from '@/lib/server/http';
 import type { PaymentRecord } from '@/lib/server/passes';
 import { createRazorpayOrder, getRazorpayKeyId } from '@/lib/server/razorpay';
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     }
 
     const { pass, label } = await resolvePass(scope);
-    if (!pass?.enabled || !(pass.price >= 1) || !(pass.durationDays >= 1)) {
+    if (!passOnSale(pass)) {
       throw new HttpError(400, 'This pass is not on sale right now.');
     }
 

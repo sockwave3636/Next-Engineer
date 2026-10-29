@@ -96,7 +96,7 @@ export async function buyPass(
       name: 'Next Engineer',
       description: `${order.label} premium pass`,
       prefill,
-      theme: { color: '#c2410c' },
+      theme: { color: '#1d4ed8' },
       handler: (response: RazorpaySuccessResponse) => {
         postWithAuth<{ expiresAt: number }>('/api/payments/verify', response).then(resolve, reject);
       },

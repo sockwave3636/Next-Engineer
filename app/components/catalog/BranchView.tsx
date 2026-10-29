@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Breadcrumbs from '../Breadcrumbs';
 import Icon from '../Icon';
 import { ProgramHeader } from './ProgramView';
-import { Branch, Program, formatRupees, semesterPassOf } from '@/lib/catalog/types';
+import { Branch, Program, formatRupees, passOnSale, semesterPassOf } from '@/lib/catalog/types';
 import { programPath, semesterLabel, semesterPath, yearOfSemester } from '@/lib/catalog/routes';
 
 interface BranchViewProps {
@@ -53,7 +53,7 @@ export default function BranchView({ program, branch, semesterCounts }: BranchVi
                       <span className="min-w-0">
                         <span className="mb-1.5 flex flex-wrap items-center gap-1.5">
                           <span className="code">Sem {String(semester).padStart(2, '0')}</span>
-                          {pass?.enabled && <span className="badge badge-sun">Pass {formatRupees(pass.price)}</span>}
+                          {passOnSale(pass) && <span className="badge badge-sun">Pass {formatRupees(pass.price)}</span>}
                         </span>
                         <span className="block font-display font-semibold text-ink group-hover:text-brand">{semesterLabel(semester)}</span>
                         <span className="text-xs text-ink-muted">

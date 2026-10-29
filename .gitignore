@@ -43,3 +43,6 @@ next-env.d.ts
 
 # local MCP config (contains API keys)
 .mcp.json
+
+# Study material sources and PDFs; served only through the reader, never committed
+/content/

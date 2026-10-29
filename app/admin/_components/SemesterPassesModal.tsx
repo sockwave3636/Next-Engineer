@@ -64,7 +64,8 @@ export default function SemesterPassesModal({ program, branch, label, onClose, o
       <div className="space-y-5">
         <p className="text-sm text-ink-muted">
           A semester pass unlocks every premium file in that semester&apos;s subjects for {label}, including subjects
-          shared with other branches. Students can also buy single-subject passes, set on each subject.
+          shared with other branches. Putting a semester on sale makes every file in its subjects need a pass, so only
+          buyers (and owners) can read them. Students can also buy single-subject passes, set on each subject.
         </p>
 
         <div className="flex flex-wrap items-end gap-3 rounded-2xl bg-surface-muted p-4">

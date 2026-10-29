@@ -20,7 +20,7 @@ import {
   subjectOfferedIn,
 } from '@/lib/catalog/server';
 import { canonicalSubjectPath, resolvePath, semesterLabel, semesterPath, branchPath, programPath } from '@/lib/catalog/routes';
-import { ALL_BRANCHES, Branch, DEFAULT_BRANCH_ID, Program, Subject, semesterPassOf } from '@/lib/catalog/types';
+import { ALL_BRANCHES, Branch, DEFAULT_BRANCH_ID, Program, Subject, passOnSale, semesterPassOf } from '@/lib/catalog/types';
 
 // Pages are cached; admin edits expire the 'catalog' cache tag through /api/revalidate
 export const revalidate = 3600;
@@ -29,7 +29,7 @@ type Params = Promise<{ program: string; path?: string[] }>;
 
 function semesterPassOption(program: Program, branch: Branch, semester: number): PassOption[] {
   const pass = semesterPassOf(branch, semester);
-  if (!pass?.enabled) return [];
+  if (!passOnSale(pass)) return [];
   const label = program.hasBranches ? `${program.name} ${branch.shortName}` : program.name;
   return [
     {
@@ -43,7 +43,7 @@ function semesterPassOption(program: Program, branch: Branch, semester: number):
 
 function subjectPassOptions(program: Program, branch: Branch, semester: number, subject: Subject, branches: Branch[]): PassOption[] {
   const options: PassOption[] = [];
-  if (subject.pass?.enabled) {
+  if (passOnSale(subject.pass)) {
     options.push({
       scope: { type: 'subject', subjectId: subject.id },
       title: 'This subject',
@@ -56,7 +56,7 @@ function subjectPassOptions(program: Program, branch: Branch, semester: number, 
   // branch sells none, offer the first branch's that is on sale
   const shared = subject.offerings.some((o) => o.branchId === ALL_BRANCHES && o.semester === semester);
   if (semesterOption.length === 0 && shared) {
-    const seller = branches.find((b) => semesterPassOf(b, semester)?.enabled);
+    const seller = branches.find((b) => passOnSale(semesterPassOf(b, semester)));
     if (seller) semesterOption = semesterPassOption(program, seller, semester);
   }
   return [...options, ...semesterOption];

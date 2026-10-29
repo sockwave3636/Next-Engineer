@@ -1,4 +1,4 @@
-import { ALL_BRANCHES, Branch, Resource, Subject, semesterPassOf } from './types';
+import { ALL_BRANCHES, Branch, Resource, Subject, passOnSale, semesterPassOf } from './types';
 
 // scopeKey → pass expiry (epoch millis)
 export type PassExpiries = Record<string, number>;
@@ -10,12 +10,12 @@ export function subjectOnSale(
   subject: Pick<Subject, 'pass' | 'offerings'>,
   branches: Pick<Branch, 'id' | 'semesterPasses'>[]
 ): boolean {
-  if (subject.pass?.enabled) return true;
+  if (passOnSale(subject.pass)) return true;
   return subject.offerings.some((offering) =>
     branches.some(
       (branch) =>
         (offering.branchId === ALL_BRANCHES || offering.branchId === branch.id) &&
-        semesterPassOf(branch, offering.semester)?.enabled === true
+        passOnSale(semesterPassOf(branch, offering.semester))
     )
   );
 }

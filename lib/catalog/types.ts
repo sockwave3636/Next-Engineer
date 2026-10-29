@@ -41,6 +41,12 @@ export function semesterPassOf(branch: Pick<Branch, 'semesterPasses'>, semester:
   return branch.semesterPasses?.[String(semester)];
 }
 
+// A pass students can actually buy. Checkout refuses anything else, so the lock, the
+// Unlock button and checkout all use this one test.
+export function passOnSale(pass: PassSettings | undefined): pass is PassSettings {
+  return !!pass?.enabled && pass.price >= 1 && pass.durationDays >= 1;
+}
+
 // Hidden branch used by programs without branches; it holds the program's semester passes
 export const DEFAULT_BRANCH_ID = 'all';
 // Offering branch meaning "every branch of the program" (e.g. B.Tech first year)
