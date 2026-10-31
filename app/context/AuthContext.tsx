@@ -37,6 +37,25 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Before opening Google's sign-in popup, Firebase loads a helper frame from Google. On desktop
+// Chrome it waits for the first click to do that, and when the download outlasts Chrome's ~5 second
+// click window the popup is blocked. Call this as soon as a sign-in prompt appears so the frame is
+// ready before the click. It uses Firebase's internal resolver; if that ever changes, it does nothing.
+let googleSignInPrepared: Promise<unknown> | null = null;
+export function prepareGoogleSignIn(): void {
+  if (googleSignInPrepared || typeof window === 'undefined') return;
+  googleSignInPrepared = auth
+    .authStateReady()
+    .then(() => {
+      const resolver = (auth as unknown as { _popupRedirectResolver?: { _initialize?: (a: typeof auth) => Promise<unknown> } })
+        ._popupRedirectResolver;
+      return resolver?._initialize?.(auth);
+    })
+    .catch(() => {
+      googleSignInPrepared = null;
+    });
+}
+
 function toUser(firebaseUser: FirebaseUser): User {
   return {
     email: firebaseUser.email || '',
@@ -126,10 +145,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userCredential = await signInWithPopup(auth, provider);
       // User state will be updated by onAuthStateChanged
     } catch (error: any) {
-      if (error.code === 'auth/popup-closed-by-user') {
+      if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
         throw new Error('Sign-in popup was closed. Please try again.');
       } else if (error.code === 'auth/popup-blocked') {
-        throw new Error('Popup was blocked by your browser. Please allow popups and try again.');
+        // The helper frame has loaded by now, so a second click opens the popup straight away
+        throw new Error(
+          "Your browser blocked Google's sign-in window. Click Continue with Google again. If it's blocked again, allow pop-ups for this site from the icon at the right end of the address bar."
+        );
+      } else if (error.code === 'auth/unauthorized-domain') {
+        throw new Error("Google sign-in isn't available on this web address yet. Sign in with email and password instead.");
+      } else if (error.code === 'auth/operation-not-supported-in-this-environment' || error.code === 'auth/web-storage-unsupported') {
+        throw new Error(
+          "Google sign-in doesn't work inside this app's built-in browser. Open the site in Chrome (⋮ menu, then Open in Chrome) and try again."
+        );
       } else {
         throw new Error(error.message || 'Failed to sign in with Google');
       }

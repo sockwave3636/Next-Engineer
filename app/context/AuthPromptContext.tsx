@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useCallback } from 'react';
-import { useAuth } from './AuthContext';
+import { prepareGoogleSignIn, useAuth } from './AuthContext';
 import Icon from '../components/Icon';
 
 // Google's multi-colour "G", as its sign-in branding guidelines ask for
@@ -65,6 +65,8 @@ export function AuthPromptProvider({ children }: { children: React.ReactNode }) 
       if (user) {
         return;
       }
+      // Ready before the student reaches "Continue with Google", so Chrome doesn't block the popup
+      prepareGoogleSignIn();
       setPromptReason(reason || null);
       setAllowSignUp(allowSignUp);
       setMode('login');

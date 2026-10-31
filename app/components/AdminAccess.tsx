@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '../context/AuthContext';
+import { prepareGoogleSignIn, useAuth } from '../context/AuthContext';
 import { useAuthPrompt } from '../context/AuthPromptContext';
 import { isListedOwnerEmail } from '@/lib/owners';
 import PageShell from './PageShell';
@@ -14,6 +14,11 @@ export default function AdminAccess() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
+
+  // This page offers "Continue with Google" directly, so get the popup ready up front
+  useEffect(() => {
+    prepareGoogleSignIn();
+  }, []);
 
   const run = async (action: () => Promise<void>, successMessage?: string) => {
     setBusy(true);
