@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
   GoogleAuthProvider,
   signOut,
   onAuthStateChanged,
@@ -39,22 +40,32 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Before opening Google's sign-in popup, Firebase loads a helper frame from Google. On desktop
 // Chrome it waits for the first click to do that, and when the download outlasts Chrome's ~5 second
-// click window the popup is blocked. Call this as soon as a sign-in prompt appears so the frame is
-// ready before the click. It uses Firebase's internal resolver; if that ever changes, it does nothing.
-let googleSignInPrepared: Promise<unknown> | null = null;
-export function prepareGoogleSignIn(): void {
-  if (googleSignInPrepared || typeof window === 'undefined') return;
-  googleSignInPrepared = auth
-    .authStateReady()
-    .then(() => {
-      const resolver = (auth as unknown as { _popupRedirectResolver?: { _initialize?: (a: typeof auth) => Promise<unknown> } })
-        ._popupRedirectResolver;
-      return resolver?._initialize?.(auth);
-    })
-    .catch(() => {
-      googleSignInPrepared = null;
-    });
+// click window the popup is blocked. Call this as soon as a sign-in prompt appears, and keep the
+// Google button disabled until it resolves, so the click opens the popup at once. It uses Firebase's
+// internal resolver; if that ever changes, it resolves straight away and changes nothing.
+let googleSignInReady: Promise<void> | null = null;
+export function prepareGoogleSignIn(): Promise<void> {
+  if (typeof window === 'undefined') return Promise.resolve();
+  if (!googleSignInReady) {
+    googleSignInReady = auth
+      .authStateReady()
+      .then(() => {
+        const resolver = (auth as unknown as { _popupRedirectResolver?: { _initialize?: (a: typeof auth) => Promise<unknown> } })
+          ._popupRedirectResolver;
+        return resolver?._initialize?.(auth);
+      })
+      .then(() => undefined)
+      .catch(() => {
+        googleSignInReady = null;
+      });
+  }
+  return googleSignInReady;
 }
+
+// A full-page redirect to Google works without popups, but browsers block the cross-site storage it
+// needs unless Firebase's sign-in pages come from this site's own address (next.config.ts proxies
+// them, and NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN must be set to this site's domain to use the proxy)
+const canRedirectToGoogle = () => typeof window !== 'undefined' && auth.config.authDomain === window.location.host;
 
 function toUser(firebaseUser: FirebaseUser): User {
   return {
@@ -140,11 +151,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const loginWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
     try {
-      const provider = new GoogleAuthProvider();
-      const userCredential = await signInWithPopup(auth, provider);
+      await signInWithPopup(auth, provider);
       // User state will be updated by onAuthStateChanged
     } catch (error: any) {
+      if (error.code === 'auth/popup-blocked' && canRedirectToGoogle()) {
+        // No popup needed: the page goes to Google and comes back signed in (onAuthStateChanged)
+        await signInWithRedirect(auth, provider);
+        return;
+      }
       if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
         throw new Error('Sign-in popup was closed. Please try again.');
       } else if (error.code === 'auth/popup-blocked') {

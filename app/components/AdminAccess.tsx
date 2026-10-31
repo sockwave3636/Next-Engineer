@@ -15,9 +15,11 @@ export default function AdminAccess() {
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
 
-  // This page offers "Continue with Google" directly, so get the popup ready up front
+  // This page offers "Continue with Google" directly, so get the popup ready up front and keep
+  // the button disabled until it is (at most 8 seconds)
+  const [googleReady, setGoogleReady] = useState(false);
   useEffect(() => {
-    prepareGoogleSignIn();
+    Promise.race([prepareGoogleSignIn(), new Promise((resolve) => setTimeout(resolve, 8000))]).then(() => setGoogleReady(true));
   }, []);
 
   const run = async (action: () => Promise<void>, successMessage?: string) => {
@@ -68,8 +70,8 @@ export default function AdminAccess() {
     actions = (
       <div className="w-full space-y-3">
         {/* Google accounts are verified, so this is the quickest way in */}
-        <button onClick={() => run(loginWithGoogle)} disabled={busy} className="btn btn-primary w-full">
-          <span className="font-black" aria-hidden="true">G</span> Continue with Google instead
+        <button onClick={() => run(loginWithGoogle)} disabled={busy || !googleReady} className="btn btn-primary w-full">
+          {googleReady ? 'Continue with Google instead' : 'Getting Google sign-in ready…'}
         </button>
         <div className="flex items-center gap-3 text-xs font-bold text-ink-muted">
           <div className="flex-1 border-t border-line" />

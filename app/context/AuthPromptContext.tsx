@@ -43,6 +43,9 @@ export function AuthPromptProvider({ children }: { children: React.ReactNode }) 
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  // "Continue with Google" stays disabled until Google's helper frame has loaded (see
+  // prepareGoogleSignIn), or for at most 8 seconds, so a click always opens the popup at once
+  const [googleReady, setGoogleReady] = useState(false);
 
   const resetForm = useCallback(() => {
     setName('');
@@ -65,8 +68,8 @@ export function AuthPromptProvider({ children }: { children: React.ReactNode }) 
       if (user) {
         return;
       }
-      // Ready before the student reaches "Continue with Google", so Chrome doesn't block the popup
-      prepareGoogleSignIn();
+      setGoogleReady(false);
+      Promise.race([prepareGoogleSignIn(), new Promise((resolve) => setTimeout(resolve, 8000))]).then(() => setGoogleReady(true));
       setPromptReason(reason || null);
       setAllowSignUp(allowSignUp);
       setMode('login');
@@ -128,11 +131,11 @@ export function AuthPromptProvider({ children }: { children: React.ReactNode }) 
 
             <button
               type="button"
-              disabled={loading}
+              disabled={loading || !googleReady}
               onClick={() => runAuth(loginWithGoogle)}
               className="btn btn-secondary w-full py-3"
             >
-              <GoogleMark /> Continue with Google
+              <GoogleMark /> {googleReady ? 'Continue with Google' : 'Getting Google sign-in ready…'}
             </button>
 
             <div className="my-5 flex items-center gap-3 text-xs font-bold text-ink-muted">
