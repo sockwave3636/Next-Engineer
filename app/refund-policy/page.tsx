@@ -5,7 +5,7 @@ import PageIntro from '../components/PageIntro';
 
 export const metadata: Metadata = {
   title: 'Refund and Cancellation Policy',
-  description: 'How refunds and cancellations work for Next Engineer subject and semester passes.',
+  description: 'How refunds and cancellations work for Next Engineer subject and semester passes and mini projects.',
   alternates: { canonical: '/refund-policy' },
 };
 
@@ -14,7 +14,7 @@ export default function RefundPolicyPage() {
   return (
     <PageShell>
       <div className="container-page max-w-3xl py-12">
-        <PageIntro eyebrow="Legal" title="Refund and Cancellation Policy" description="Last updated: 28 October 2026" />
+        <PageIntro eyebrow="Legal" title="Refund and Cancellation Policy" description="Last updated: 3 November 2026" />
 
         <section className="card card-pad prose-page">
           <p>
@@ -31,10 +31,15 @@ export default function RefundPolicyPage() {
               <strong>Semester pass:</strong> online, read-only access to the premium material of every subject in one
               semester of a program or branch.
             </li>
+            <li>
+              <strong>Mini project:</strong> one project&apos;s guide, report and viva material to read on this website,
+              and its project files (source code, editable report and slides) to download. It doesn&apos;t expire.
+            </li>
           </ul>
           <p>
-            Each pass is a one-time payment for a fixed number of days, shown before you pay. It is not a subscription and
-            never renews or charges you again on its own. Payments are processed securely by Razorpay.
+            Each subject or semester pass is a one-time payment for a fixed number of days, shown before you pay. A mini
+            project is a one-time payment that stays on your account. None of these is a subscription, and none renews or
+            charges you again on its own. Payments are processed securely by Razorpay.
           </p>
 
           <h2>Delivery</h2>
@@ -60,6 +65,10 @@ export default function RefundPolicyPage() {
             <li>
               A fault on our side, or the premium material being unavailable, stopped you from reading what the pass covers,
               and we couldn&apos;t fix it within 7 days of you telling us.
+            </li>
+            <li>
+              A mini project&apos;s code doesn&apos;t run as its guide describes, and we couldn&apos;t fix it within 7 days
+              of you telling us.
             </li>
           </ul>
 

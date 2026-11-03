@@ -8,13 +8,14 @@ import type { UserPass } from '@/lib/firebase/firestore';
 import { loadSearchIndex } from '@/lib/catalog/search-index-client';
 import { semesterPath } from '@/lib/catalog/routes';
 import { Program, subjectIdFromCode } from '@/lib/catalog/types';
-import Icon from './Icon';
+import { projectPath } from '@/lib/projects/types';
+import Icon, { IconName } from './Icon';
 
 type ProgramLink = Pick<Program, 'id' | 'hasBranches'>;
 
 export interface PassCard {
   key: string;
-  kind: 'semester' | 'subject';
+  kind: 'semester' | 'subject' | 'project';
   // Written by the server when the pass is granted, e.g. "B.Tech CSE · Semester 3"
   label: string;
   expiresAt: number;
@@ -23,10 +24,16 @@ export interface PassCard {
   href: string | null;
 }
 
+const CARD_KINDS: Record<PassCard['kind'], { label: string; icon: IconName }> = {
+  semester: { label: 'Semester pass', icon: 'layers' },
+  subject: { label: 'Subject pass', icon: 'menu_book' },
+  project: { label: 'Mini project', icon: 'engineering' },
+};
+
 const formatDate = (millis: number) =>
   new Date(millis).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
 
-// Pass ids are scope keys: semester:{program}:{branch}:{semester} or subject:{subjectId}
+// Pass ids are scope keys: semester:{program}:{branch}:{semester}, subject:{subjectId} or project:{projectId}
 function toCard(
   key: string,
   pass: UserPass,
@@ -45,6 +52,9 @@ function toCard(
   }
   if (type === 'subject' && parts[0]) {
     return { key, kind: 'subject', label: pass.label || parts[0].toUpperCase(), expiresAt, active, href: subjectUrls?.[parts[0]] ?? null };
+  }
+  if (type === 'project' && parts[0]) {
+    return { key, kind: 'project', label: pass.label || parts[0], expiresAt, active, href: projectPath({ id: parts[0] }) };
   }
   return null;
 }
@@ -99,18 +109,20 @@ export function PassList({ name, cards }: { name: string; cards: PassCard[] }) {
                   card.active ? 'bg-sun-soft text-sun-ink' : 'bg-surface-strong text-ink-faint'
                 }`}
               >
-                <Icon name={card.kind === 'semester' ? 'layers' : 'menu_book'} size={22} />
+                <Icon name={CARD_KINDS[card.kind].icon} size={22} />
               </span>
               <div className="min-w-0">
-                <span className={`badge ${card.active ? 'badge-sun' : 'badge-muted'}`}>
-                  {card.kind === 'semester' ? 'Semester pass' : 'Subject pass'}
-                </span>
+                <span className={`badge ${card.active ? 'badge-sun' : 'badge-muted'}`}>{CARD_KINDS[card.kind].label}</span>
                 <p className="mt-1 font-display font-semibold leading-snug text-ink">{card.label}</p>
               </div>
             </div>
             <p className={`mt-3 flex flex-1 items-start gap-1.5 text-xs ${card.active ? 'text-ink-muted' : 'text-danger'}`}>
               <Icon name="event" size={16} />
-              {card.active ? `Valid until ${formatDate(card.expiresAt)}` : `Expired on ${formatDate(card.expiresAt)}`}
+              {card.kind === 'project'
+                ? 'Yours to keep'
+                : card.active
+                  ? `Valid until ${formatDate(card.expiresAt)}`
+                  : `Expired on ${formatDate(card.expiresAt)}`}
             </p>
             {card.href ? (
               <Link href={card.href} className={`btn mt-4 w-full ${card.active ? 'btn-primary' : 'btn-secondary'}`}>

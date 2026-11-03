@@ -14,6 +14,7 @@ import {
 } from 'firebase/firestore';
 import { deleteObject, ref, uploadBytes } from 'firebase/storage';
 import { auth, db, storage } from '@/lib/firebase/config';
+import type { Project } from '@/lib/projects/types';
 import { DEFAULT_BRANCHES, DEFAULT_PROGRAMS } from './defaults';
 import { byCode, byOrder, byResourceOrder, toBranch, toProgram, toResource, toSubject } from './convert';
 import {
@@ -64,6 +65,17 @@ export async function getMaterialLock(): Promise<boolean> {
 
 export async function setMaterialLock(locked: boolean): Promise<boolean> {
   return (await ownerRequest<{ locked: boolean }>('POST', '/api/admin/material-lock', { locked })).locked;
+}
+
+// ---- Mini projects --------------------------------------------------------
+
+// Every project, drafts included (uploaded by scripts/upload-projects.mjs)
+export async function listProjects(): Promise<Project[]> {
+  return (await ownerRequest<{ projects: Project[] }>('GET', '/api/admin/projects')).projects;
+}
+
+export async function updateProject(id: string, changes: { published?: boolean; price?: number }): Promise<Project> {
+  return (await ownerRequest<{ project: Project }>('POST', '/api/admin/projects', { id, ...changes })).project;
 }
 
 // ---- Programs & branches -------------------------------------------------

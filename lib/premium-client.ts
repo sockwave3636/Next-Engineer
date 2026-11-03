@@ -68,8 +68,8 @@ function loadRazorpayScript(): Promise<void> {
   return razorpayScript;
 }
 
-// Opens Razorpay Checkout for a subject or semester pass and resolves once the
-// server has verified the payment and granted the pass.
+// Opens Razorpay Checkout for a subject or semester pass, or a mini project, and resolves once
+// the server has verified the payment and granted it.
 export async function buyPass(
   scope: PassScope,
   prefill: { name: string; email: string }
@@ -94,7 +94,7 @@ export async function buyPass(
       amount: order.amount,
       currency: order.currency,
       name: 'Next Engineer',
-      description: `${order.label} premium pass`,
+      description: scope.type === 'project' ? `Mini project: ${order.label}` : `${order.label} premium pass`,
       prefill,
       theme: { color: '#1d4ed8' },
       handler: (response: RazorpaySuccessResponse) => {
@@ -116,20 +116,20 @@ export interface PdfByteSource {
   getRange: (start: number, end: number) => Promise<Uint8Array>;
 }
 
-// Uploaded files, free or premium, are only ever read through /api/resources/view, a range
-// at a time, so the browser never holds a file URL it could open or share
-export function resourceSource(resourceId: string): PdfByteSource {
+// Uploaded files, free or premium, are only ever read through a view route, a range at a
+// time, so the browser never holds a file URL it could open or share
+function rangeSource(url: string, file: Record<string, string>): PdfByteSource {
   return {
-    getSize: async () => (await postWithAuth<{ size: number }>('/api/resources/view', { resourceId })).size,
+    getSize: async () => (await postWithAuth<{ size: number }>(url, file)).size,
     getRange: async (start, end) => {
       const currentUser = auth.currentUser;
       if (!currentUser) {
         throw new ApiError(401, 'Please sign in first.');
       }
-      const response = await fetch('/api/resources/view', {
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await currentUser.getIdToken()}` },
-        body: JSON.stringify({ resourceId, start, end }),
+        body: JSON.stringify({ ...file, start, end }),
       });
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
@@ -138,4 +138,18 @@ export function resourceSource(resourceId: string): PdfByteSource {
       return new Uint8Array(await response.arrayBuffer());
     },
   };
+}
+
+export function resourceSource(resourceId: string): PdfByteSource {
+  return rangeSource('/api/resources/view', { resourceId });
+}
+
+export function projectDocumentSource(projectId: string, documentId: string): PdfByteSource {
+  return rangeSource('/api/projects/view', { projectId, documentId });
+}
+
+// Starts the download of a bought project's zip through a short-lived signed link
+export async function downloadProjectFiles(projectId: string): Promise<void> {
+  const { url } = await postWithAuth<{ url: string }>('/api/projects/download', { projectId });
+  window.location.assign(url);
 }

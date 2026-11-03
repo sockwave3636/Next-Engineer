@@ -40,6 +40,12 @@ service cloud.firestore {
       allow write: if isOwner();
     }
 
+    // Mini projects: read and changed only by the server (public pages, /api/admin/projects,
+    // scripts/upload-projects.mjs), since the records hold private file paths
+    match /projects/{projectId} {
+      allow read, write: if false;
+    }
+
     // Site switches; changed only by the server (/api/admin/material-lock)
     match /settings/{settingId} {
       allow read: if isOwner();

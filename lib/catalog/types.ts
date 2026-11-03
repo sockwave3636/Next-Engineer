@@ -123,14 +123,21 @@ export interface Resource {
   createdAt: number;
 }
 
+// A project purchase is stored like a pass, under project:{id} (see lib/projects/types.ts)
 export type PassScope =
   | { type: 'subject'; subjectId: string }
-  | { type: 'semester'; programId: string; branchId: string; semester: number };
+  | { type: 'semester'; programId: string; branchId: string; semester: number }
+  | { type: 'project'; projectId: string };
 
 export function scopeKey(scope: PassScope): string {
-  return scope.type === 'subject'
-    ? `subject:${scope.subjectId}`
-    : `semester:${scope.programId}:${scope.branchId}:${scope.semester}`;
+  switch (scope.type) {
+    case 'subject':
+      return `subject:${scope.subjectId}`;
+    case 'semester':
+      return `semester:${scope.programId}:${scope.branchId}:${scope.semester}`;
+    case 'project':
+      return `project:${scope.projectId}`;
+  }
 }
 
 export function offeringKey(programId: string, branchId: string, semester: number): string {

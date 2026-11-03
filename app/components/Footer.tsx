@@ -8,6 +8,7 @@ const LINK_GROUPS = [
     links: [
       { href: '/#programs', label: 'All programs' },
       { href: '/search', label: 'Search subjects' },
+      { href: '/projects', label: 'Mini projects' },
       { href: '/#passes', label: 'Premium passes' },
       { href: '/#updates', label: 'Latest updates' },
     ],

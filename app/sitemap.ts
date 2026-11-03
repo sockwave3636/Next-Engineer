@@ -2,6 +2,8 @@ import type { MetadataRoute } from 'next';
 import { getPrograms, getSearchIndex, getVisibleBranches } from '@/lib/catalog/server';
 import { branchPath, programPath, semesterPath } from '@/lib/catalog/routes';
 import { DEFAULT_BRANCH_ID } from '@/lib/catalog/types';
+import { getProjects } from '@/lib/projects/server';
+import { projectPath } from '@/lib/projects/types';
 import { SITE_URL } from '@/lib/site-url';
 
 // Rebuilt hourly from the cached catalog
@@ -9,7 +11,8 @@ export const revalidate = 3600;
 
 const STATIC_PAGES = ['/', '/about', '/contact', '/privacy-policy', '/terms', '/refund-policy'];
 
-// Every public page: programs, branches, semesters, and each subject at its canonical URL
+// Every public page: programs, branches, semesters, each subject at its canonical URL, and
+// the published mini projects
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const paths = [...STATIC_PAGES];
   for (const program of await getPrograms()) {
@@ -23,5 +26,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
   paths.push(...(await getSearchIndex()).map((entry) => entry.url));
+  paths.push('/projects', ...(await getProjects()).map(projectPath));
   return Array.from(new Set(paths)).map((path) => ({ url: path === '/' ? SITE_URL : `${SITE_URL}${path}` }));
 }

@@ -1,14 +1,23 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/firebase/admin';
 import { DEFAULT_BRANCH_ID, PassScope, PassSettings, passOnSale, scopeKey } from '@/lib/catalog/types';
+import { PROJECT_ACCESS_DAYS, toProject } from '@/lib/projects/types';
 import { errorResponse, HttpError, isOwnerToken, readJson, requireString, requireUser } from '@/lib/server/http';
 import type { PaymentRecord } from '@/lib/server/passes';
+import { ownsProject } from '@/lib/server/projects';
 import { createRazorpayOrder, getRazorpayKeyId } from '@/lib/server/razorpay';
 
 // Looks up the price and a display label for a scope.
 // The price always comes from Firestore, never from the browser.
 async function resolvePass(scope: PassScope): Promise<{ pass: PassSettings | undefined; label: string }> {
   const db = adminDb();
+  if (scope.type === 'project') {
+    const snap = await db.collection('projects').doc(scope.projectId).get();
+    const project = snap.exists ? toProject(snap.id, snap.data() || {}) : null;
+    if (!project?.published) throw new HttpError(404, 'Project not found.');
+    // A bought project is kept for good
+    return { pass: { enabled: true, price: project.price, durationDays: PROJECT_ACCESS_DAYS }, label: project.title };
+  }
   if (scope.type === 'subject') {
     const subject = (await db.collection('subjects').doc(scope.subjectId).get()).data();
     if (!subject) throw new HttpError(404, 'Subject not found.');
@@ -30,6 +39,9 @@ function readScope(body: Record<string, unknown>): PassScope {
   if (scope.type === 'subject') {
     return { type: 'subject', subjectId: requireString(scope, 'subjectId') };
   }
+  if (scope.type === 'project') {
+    return { type: 'project', projectId: requireString(scope, 'projectId') };
+  }
   if (scope.type === 'semester') {
     const semester = Number(scope.semester);
     if (!Number.isInteger(semester) || semester < 1 || semester > 12) throw new HttpError(400, 'Missing or invalid semester.');
@@ -43,7 +55,8 @@ function readScope(body: Record<string, unknown>): PassScope {
   throw new HttpError(400, 'Choose what to unlock.');
 }
 
-// POST { scope: { type: 'subject', subjectId } | { type: 'semester', programId, branchId, semester } }
+// POST { scope: { type: 'subject', subjectId } | { type: 'semester', programId, branchId, semester }
+//              | { type: 'project', projectId } }
 //   -> order details for Razorpay Checkout
 export async function POST(request: Request) {
   try {
@@ -57,6 +70,10 @@ export async function POST(request: Request) {
     const { pass, label } = await resolvePass(scope);
     if (!passOnSale(pass)) {
       throw new HttpError(400, 'This pass is not on sale right now.');
+    }
+    // Buying a project again would only push its (already lifelong) expiry further out
+    if (scope.type === 'project' && (await ownsProject(user.uid, scope.projectId))) {
+      throw new HttpError(400, 'You already own this project. Refresh the page to open it.');
     }
 
     const key = scopeKey(scope);

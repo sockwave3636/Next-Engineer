@@ -1,4 +1,6 @@
+import Link from 'next/link';
 import Breadcrumbs from '../Breadcrumbs';
+import Icon from '../Icon';
 import PassOptions, { PassOption } from '../PassOptions';
 import ResourceBrowser from './ResourceBrowser';
 import { Branch, Program, Resource, SUBJECT_KINDS, Subject } from '@/lib/catalog/types';
@@ -61,6 +63,24 @@ export default function SubjectView({ program, branch, semester, subject, resour
           )}
         </div>
       </section>
+
+      {subject.kind === 'project' && (
+        <Link
+          href={`/projects?subject=${subject.code}`}
+          className="card card-hover mb-8 flex items-center gap-4 p-5"
+        >
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand-ink">
+            <Icon name="engineering" size={26} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-display font-semibold text-ink">Need a project for {subject.code}?</span>
+            <span className="block text-sm text-ink-muted">
+              Mini projects with code, an editable report, slides and viva questions.
+            </span>
+          </span>
+          <Icon name="arrow_forward" size={20} className="text-brand" />
+        </Link>
+      )}
 
       {hasPremium && passOptions.length > 0 && (
         <div className="mb-8">

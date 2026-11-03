@@ -21,6 +21,12 @@ service firebase.storage {
       allow write: if isOwner();
     }
 
+    // Mini project files (PDFs, zips, screenshots): server only. Buyers read the PDFs through
+    // /api/projects/view and download the zip through a short-lived link from /api/projects/download.
+    match /projects/{allPaths=**} {
+      allow read, write: if false;
+    }
+
     // Premium PDFs: no client can read them. Pass holders read them in the
     // in-site viewer, which streams byte ranges from /api/resources/view.
     match /premium/{allPaths=**} {
