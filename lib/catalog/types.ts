@@ -112,6 +112,8 @@ export interface Resource {
   // Uploaded PDFs open only in the read-only reader: storagePath is private and fileUrl is
   // always null (kept for older records, never shown)
   premium: boolean;
+  // Written with AI; students see an "AI-generated" label on the file and in the reader
+  aiGenerated: boolean;
   fileUrl: string | null;
   storagePath: string | null;
   // External link (videos, playlists, articles)

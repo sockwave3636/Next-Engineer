@@ -115,6 +115,8 @@ for (const pdf of pdfs) {
     year: null,
     session: null,
     premium,
+    // These notes are written with AI; the site labels them for students
+    aiGenerated: true,
     fileUrl: null,
     storagePath,
     url: null,

@@ -121,6 +121,17 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
             })}
           </div>
 
+          {visible.some((r) => r.aiGenerated) && (
+            <p className="mb-4 flex items-start gap-2 rounded-lg border border-line bg-surface-muted px-3 py-2.5 text-sm text-ink-muted">
+              <Icon name="auto_awesome" size={18} className="mt-px text-brand" />
+              <span>
+                Files marked <span className="font-semibold text-ink">AI-generated</span> were written with AI from the AKTU
+                syllabus. They can contain mistakes, so check formulas, derivations and key facts against your textbook or
+                class notes.
+              </span>
+            </p>
+          )}
+
           {activeTab?.usesUnit && units.length > 0 && (
             <div className="mb-5 flex flex-wrap gap-1.5" role="group" aria-label="Filter by unit">
               <button type="button" onClick={() => setUnit('all')} className={`btn btn-sm ${unit === 'all' ? 'btn-soft' : 'btn-ghost'}`}>
@@ -170,6 +181,11 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
                                   <Icon name={locked ? 'lock' : 'lock_open'} size={12} /> Premium · read online
                                 </span>
                               )}
+                              {resource.aiGenerated && (
+                                <span className="badge badge-muted">
+                                  <Icon name="auto_awesome" size={12} /> AI-generated
+                                </span>
+                              )}
                               {resource.unit && <span className="code text-[11px]">{unitLabel(resource.unit)}</span>}
                               {resource.session && (
                                 <span className="code text-[11px]">{resource.session === 'odd' ? 'Odd' : 'Even'} sem</span>
@@ -206,6 +222,7 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
           title={reading.title}
           code={subject.code}
           premium={reading.premium}
+          aiGenerated={reading.aiGenerated}
           source={readerSource}
           watermark={user?.email || 'Next Engineer'}
           onClose={closeReader}

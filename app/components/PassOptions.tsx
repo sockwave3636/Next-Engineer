@@ -123,7 +123,8 @@ export default function PassOptions({ options, subject }: PassOptionsProps) {
       </div>
       {error && <div className="alert alert-error mt-4">{error}</div>}
       <p className="mt-4 text-xs text-ink-muted">
-        One-time payment, no auto-renewal. By unlocking you agree to the{' '}
+        One-time payment, no auto-renewal. Many notes are written with AI and carry an &quot;AI-generated&quot; label.
+        By unlocking you agree to the{' '}
         <Link href="/terms" className="link">Terms</Link> and{' '}
         <Link href="/refund-policy" className="link">Refund and Cancellation Policy</Link>.
       </p>

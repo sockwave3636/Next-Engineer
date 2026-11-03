@@ -256,6 +256,7 @@ export interface ResourceInput {
   year: string | null;
   session: 'odd' | 'even' | null;
   premium: boolean;
+  aiGenerated: boolean;
   file: File | null;
   url: string | null;
 }
@@ -287,6 +288,7 @@ export async function addResource(input: ResourceInput): Promise<void> {
     year: input.year?.trim() || null,
     session: input.session,
     premium: input.premium,
+    aiGenerated: input.aiGenerated,
     fileUrl: null,
     storagePath,
     url: input.url?.trim() || null,
@@ -309,7 +311,7 @@ export async function addResource(input: ResourceInput): Promise<void> {
 
 export async function updateResource(
   resourceId: string,
-  fields: Partial<Pick<Resource, 'title' | 'unit' | 'year' | 'session'>>
+  fields: Partial<Pick<Resource, 'title' | 'unit' | 'year' | 'session' | 'aiGenerated'>>
 ): Promise<void> {
   await writeBatch(db).update(doc(db, 'resources', resourceId), fields).commit();
   await refreshPublicPages();

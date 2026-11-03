@@ -7,6 +7,7 @@ export const ICON_NAMES = [
   'analytics',
   'arrow_back',
   'arrow_forward',
+  'auto_awesome',
   'auto_stories',
   'bar_chart',
   'campaign',

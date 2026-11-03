@@ -19,10 +19,15 @@ interface DraftResource {
   year: string;
   session: '' | 'odd' | 'even';
   premium: boolean;
+  aiGenerated: boolean;
   source: 'file' | 'link';
   file: File | null;
   url: string;
 }
+
+// Most notes, important questions and books here are written with AI; PYQs, syllabi, lab files
+// and links usually aren't. Only the starting value of the checkbox.
+const AI_BY_DEFAULT: ResourceType[] = ['notes', 'important', 'book'];
 
 const emptyDraft = (type: ResourceType = 'notes'): DraftResource => ({
   type,
@@ -31,6 +36,7 @@ const emptyDraft = (type: ResourceType = 'notes'): DraftResource => ({
   year: '',
   session: '',
   premium: false,
+  aiGenerated: AI_BY_DEFAULT.includes(type),
   source: type === 'video' ? 'link' : 'file',
   file: null,
   url: '',
@@ -79,6 +85,7 @@ export default function ResourceManager({ subject, onClose, onChanged }: Resourc
         year: draft.type === 'pyq' ? draft.year || null : null,
         session: draft.type === 'pyq' && draft.session ? draft.session : null,
         premium: draft.source === 'file' && draft.premium,
+        aiGenerated: draft.aiGenerated,
         file: draft.source === 'file' ? draft.file : null,
         url: draft.source === 'link' ? draft.url : null,
       });
@@ -119,6 +126,7 @@ export default function ResourceManager({ subject, onClose, onChanged }: Resourc
         unit: editing.unit,
         year: editing.year,
         session: editing.session,
+        aiGenerated: editing.aiGenerated,
       });
       setEditing(null);
       await load();
@@ -271,6 +279,22 @@ export default function ResourceManager({ subject, onClose, onChanged }: Resourc
             </div>
           )}
 
+          <label className="flex items-start gap-2 text-sm font-bold text-ink">
+            <input
+              type="checkbox"
+              className="mt-0.5 h-4 w-4 accent-brand"
+              checked={draft.aiGenerated}
+              onChange={(e) => setDraft({ ...draft, aiGenerated: e.target.checked })}
+            />
+            <span>
+              AI-generated
+              <span className="block text-xs font-normal text-ink-muted">
+                Students see an &quot;AI-generated&quot; label on it, and a note to check key facts. Untick for real papers,
+                the official syllabus and your own material.
+              </span>
+            </span>
+          </label>
+
           <ErrorNote message={error} />
           <button onClick={submit} disabled={busy} className="btn btn-primary">
             {busy ? 'Saving…' : 'Add to subject'}
@@ -307,6 +331,7 @@ export default function ResourceManager({ subject, onClose, onChanged }: Resourc
                               .join(' · ')}
                           </span>
                         </span>
+                        {resource.aiGenerated && <span className="badge badge-muted">AI-generated</span>}
                         {resource.premium && <span className="badge badge-leaf">⭐ Premium</span>}
                         <button onClick={() => setEditing(resource)} disabled={busy} className="btn btn-ghost btn-sm">
                           Edit
@@ -365,6 +390,15 @@ export default function ResourceManager({ subject, onClose, onChanged }: Resourc
                 </>
               )}
             </div>
+            <label className="flex items-center gap-2 text-sm font-bold text-ink">
+              <input
+                type="checkbox"
+                className="h-4 w-4 accent-brand"
+                checked={editing.aiGenerated}
+                onChange={(e) => setEditing({ ...editing, aiGenerated: e.target.checked })}
+              />
+              AI-generated
+            </label>
             <div className="flex gap-2">
               <button onClick={saveEdit} disabled={busy} className="btn btn-primary btn-sm">Save</button>
               <button onClick={() => setEditing(null)} className="btn btn-ghost btn-sm">Cancel</button>

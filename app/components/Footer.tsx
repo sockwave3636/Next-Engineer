@@ -72,7 +72,11 @@ export default function Footer() {
         <div className="container-page flex flex-col gap-3 py-5 text-xs text-ink-muted lg:flex-row lg:items-center lg:justify-between">
           <p className="max-w-3xl leading-relaxed">
             Next Engineer is an independent study portal. It is not affiliated with or endorsed by Dr. A.P.J. Abdul Kalam
-            Technical University (AKTU), Lucknow. This site uses cookies and may show ads through Google AdSense.
+            Technical University (AKTU), Lucknow. Many notes here are{' '}
+            <Link href="/terms#ai-generated" className="underline-offset-2 hover:text-brand hover:underline">
+              written with AI
+            </Link>{' '}
+            and labelled as such. This site uses cookies and may show ads through Google AdSense.
           </p>
           <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1">
             <Link href="/privacy-policy" className="hover:text-brand">Privacy</Link>

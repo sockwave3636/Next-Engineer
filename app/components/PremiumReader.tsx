@@ -17,6 +17,8 @@ interface PremiumReaderProps {
   code?: string;
   // Free notes use the same reader; this only changes the label
   premium?: boolean;
+  // Adds "AI-generated" to the label under the title
+  aiGenerated?: boolean;
   source: PdfByteSource;
   // Drawn into every page, so a leaked screenshot points back to the account
   watermark: string;
@@ -169,7 +171,7 @@ function PdfPage({ doc, pageNumber, cssWidth, watermark, night, scrollRoot, regi
   );
 }
 
-export default function PremiumReader({ title, code, premium = true, source, watermark, onClose }: PremiumReaderProps) {
+export default function PremiumReader({ title, code, premium = true, aiGenerated = false, source, watermark, onClose }: PremiumReaderProps) {
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
   const [error, setError] = useState('');
   const [zoomIndex, setZoomIndex] = useState(FIT_ZOOM);
@@ -375,7 +377,8 @@ export default function PremiumReader({ title, code, premium = true, source, wat
             <p className="truncate font-display text-sm font-semibold text-ink sm:text-base">{title}</p>
           </div>
           <p className={`flex items-center gap-1 text-[11px] font-semibold ${premium ? 'text-sun-ink' : 'text-leaf-ink'}`}>
-            <Icon name={premium ? 'workspace_premium' : 'lock_open'} size={14} /> {premium ? 'Premium' : 'Free'} · read-only
+            <Icon name={premium ? 'workspace_premium' : 'lock_open'} size={14} /> {premium ? 'Premium' : 'Free'}
+            {aiGenerated && ' · AI-generated'} · read-only
           </p>
         </div>
 

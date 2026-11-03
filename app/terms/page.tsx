@@ -58,6 +58,20 @@ export default function TermsOfServicePage() {
             current. Next Engineer may make changes to the materials contained on its website at any time without notice.
           </p>
 
+          <h2 id="ai-generated">
+            AI-generated study material
+          </h2>
+          <p>
+            Many notes, important questions and books on Next Engineer, free and premium, are written with the help of AI,
+            using the official AKTU syllabus for each subject. Every such file is labelled &quot;AI-generated&quot; on the
+            subject page and in the reader. AI-written material can contain mistakes, so check formulas, derivations,
+            definitions and key facts against your textbook, class notes or teachers before relying on them in an exam.
+          </p>
+          <p>
+            Previous year papers and the syllabus are not AI-generated. If you spot a mistake in any file, tell us through
+            the <Link href="/contact">Contact</Link> page and we will correct it.
+          </p>
+
           <h2>
             Links
           </h2>
