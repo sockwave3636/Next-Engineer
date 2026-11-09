@@ -16,10 +16,12 @@ interface ProjectBrowserProps {
   projects: ProjectCardData[];
   programs: { id: string; name: string; hasBranches: boolean }[];
   branches: { id: string; programId: string; shortName: string }[];
+  // While false, every project shows as free
+  charging: boolean;
 }
 
 
-export default function ProjectBrowser({ projects, programs, branches }: ProjectBrowserProps) {
+export default function ProjectBrowser({ projects, programs, branches, charging }: ProjectBrowserProps) {
   const [query, setQuery] = useState('');
   const [programId, setProgramId] = useState<string | null>(null);
   const [branchId, setBranchId] = useState<string | null>(null);
@@ -175,7 +177,7 @@ export default function ProjectBrowser({ projects, programs, branches }: Project
         <ul className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((p) => (
             <li key={p.id}>
-              <ProjectCard project={p} />
+              <ProjectCard project={p} charging={charging} />
             </li>
           ))}
         </ul>
@@ -184,7 +186,7 @@ export default function ProjectBrowser({ projects, programs, branches }: Project
   );
 }
 
-function ProjectCard({ project }: { project: ProjectCardData }) {
+function ProjectCard({ project, charging }: { project: ProjectCardData; charging: boolean }) {
   return (
     <Link href={projectPath(project)} className="card card-hover group flex h-full flex-col overflow-hidden">
       {project.cover && (
@@ -209,7 +211,7 @@ function ProjectCard({ project }: { project: ProjectCardData }) {
         <p className="mt-1 line-clamp-2 text-sm text-ink-muted">{project.summary}</p>
         <p className="mt-3 flex-1 font-mono text-xs text-ink-muted">{project.tech.slice(0, 4).join(' · ')}</p>
         <div className="mt-4 flex items-center justify-between border-t border-line pt-3 text-sm">
-          <span className="font-display font-bold text-ink">{formatRupees(project.price)}</span>
+          {charging ? <span className="font-display font-bold text-ink">{formatRupees(project.price)}</span> : <span className="badge badge-leaf">Free</span>}
           {project.buildTime && (
             <span className="flex items-center gap-1 text-xs text-ink-muted">
               <Icon name="schedule" size={16} /> {project.buildTime}

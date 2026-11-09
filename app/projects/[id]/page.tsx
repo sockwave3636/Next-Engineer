@@ -5,7 +5,7 @@ import Breadcrumbs from '@/app/components/Breadcrumbs';
 import Icon from '@/app/components/Icon';
 import ProjectAccess from './ProjectAccess';
 import { getBranches, getMaterialLocked, getPrograms } from '@/lib/catalog/server';
-import { getProject } from '@/lib/projects/server';
+import { getProject, getProjectsCharging } from '@/lib/projects/server';
 import { Project, projectImagePath, projectLevel, projectPath } from '@/lib/projects/types';
 
 // Cached with the catalog; admin edits expire it through /api/revalidate
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
 export default async function ProjectPage({ params }: { params: Params }) {
   const { id } = await params;
-  const [project, locked] = await Promise.all([getProject(id), getMaterialLocked()]);
+  const [project, locked, charging] = await Promise.all([getProject(id), getMaterialLocked(), getProjectsCharging()]);
   if (!project) notFound();
   const fits = await fitsLines(project);
   const level = projectLevel(project.level);
@@ -112,6 +112,7 @@ export default async function ProjectPage({ params }: { params: Params }) {
                 code: project.subjectCodes[0] ?? '',
               }}
               locked={locked}
+              charging={charging}
             />
           </aside>
 

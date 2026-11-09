@@ -18,6 +18,8 @@ interface ProjectAccessProps {
   };
   // The admin panel's master lock: nothing can be bought or opened
   locked: boolean;
+  // Whether students pay for projects; while false, signing in opens everything
+  charging: boolean;
 }
 
 const errorText = (error: unknown) => (error instanceof Error ? error.message : 'Something went wrong. Please try again.');
@@ -32,8 +34,8 @@ function LockedMark() {
 }
 
 // Price, Buy button and the project's files. Documents open in the read-only reader; the zip
-// downloads through a short-lived link. The server re-checks the purchase on every request.
-export default function ProjectAccess({ project, locked }: ProjectAccessProps) {
+// downloads through a short-lived link. The server re-checks access on every request.
+export default function ProjectAccess({ project, locked, charging }: ProjectAccessProps) {
   const { user } = useAuth();
   const { openAuthPrompt } = useAuthPrompt();
   const { activeUntil } = usePasses();
@@ -44,7 +46,8 @@ export default function ProjectAccess({ project, locked }: ProjectAccessProps) {
   const [reading, setReading] = useState<ProjectDocument | null>(null);
 
   const owned = !!user?.isOwner || activeUntil(scopeKey({ type: 'project', projectId: project.id })) !== null;
-  const canOpen = (doc: Pick<ProjectDocument, 'free'>) => !locked && (doc.free || owned);
+  const unlocked = owned || !charging;
+  const canOpen = (doc: Pick<ProjectDocument, 'free'>) => !locked && (doc.free || unlocked);
 
   const readerSource = useMemo(() => (reading ? projectDocumentSource(project.id, reading.id) : null), [project.id, reading]);
   const closeReader = useCallback(() => setReading(null), []);
@@ -68,13 +71,17 @@ export default function ProjectAccess({ project, locked }: ProjectAccessProps) {
 
   const open = (doc: ProjectDocument) => {
     if (!user) {
-      openAuthPrompt({ reason: doc.free ? `Sign in to read the ${doc.title.toLowerCase()}, free` : 'Sign in to open this project' });
+      openAuthPrompt({ reason: doc.free || !charging ? `Sign in to read the ${doc.title.toLowerCase()}, free` : 'Sign in to open this project' });
       return;
     }
     setReading(doc);
   };
 
   const download = async () => {
+    if (!user) {
+      openAuthPrompt({ reason: 'Sign in to download the project files' });
+      return;
+    }
     setError('');
     setDownloading(true);
     try {
@@ -106,6 +113,16 @@ export default function ProjectAccess({ project, locked }: ProjectAccessProps) {
             <p className="mt-0.5 text-sm text-ink-muted">Please check back later.</p>
           </div>
         </div>
+      ) : !charging ? (
+        <div className="flex items-start gap-3 rounded-xl bg-leaf-soft p-4">
+          <Icon name="lock_open" size={26} className="shrink-0 text-leaf" />
+          <div>
+            <p className="font-display font-semibold text-leaf-ink">This project is free</p>
+            <p className="mt-0.5 text-sm text-leaf-ink/80">
+              {user ? 'Read the guide here and download the files below.' : 'Sign in to read the guide and download the files.'}
+            </p>
+          </div>
+        </div>
       ) : (
         <>
           <p className="font-display text-[2rem] font-extrabold leading-9 tracking-tight text-ink">
@@ -133,7 +150,7 @@ export default function ProjectAccess({ project, locked }: ProjectAccessProps) {
               <p className="text-sm font-semibold text-ink">{doc.title}</p>
               <p className="text-xs text-ink-muted">
                 PDF{doc.sizeBytes ? ` · ${formatBytes(doc.sizeBytes)}` : ''}
-                {doc.free && !owned ? ' · free to read' : ''}
+                {doc.free && !unlocked ? ' · free to read' : ''}
               </p>
             </div>
             {canOpen(doc) ? (
@@ -155,7 +172,7 @@ export default function ProjectAccess({ project, locked }: ProjectAccessProps) {
                   ZIP{project.download.sizeBytes ? ` · ${formatBytes(project.download.sizeBytes)}` : ''}
                 </p>
               </div>
-              {owned && !locked ? (
+              {unlocked && !locked ? (
                 <button type="button" onClick={download} disabled={downloading} className="btn btn-primary btn-sm">
                   <Icon name="download" size={16} />
                   {downloading ? 'Starting…' : 'Download'}
@@ -179,16 +196,25 @@ export default function ProjectAccess({ project, locked }: ProjectAccessProps) {
       </ul>
 
       <p className="mt-4 text-xs leading-relaxed text-ink-muted">
-        One-time payment, no renewals.{project.aiGenerated && ' Written and built with AI, then run and checked.'} By buying
-        you agree to the <Link href="/terms" className="link">Terms</Link> and{' '}
-        <Link href="/refund-policy" className="link">Refund Policy</Link>.
+        {charging && 'One-time payment, no renewals. '}
+        {project.aiGenerated && 'Written and built with AI, then run and checked. '}
+        {charging ? (
+          <>
+            By buying you agree to the <Link href="/terms" className="link">Terms</Link> and{' '}
+            <Link href="/refund-policy" className="link">Refund Policy</Link>.
+          </>
+        ) : (
+          <>
+            By using it you agree to the <Link href="/terms" className="link">Terms</Link>.
+          </>
+        )}
       </p>
 
       {reading && readerSource && (
         <PremiumReader
           title={reading.title}
           code={project.code || undefined}
-          premium={!reading.free}
+          premium={charging && !reading.free}
           aiGenerated={project.aiGenerated}
           source={readerSource}
           watermark={user?.email || 'Next Engineer'}

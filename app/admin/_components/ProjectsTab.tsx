@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { listProjects, updateProject } from '@/lib/catalog/admin-client';
+import { listProjects, setProjectsCharging, updateProject } from '@/lib/catalog/admin-client';
 import { formatRupees } from '@/lib/catalog/types';
 import { Project, projectLevel, projectPath } from '@/lib/projects/types';
 import { EmptyState, FloatingError, SectionHeader, errorText } from './ui';
 
 // Mini projects are uploaded with scripts/upload-projects.mjs as drafts. Here owners publish
-// them and set their price; students only ever see published ones.
+// them, set their price and decide when students start paying; students only ever see published ones.
 export default function ProjectsTab() {
   const [projects, setProjects] = useState<Project[] | null>(null);
+  const [charging, setCharging] = useState(false);
+  const [switching, setSwitching] = useState(false);
   const [prices, setPrices] = useState<Record<string, string>>({});
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -18,12 +20,33 @@ export default function ProjectsTab() {
   useEffect(() => {
     let cancelled = false;
     listProjects()
-      .then((list) => !cancelled && setProjects(list))
+      .then((result) => {
+        if (cancelled) return;
+        setProjects(result.projects);
+        setCharging(result.charging);
+      })
       .catch((err) => !cancelled && setError(errorText(err)));
     return () => {
       cancelled = true;
     };
   }, []);
+
+  const toggleCharging = async () => {
+    const next = !charging;
+    const question = next
+      ? 'Start charging? Students will have to buy each project at the price shown here.'
+      : 'Make every project free? Any signed-in student will be able to read every file and download the zip.';
+    if (!confirm(question)) return;
+    setSwitching(true);
+    setError('');
+    try {
+      setCharging(await setProjectsCharging(next));
+    } catch (err) {
+      setError(errorText(err));
+    } finally {
+      setSwitching(false);
+    }
+  };
 
   const save = async (project: Project, changes: { published?: boolean; price?: number }) => {
     setBusyId(project.id);
@@ -61,10 +84,26 @@ export default function ProjectsTab() {
         title="Mini projects"
         description={
           projects
-            ? `${published} of ${projects.length} published. Students see only published projects; each one is bought on its own and never expires.`
+            ? `${published} of ${projects.length} published. Students see only published projects.`
             : 'Loading projects…'
         }
       />
+
+      {projects && projects.length > 0 && (
+        <div className="card mb-5 flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-ink">{charging ? 'Students pay for projects' : 'Projects are free right now'}</p>
+            <p className="text-sm text-ink-muted">
+              {charging
+                ? 'Each project is sold at the price shown below, once, and never expires.'
+                : 'Any signed-in student can read every file and download the zip. The prices below are kept for when you start charging.'}
+            </p>
+          </div>
+          <button type="button" onClick={toggleCharging} disabled={switching} className={`btn shrink-0 ${charging ? 'btn-secondary' : 'btn-primary'}`}>
+            {switching ? 'Saving…' : charging ? 'Make everything free' : 'Start charging'}
+          </button>
+        </div>
+      )}
 
       {projects?.length === 0 && (
         <EmptyState
@@ -136,7 +175,7 @@ export default function ProjectsTab() {
                     onClick={() => {
                       if (
                         !project.published &&
-                        !confirm(`Publish "${project.title}" at ${formatRupees(project.price)}? Students can buy it straight away.`)
+                        !confirm(`Publish "${project.title}"${charging ? ` at ${formatRupees(project.price)}` : ' for free'}? Students can open it straight away.`)
                       ) {
                         return;
                       }

@@ -5,7 +5,7 @@ import Icon, { IconName } from '../components/Icon';
 import ProjectBrowser, { ProjectCardData } from './ProjectBrowser';
 import { getBranches, getPrograms } from '@/lib/catalog/server';
 import { formatRupees } from '@/lib/catalog/types';
-import { getProjects } from '@/lib/projects/server';
+import { getProjects, getProjectsCharging } from '@/lib/projects/server';
 import { DEFAULT_PROJECT_PRICE } from '@/lib/projects/types';
 
 // Cached with the catalog; admin edits expire it through /api/revalidate
@@ -26,7 +26,7 @@ const INCLUDED: { icon: IconName; title: string; text: string }[] = [
 ];
 
 export default async function ProjectsPage() {
-  const [projects, programs] = await Promise.all([getProjects(), getPrograms()]);
+  const [projects, programs, charging] = await Promise.all([getProjects(), getPrograms(), getProjectsCharging()]);
 
   // Filters offer only the programs and branches that have projects
   const programIds = new Set(projects.flatMap((p) => p.programIds));
@@ -68,8 +68,14 @@ export default async function ProjectsPage() {
             Mini projects you can build, <span className="marker">explain</span> and submit
           </h1>
           <p className="mt-4 max-w-2xl text-ink-muted sm:text-lg">
-            Pick a project, read its synopsis free, and buy only the one you choose: {formatRupees(price)}, paid once and
-            yours to keep.
+            {charging ? (
+              <>
+                Pick a project, read its synopsis free, and buy only the one you choose: {formatRupees(price)}, paid once and
+                yours to keep.
+              </>
+            ) : (
+              'Pick a project, then read the guide and download the code, all free. You only need to sign in.'
+            )}
           </p>
         </section>
 
@@ -88,7 +94,7 @@ export default async function ProjectsPage() {
         </ul>
 
         <div className="mt-10">
-          <ProjectBrowser projects={cards} programs={filterPrograms} branches={filterBranches} />
+          <ProjectBrowser projects={cards} programs={filterPrograms} branches={filterBranches} charging={charging} />
         </div>
 
         <p className="mt-10 max-w-3xl text-xs leading-relaxed text-ink-muted">

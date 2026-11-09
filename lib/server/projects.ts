@@ -3,6 +3,7 @@ import { Timestamp } from 'firebase-admin/firestore';
 import { adminBucket, adminDb } from '@/lib/firebase/admin';
 import { getMaterialLocked } from '@/lib/catalog/server';
 import { scopeKey } from '@/lib/catalog/types';
+import { getProjectsCharging } from '@/lib/projects/server';
 import { HttpError, isOwnerToken } from './http';
 
 interface StoredFile {
@@ -37,8 +38,10 @@ async function loadProject(user: DecodedIdToken, projectId: string) {
   return { owner, data };
 }
 
+// While projects are free, being signed in is enough
 async function requireBought(user: DecodedIdToken, projectId: string, owner: boolean) {
-  if (!owner && !(await ownsProject(user.uid, projectId))) {
+  if (owner || !(await getProjectsCharging())) return;
+  if (!(await ownsProject(user.uid, projectId))) {
     throw new HttpError(403, 'Buy this project to open its files.', 'PROJECT_REQUIRED');
   }
 }

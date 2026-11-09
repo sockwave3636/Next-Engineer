@@ -1,4 +1,5 @@
-// Mini projects: each is bought on its own (pass scope project:{id}) and kept for good.
+// Mini projects: free until an owner turns charging on (see lib/projects/server.ts). After that
+// each is bought on its own (pass scope project:{id}) and kept for good.
 // Plain serialisable data, like lib/catalog/types.ts. Firestore holds projects/{id};
 // scripts/upload-projects.mjs writes them, the admin panel sets price and published.
 

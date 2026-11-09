@@ -70,8 +70,13 @@ export async function setMaterialLock(locked: boolean): Promise<boolean> {
 // ---- Mini projects --------------------------------------------------------
 
 // Every project, drafts included (uploaded by scripts/upload-projects.mjs)
-export async function listProjects(): Promise<Project[]> {
-  return (await ownerRequest<{ projects: Project[] }>('GET', '/api/admin/projects')).projects;
+export function listProjects(): Promise<{ projects: Project[]; charging: boolean }> {
+  return ownerRequest('GET', '/api/admin/projects');
+}
+
+// Whether students pay for projects. While off, every project is free.
+export async function setProjectsCharging(charging: boolean): Promise<boolean> {
+  return (await ownerRequest<{ charging: boolean }>('POST', '/api/admin/projects', { charging })).charging;
 }
 
 export async function updateProject(id: string, changes: { published?: boolean; price?: number }): Promise<Project> {

@@ -1,6 +1,7 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/firebase/admin';
 import { DEFAULT_BRANCH_ID, PassScope, PassSettings, passOnSale, scopeKey } from '@/lib/catalog/types';
+import { getProjectsCharging } from '@/lib/projects/server';
 import { PROJECT_ACCESS_DAYS, toProject } from '@/lib/projects/types';
 import { errorResponse, HttpError, isOwnerToken, readJson, requireString, requireUser } from '@/lib/server/http';
 import type { PaymentRecord } from '@/lib/server/passes';
@@ -12,6 +13,7 @@ import { createRazorpayOrder, getRazorpayKeyId } from '@/lib/server/razorpay';
 async function resolvePass(scope: PassScope): Promise<{ pass: PassSettings | undefined; label: string }> {
   const db = adminDb();
   if (scope.type === 'project') {
+    if (!(await getProjectsCharging())) throw new HttpError(400, 'Mini projects are free right now.');
     const snap = await db.collection('projects').doc(scope.projectId).get();
     const project = snap.exists ? toProject(snap.id, snap.data() || {}) : null;
     if (!project?.published) throw new HttpError(404, 'Project not found.');
