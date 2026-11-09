@@ -6,8 +6,8 @@ import { getProjects } from '@/lib/projects/server';
 import { projectPath } from '@/lib/projects/types';
 import { SITE_URL } from '@/lib/site-url';
 
-// Rebuilt hourly from the cached catalog
-export const revalidate = 3600;
+// Rebuilt daily from the cached catalog
+export const revalidate = 86400;
 
 const STATIC_PAGES = ['/', '/about', '/contact', '/contribute', '/privacy-policy', '/terms', '/refund-policy'];
 

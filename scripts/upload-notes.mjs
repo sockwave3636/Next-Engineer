@@ -138,7 +138,7 @@ console.log(
     (missing.length ? `, ${missing.length} subject(s) not in Firestore yet: ${missing.join(', ')}` : '') +
     '.'
 );
-if (!dryRun) console.log('Public pages refresh within an hour, or straight away after any save in the admin panel.');
+if (!dryRun) console.log('Public pages refresh within a day, or straight away after any save in the admin panel.');
 
 function fail(message) {
   console.error(message);

@@ -7,7 +7,7 @@ import Icon, { IconName } from '@/app/components/Icon';
 import { getPost } from '@/lib/posts-server';
 import { formatPostDate } from '@/lib/format';
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 type Params = Promise<{ id: string }>;
 

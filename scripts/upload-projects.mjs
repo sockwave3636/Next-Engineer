@@ -188,7 +188,7 @@ for (const project of projects) {
 console.log(
   `Uploaded ${projects.length} project(s).` +
     (publish ? '' : ' Publish drafts in the admin panel, Mini projects tab.') +
-    ' Public pages refresh within an hour, or straight away after any save in the admin panel.'
+    ' Public pages refresh within a day, or straight away after any save in the admin panel.'
 );
 
 function fail(message) {

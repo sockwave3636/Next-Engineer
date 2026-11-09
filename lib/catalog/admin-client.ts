@@ -39,7 +39,7 @@ export async function refreshPublicPages(): Promise<void> {
   const token = await auth.currentUser?.getIdToken();
   if (!token) return;
   await fetch('/api/revalidate', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }).catch(() => {
-    // Pages refresh on their own within the hour if this fails
+    // Pages refresh on their own within a day if this fails
   });
 }
 

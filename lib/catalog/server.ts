@@ -8,7 +8,7 @@ import { canonicalSubjectPath } from './routes';
 import type { SearchEntry } from './search';
 
 export const CATALOG_TAG = 'catalog';
-const CACHE = { tags: [CATALOG_TAG], revalidate: 3600 };
+const CACHE = { tags: [CATALOG_TAG], revalidate: 86400 };
 
 export const getPrograms = unstable_cache(
   async (): Promise<Program[]> => {

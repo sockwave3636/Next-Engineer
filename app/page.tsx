@@ -13,7 +13,7 @@ import { programPath } from '@/lib/catalog/routes';
 import type { Program } from '@/lib/catalog/types';
 
 // Cached; admin edits expire it through /api/revalidate
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },

@@ -9,7 +9,7 @@ import { getProject } from '@/lib/projects/server';
 import { Project, projectImagePath, projectLevel, projectPath } from '@/lib/projects/types';
 
 // Cached with the catalog; admin edits expire it through /api/revalidate
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 type Params = Promise<{ id: string }>;
 

@@ -183,7 +183,7 @@ for (let i = 0; i < writes.length; i += 400) {
   await batch.commit();
 }
 console.log(`Done: ${summary}.`);
-console.log('Public pages refresh within an hour, or straight away after any save in the admin panel.');
+console.log('Public pages refresh within a day, or straight away after any save in the admin panel.');
 
 function fail(message) {
   console.error(message);

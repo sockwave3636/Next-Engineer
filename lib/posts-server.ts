@@ -43,5 +43,5 @@ export const getPost = unstable_cache(
     };
   },
   ['post'],
-  { tags: [CATALOG_TAG], revalidate: 3600 }
+  { tags: [CATALOG_TAG], revalidate: 86400 }
 );

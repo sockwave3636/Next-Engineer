@@ -12,7 +12,7 @@ export const getProjects = unstable_cache(
     return snapshot.docs.map((doc) => toProject(doc.id, doc.data())).sort((a, b) => a.number - b.number);
   },
   ['projects'],
-  { tags: [CATALOG_TAG], revalidate: 3600 }
+  { tags: [CATALOG_TAG], revalidate: 86400 }
 );
 
 export async function getProject(projectId: string): Promise<Project | null> {

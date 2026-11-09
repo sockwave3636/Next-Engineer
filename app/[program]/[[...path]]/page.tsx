@@ -23,7 +23,7 @@ import { canonicalSubjectPath, resolvePath, semesterLabel, semesterPath, branchP
 import { ALL_BRANCHES, Branch, DEFAULT_BRANCH_ID, Program, Subject, passOnSale, semesterPassOf } from '@/lib/catalog/types';
 
 // Pages are cached; admin edits expire the 'catalog' cache tag through /api/revalidate
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 type Params = Promise<{ program: string; path?: string[] }>;
 

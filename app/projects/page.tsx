@@ -9,7 +9,7 @@ import { getProjects } from '@/lib/projects/server';
 import { DEFAULT_PROJECT_PRICE } from '@/lib/projects/types';
 
 // Cached with the catalog; admin edits expire it through /api/revalidate
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: 'AKTU mini projects with code, report and viva questions',
