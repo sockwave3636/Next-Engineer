@@ -6,8 +6,10 @@ import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthPromptProvider } from "./context/AuthPromptContext";
 import { PassProvider } from "./context/PassContext";
+import { OpenAccessProvider } from "./context/OpenAccessContext";
 import CookieConsent from "./components/CookieConsent";
 import { ICON_FONT_URL } from "./components/Icon";
+import { getOpenAccess } from "@/lib/catalog/server";
 import { SITE_URL } from "@/lib/site-url";
 
 const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
@@ -44,11 +46,14 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // If this can't be read, the site behaves normally: sign-in and passes stay on
+  const openAccess = await getOpenAccess().catch(() => false);
+
   return (
     // data-theme is set by themeScript before React hydrates
     <html lang="en" suppressHydrationWarning>
@@ -69,14 +74,16 @@ export default function RootLayout({
           />
         )}
         <ThemeProvider>
-          <AuthProvider>
-            <PassProvider>
-              <AuthPromptProvider>
-                {children}
-                <CookieConsent />
-              </AuthPromptProvider>
-            </PassProvider>
-          </AuthProvider>
+          <OpenAccessProvider open={openAccess}>
+            <AuthProvider>
+              <PassProvider>
+                <AuthPromptProvider>
+                  {children}
+                  <CookieConsent />
+                </AuthPromptProvider>
+              </PassProvider>
+            </AuthProvider>
+          </OpenAccessProvider>
         </ThemeProvider>
       </body>
     </html>

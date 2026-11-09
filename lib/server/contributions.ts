@@ -4,7 +4,7 @@ import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { adminBucket, adminDb } from '@/lib/firebase/admin';
 import { subjectOnSale } from '@/lib/catalog/access';
 import { toSubject } from '@/lib/catalog/convert';
-import { CATALOG_TAG, getBranches, getMaterialLocked, getResources } from '@/lib/catalog/server';
+import { CATALOG_TAG, getBranches, getMaterialLocked, getOpenAccess, getResources } from '@/lib/catalog/server';
 import { scopeKey } from '@/lib/catalog/types';
 import {
   ABANDONED_UPLOAD_MS,
@@ -241,6 +241,7 @@ export async function getMyContributions(user: DecodedIdToken): Promise<MyContri
 export async function redeemCredits(user: DecodedIdToken, subjectId: unknown): Promise<{ credits: number; expiresAt: number }> {
   if (isOwnerToken(user)) throw new HttpError(400, 'Owner accounts already have full access.');
   await requireOpenSite();
+  if (await getOpenAccess()) throw new HttpError(400, 'Everything is free right now. Keep your credits for later.');
   if (typeof subjectId !== 'string' || !/^[a-z0-9]{1,30}$/.test(subjectId)) throw new HttpError(400, 'Missing or invalid subject.');
 
   const db = adminDb();

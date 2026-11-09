@@ -4,7 +4,7 @@ import PageShell from '@/app/components/PageShell';
 import Breadcrumbs from '@/app/components/Breadcrumbs';
 import Icon from '@/app/components/Icon';
 import ProjectAccess from './ProjectAccess';
-import { getBranches, getMaterialLocked, getPrograms } from '@/lib/catalog/server';
+import { getBranches, getMaterialLocked, getOpenAccess, getPrograms } from '@/lib/catalog/server';
 import { getProject, getProjectsCharging } from '@/lib/projects/server';
 import { Project, projectImagePath, projectLevel, projectPath } from '@/lib/projects/types';
 
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
 export default async function ProjectPage({ params }: { params: Params }) {
   const { id } = await params;
-  const [project, locked, charging] = await Promise.all([getProject(id), getMaterialLocked(), getProjectsCharging()]);
+  const [project, locked, charging, freeAccess] = await Promise.all([getProject(id), getMaterialLocked(), getProjectsCharging(), getOpenAccess()]);
   if (!project) notFound();
   const fits = await fitsLines(project);
   const level = projectLevel(project.level);
@@ -112,7 +112,7 @@ export default async function ProjectPage({ params }: { params: Params }) {
                 code: project.subjectCodes[0] ?? '',
               }}
               locked={locked}
-              charging={charging}
+              charging={charging && !freeAccess}
             />
           </aside>
 

@@ -116,27 +116,30 @@ export interface PdfByteSource {
   getRange: (start: number, end: number) => Promise<Uint8Array>;
 }
 
+// For the file routes: sends the sign-in when there is one, since free access opens them to everyone
+async function postForFile(url: string, body: unknown): Promise<Response> {
+  const currentUser = auth.currentUser;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(currentUser ? { Authorization: `Bearer ${await currentUser.getIdToken()}` } : {}),
+    },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new ApiError(response.status, data.error || 'Could not load this file.', data.code);
+  }
+  return response;
+}
+
 // Uploaded files, free or premium, are only ever read through a view route, a range at a
 // time, so the browser never holds a file URL it could open or share
 export function rangeSource(url: string, file: Record<string, string>): PdfByteSource {
   return {
-    getSize: async () => (await postWithAuth<{ size: number }>(url, file)).size,
-    getRange: async (start, end) => {
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        throw new ApiError(401, 'Please sign in first.');
-      }
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await currentUser.getIdToken()}` },
-        body: JSON.stringify({ ...file, start, end }),
-      });
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new ApiError(response.status, data.error || 'Could not load this file.', data.code);
-      }
-      return new Uint8Array(await response.arrayBuffer());
-    },
+    getSize: async () => ((await (await postForFile(url, file)).json()) as { size: number }).size,
+    getRange: async (start, end) => new Uint8Array(await (await postForFile(url, { ...file, start, end })).arrayBuffer()),
   };
 }
 
@@ -150,6 +153,6 @@ export function projectDocumentSource(projectId: string, documentId: string): Pd
 
 // Starts the download of a bought project's zip through a short-lived signed link
 export async function downloadProjectFiles(projectId: string): Promise<void> {
-  const { url } = await postWithAuth<{ url: string }>('/api/projects/download', { projectId });
+  const { url } = (await (await postForFile('/api/projects/download', { projectId })).json()) as { url: string };
   window.location.assign(url);
 }

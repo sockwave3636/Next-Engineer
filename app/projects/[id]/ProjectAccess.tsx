@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/app/context/AuthContext';
 import { useAuthPrompt } from '@/app/context/AuthPromptContext';
+import { useOpenAccess } from '@/app/context/OpenAccessContext';
 import { usePasses } from '@/app/context/PassContext';
 import Icon from '@/app/components/Icon';
 import PremiumReader from '@/app/components/PremiumReader';
@@ -39,6 +40,7 @@ export default function ProjectAccess({ project, locked, charging }: ProjectAcce
   const { user } = useAuth();
   const { openAuthPrompt } = useAuthPrompt();
   const { activeUntil } = usePasses();
+  const freeAccess = useOpenAccess();
   const [buying, setBuying] = useState(false);
   const [justBought, setJustBought] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -70,7 +72,7 @@ export default function ProjectAccess({ project, locked, charging }: ProjectAcce
   };
 
   const open = (doc: ProjectDocument) => {
-    if (!user) {
+    if (!user && !freeAccess) {
       openAuthPrompt({ reason: doc.free || !charging ? `Sign in to read the ${doc.title.toLowerCase()}, free` : 'Sign in to open this project' });
       return;
     }
@@ -78,7 +80,7 @@ export default function ProjectAccess({ project, locked, charging }: ProjectAcce
   };
 
   const download = async () => {
-    if (!user) {
+    if (!user && !freeAccess) {
       openAuthPrompt({ reason: 'Sign in to download the project files' });
       return;
     }
@@ -119,7 +121,7 @@ export default function ProjectAccess({ project, locked, charging }: ProjectAcce
           <div>
             <p className="font-display font-semibold text-leaf-ink">This project is free</p>
             <p className="mt-0.5 text-sm text-leaf-ink/80">
-              {user ? 'Read the guide here and download the files below.' : 'Sign in to read the guide and download the files.'}
+              {user || freeAccess ? 'Read the guide here and download the files below.' : 'Sign in to read the guide and download the files.'}
             </p>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import { DecodedIdToken } from 'firebase-admin/auth';
 import { Timestamp } from 'firebase-admin/firestore';
 import { adminBucket, adminDb } from '@/lib/firebase/admin';
-import { getMaterialLocked } from '@/lib/catalog/server';
+import { getMaterialLocked, getOpenAccess } from '@/lib/catalog/server';
 import { scopeKey } from '@/lib/catalog/types';
 import { getProjectsCharging } from '@/lib/projects/server';
 import { HttpError, isOwnerToken } from './http';
@@ -26,8 +26,8 @@ export async function ownsProject(uid: string, projectId: string): Promise<boole
 
 // A published project's raw record, storage paths included. Owners also reach drafts.
 // The admin panel's master lock shuts projects too, for everyone but owners.
-async function loadProject(user: DecodedIdToken, projectId: string) {
-  const owner = isOwnerToken(user);
+async function loadProject(viewer: DecodedIdToken | null, projectId: string) {
+  const owner = viewer !== null && isOwnerToken(viewer);
   if (!owner && (await getMaterialLocked())) {
     throw new HttpError(423, 'Study material is locked right now. Please check back later.', 'MATERIAL_LOCKED');
   }
@@ -38,29 +38,29 @@ async function loadProject(user: DecodedIdToken, projectId: string) {
   return { owner, data };
 }
 
-// While projects are free, being signed in is enough
-async function requireBought(user: DecodedIdToken, projectId: string, owner: boolean) {
-  if (owner || !(await getProjectsCharging())) return;
-  if (!(await ownsProject(user.uid, projectId))) {
+// During free access anyone may open a project. While projects are free, being signed in is enough.
+async function requireBought(viewer: DecodedIdToken | null, projectId: string, owner: boolean) {
+  if (owner || (await getOpenAccess()) || !(await getProjectsCharging())) return;
+  if (!viewer || !(await ownsProject(viewer.uid, projectId))) {
     throw new HttpError(403, 'Buy this project to open its files.', 'PROJECT_REQUIRED');
   }
 }
 
 // One of the project's PDFs, for the reader. Free documents need only a sign-in.
 // Returns the Storage file; callers never hand its URL to the browser.
-export async function getReadableProjectDocument(user: DecodedIdToken, projectId: string, documentId: string) {
-  const { owner, data } = await loadProject(user, projectId);
+export async function getReadableProjectDocument(viewer: DecodedIdToken | null, projectId: string, documentId: string) {
+  const { owner, data } = await loadProject(viewer, projectId);
   const document = ((data.documents ?? []) as StoredFile[]).find((d) => d.id === documentId);
   if (!document?.storagePath) throw new HttpError(404, 'This file no longer exists.');
-  if (!document.free) await requireBought(user, projectId, owner);
+  if (!document.free) await requireBought(viewer, projectId, owner);
   return adminBucket().file(document.storagePath);
 }
 
 // The project's zip, for buyers only
-export async function getProjectDownload(user: DecodedIdToken, projectId: string) {
-  const { owner, data } = await loadProject(user, projectId);
+export async function getProjectDownload(viewer: DecodedIdToken | null, projectId: string) {
+  const { owner, data } = await loadProject(viewer, projectId);
   const download = data.download as StoredFile | undefined;
   if (!download?.storagePath) throw new HttpError(404, 'This project has no download yet.');
-  await requireBought(user, projectId, owner);
+  await requireBought(viewer, projectId, owner);
   return { file: adminBucket().file(download.storagePath), fileName: download.fileName || `${projectId}.zip` };
 }

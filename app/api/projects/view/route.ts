@@ -1,4 +1,4 @@
-import { errorResponse, readJson, requireString, requireUser } from '@/lib/server/http';
+import { errorResponse, readJson, requireString, requireViewer } from '@/lib/server/http';
 import { fileRangeResponse } from '@/lib/server/file-range';
 import { getReadableProjectDocument } from '@/lib/server/projects';
 
@@ -9,7 +9,7 @@ import { getReadableProjectDocument } from '@/lib/server/projects';
 // POST { projectId, documentId, start, end }   -> bytes [start, end)
 export async function POST(request: Request) {
   try {
-    const user = await requireUser(request);
+    const user = await requireViewer(request);
     const body = await readJson(request);
     const file = await getReadableProjectDocument(user, requireString(body, 'projectId'), requireString(body, 'documentId'));
     return await fileRangeResponse(file, body);

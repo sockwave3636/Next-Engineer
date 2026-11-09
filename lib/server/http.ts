@@ -1,4 +1,5 @@
 import { DecodedIdToken } from 'firebase-admin/auth';
+import { getOpenAccess } from '@/lib/catalog/server';
 import { adminAuth } from '@/lib/firebase/admin';
 import { isOwnerEmail } from '@/lib/owners';
 
@@ -30,6 +31,13 @@ export async function requireUser(request: Request): Promise<DecodedIdToken> {
     console.warn(`ID token verification failed: ${code || ''} ${(message || '').split('\n')[0]}`);
     throw new HttpError(401, 'Your session has expired. Please sign in again.');
   }
+}
+
+// Who is asking, for the routes free access opens to everyone. Null means a visitor with no account.
+// Outside free access this is requireUser.
+export async function requireViewer(request: Request): Promise<DecodedIdToken | null> {
+  if (!(await getOpenAccess())) return requireUser(request);
+  return requireUser(request).catch(() => null);
 }
 
 export function isOwnerToken(user: DecodedIdToken): boolean {

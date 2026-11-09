@@ -1,5 +1,6 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/firebase/admin';
+import { getOpenAccess } from '@/lib/catalog/server';
 import { DEFAULT_BRANCH_ID, PassScope, PassSettings, passOnSale, scopeKey } from '@/lib/catalog/types';
 import { getProjectsCharging } from '@/lib/projects/server';
 import { PROJECT_ACCESS_DAYS, toProject } from '@/lib/projects/types';
@@ -63,6 +64,7 @@ function readScope(body: Record<string, unknown>): PassScope {
 export async function POST(request: Request) {
   try {
     const user = await requireUser(request);
+    if (await getOpenAccess()) throw new HttpError(400, 'Everything is free right now, so there is nothing to pay for.');
     const scope = readScope(await readJson(request));
 
     if (isOwnerToken(user)) {

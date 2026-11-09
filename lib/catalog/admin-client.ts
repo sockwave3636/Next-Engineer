@@ -67,6 +67,15 @@ export async function setMaterialLock(locked: boolean): Promise<boolean> {
   return (await ownerRequest<{ locked: boolean }>('POST', '/api/admin/material-lock', { locked })).locked;
 }
 
+// Whether everything is open to everyone, with no sign-in and no payments
+export async function getOpenAccess(): Promise<boolean> {
+  return (await ownerRequest<{ open: boolean }>('GET', '/api/admin/open-access')).open;
+}
+
+export async function setOpenAccess(open: boolean): Promise<boolean> {
+  return (await ownerRequest<{ open: boolean }>('POST', '/api/admin/open-access', { open })).open;
+}
+
 // ---- Mini projects --------------------------------------------------------
 
 // Every project, drafts included (uploaded by scripts/upload-projects.mjs)

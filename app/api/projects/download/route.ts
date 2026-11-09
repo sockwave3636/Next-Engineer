@@ -1,4 +1,4 @@
-import { errorResponse, readJson, requireString, requireUser } from '@/lib/server/http';
+import { errorResponse, readJson, requireString, requireViewer } from '@/lib/server/http';
 import { getProjectDownload } from '@/lib/server/projects';
 
 // Long enough to start the download, short enough that a shared link soon stops working
@@ -8,7 +8,7 @@ const LINK_MINUTES = 10;
 // The zip goes straight from Storage to the browser, so its size isn't limited by this function.
 export async function POST(request: Request) {
   try {
-    const user = await requireUser(request);
+    const user = await requireViewer(request);
     const { file, fileName } = await getProjectDownload(user, requireString(await readJson(request), 'projectId'));
     const [url] = await file.getSignedUrl({
       version: 'v4',

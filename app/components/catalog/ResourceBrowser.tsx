@@ -5,6 +5,7 @@ import { Resource, RESOURCE_TYPES, ResourceType, Subject, formatBytes } from '@/
 import { resourceSource } from '@/lib/premium-client';
 import { useAuth } from '@/app/context/AuthContext';
 import { useAuthPrompt } from '@/app/context/AuthPromptContext';
+import { useOpenAccess } from '@/app/context/OpenAccessContext';
 import { usePasses } from '@/app/context/PassContext';
 import PremiumReader from '../PremiumReader';
 import Icon, { IconName } from '../Icon';
@@ -33,6 +34,7 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
   const { user } = useAuth();
   const { openAuthPrompt } = useAuthPrompt();
   const { hasAccess } = usePasses();
+  const freeAccess = useOpenAccess();
 
   const tabs = RESOURCE_TYPES.filter((t) => resources.some((r) => r.type === t.id));
   const [activeType, setActiveType] = useState<ResourceType | null>(tabs[0]?.id ?? null);
@@ -57,9 +59,9 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
   const closeReader = useCallback(() => setReading(null), []);
 
   // Every file opens in the read-only reader. Signing in is required so each page can carry
-  // the reader's email; premium files also need a pass.
+  // the reader's email, except during free access; premium files also need a pass.
   const openFile = (resource: Resource) => {
-    if (!user) {
+    if (!user && !freeAccess) {
       openAuthPrompt({ reason: resource.premium ? 'Sign in to read premium notes' : 'Sign in to read notes, free' });
       return;
     }

@@ -3,7 +3,7 @@ import PageShell from '../components/PageShell';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Icon, { IconName } from '../components/Icon';
 import ProjectBrowser, { ProjectCardData } from './ProjectBrowser';
-import { getBranches, getPrograms } from '@/lib/catalog/server';
+import { getBranches, getOpenAccess, getPrograms } from '@/lib/catalog/server';
 import { formatRupees } from '@/lib/catalog/types';
 import { getProjects, getProjectsCharging } from '@/lib/projects/server';
 import { DEFAULT_PROJECT_PRICE } from '@/lib/projects/types';
@@ -26,7 +26,8 @@ const INCLUDED: { icon: IconName; title: string; text: string }[] = [
 ];
 
 export default async function ProjectsPage() {
-  const [projects, programs, charging] = await Promise.all([getProjects(), getPrograms(), getProjectsCharging()]);
+  const [projects, programs, projectsCharging, freeAccess] = await Promise.all([getProjects(), getPrograms(), getProjectsCharging(), getOpenAccess()]);
+  const charging = projectsCharging && !freeAccess;
 
   // Filters offer only the programs and branches that have projects
   const programIds = new Set(projects.flatMap((p) => p.programIds));
@@ -74,7 +75,7 @@ export default async function ProjectsPage() {
                 yours to keep.
               </>
             ) : (
-              'Pick a project, then read the guide and download the code, all free. You only need to sign in.'
+              `Pick a project, then read the guide and download the code, all free. ${freeAccess ? 'No account needed.' : 'You only need to sign in.'}`
             )}
           </p>
         </section>

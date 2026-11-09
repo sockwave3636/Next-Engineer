@@ -11,6 +11,7 @@ import {
   getBranch,
   getBranches,
   getMaterialLocked,
+  getOpenAccess,
   getProgram,
   getProgramSubjects,
   getResources,
@@ -70,6 +71,11 @@ function withSaleCounts(subject: Subject, branches: Branch[]): Subject {
   return { ...subject, resourceCounts: { ...subject.resourceCounts, premium: files } };
 }
 
+// During free access nothing is on sale, so no subject shows as premium
+function withoutPremium(subject: Subject): Subject {
+  return { ...subject, resourceCounts: { ...subject.resourceCounts, premium: 0 } };
+}
+
 async function loadBranch(program: Program, branchId: string): Promise<Branch> {
   // The hidden 'all' branch only exists for branchless programs
   if (program.hasBranches && branchId === DEFAULT_BRANCH_ID) notFound();
@@ -100,27 +106,29 @@ async function loadPage(params: Params) {
     }
     case 'semester': {
       const branch = await loadBranch(program, route.branchId);
-      const [subjects, allBranches] = await Promise.all([
+      const [subjects, allBranches, freeAccess] = await Promise.all([
         getSemesterSubjects(program.id, branch.id, route.semester),
         getBranches(program.id),
+        getOpenAccess(),
       ]);
       return {
         kind: 'semester' as const,
         program,
         branch,
         semester: route.semester,
-        subjects: subjects.map((s) => withSaleCounts(s, allBranches)),
+        subjects: subjects.map((s) => (freeAccess ? withoutPremium(s) : withSaleCounts(s, allBranches))),
       };
     }
     case 'subject': {
       const branch = await loadBranch(program, route.branchId);
       const subject = await getSubjectBySlug(program.id, route.subjectSlug);
       if (!subject || !subjectOfferedIn(subject, branch.id, route.semester)) notFound();
-      const [resources, branches, allBranches, materialLocked] = await Promise.all([
+      const [resources, branches, allBranches, materialLocked, freeAccess] = await Promise.all([
         getResources(subject.id),
         getVisibleBranches(program),
         getBranches(program.id),
         getMaterialLocked(),
+        getOpenAccess(),
       ]);
       const onSale = subjectOnSale(subject, allBranches);
       return {
@@ -131,7 +139,7 @@ async function loadPage(params: Params) {
         subject,
         // While the admin's master lock is on, the page doesn't even receive the list.
         // Files of a paid subject are shown as premium, matching the check in /api/resources/view.
-        resources: materialLocked ? [] : resources.map((r) => ({ ...r, premium: needsPass(r, onSale) })),
+        resources: materialLocked ? [] : resources.map((r) => ({ ...r, premium: !freeAccess && needsPass(r, onSale) })),
         materialLocked,
         allBranches,
         canonical: canonicalSubjectPath(program, branches, subject),
@@ -189,7 +197,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 export default async function CatalogPage({ params }: { params: Params }) {
-  const page = await loadPage(params);
+  const [page, freeAccess] = await Promise.all([loadPage(params), getOpenAccess()]);
 
   let content: React.ReactNode;
   switch (page.kind) {
@@ -208,7 +216,7 @@ export default async function CatalogPage({ params }: { params: Params }) {
       for (let semester = 1; semester <= page.program.semesters; semester++) {
         semesterCounts[semester] = page.subjects.filter((s) => subjectOfferedIn(s, page.branch.id, semester)).length;
       }
-      content = <BranchView program={page.program} branch={page.branch} semesterCounts={semesterCounts} />;
+      content = <BranchView program={page.program} branch={freeAccess ? { ...page.branch, semesterPasses: {} } : page.branch} semesterCounts={semesterCounts} />;
       break;
     }
     case 'semester':
@@ -218,7 +226,7 @@ export default async function CatalogPage({ params }: { params: Params }) {
           branch={page.branch}
           semester={page.semester}
           subjects={page.subjects}
-          passOptions={semesterPassOption(page.program, page.branch, page.semester)}
+          passOptions={freeAccess ? [] : semesterPassOption(page.program, page.branch, page.semester)}
         />
       );
       break;
@@ -231,7 +239,7 @@ export default async function CatalogPage({ params }: { params: Params }) {
           subject={page.subject}
           resources={page.resources}
           materialLocked={page.materialLocked}
-          passOptions={subjectPassOptions(page.program, page.branch, page.semester, page.subject, page.allBranches)}
+          passOptions={freeAccess ? [] : subjectPassOptions(page.program, page.branch, page.semester, page.subject, page.allBranches)}
         />
       );
       break;

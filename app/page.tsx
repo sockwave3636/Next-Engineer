@@ -7,7 +7,7 @@ import BlogSlider from './components/BlogSlider';
 import MyPasses from './components/MyPasses';
 import ReaderPreview from './components/ReaderPreview';
 import Icon from './components/Icon';
-import { getPrograms, getSiteStats } from '@/lib/catalog/server';
+import { getOpenAccess, getPrograms, getSiteStats } from '@/lib/catalog/server';
 import { programStyle, SYLLABUS_SESSION } from '@/lib/catalog/defaults';
 import { programPath } from '@/lib/catalog/routes';
 import type { Program } from '@/lib/catalog/types';
@@ -77,8 +77,61 @@ function ProgramCard({ program, subjects }: { program: Program; subjects: number
   );
 }
 
+function PassesSection() {
+  return (
+    <section id="passes" className="card scroll-mt-28 p-6 sm:p-10">
+      <div className="grid items-center gap-8 lg:grid-cols-12">
+        <div className="lg:col-span-7">
+          <span className="badge badge-sun">★ Premium passes</span>
+          <h2 className="section-title mt-3">Unlock a subject, or a whole semester</h2>
+          <p className="mt-2 text-ink-muted">
+            Premium notes and books open in a watermarked reader on any device. Choose the pass that fits how much you
+            need: one subject, or every subject in your semester.
+          </p>
+          <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+            {PASS_POINTS.map((point) => (
+              <li key={point} className="flex items-start gap-2 text-sm text-ink">
+                <Icon name="check_circle" size={18} className="mt-px text-leaf" filled />
+                {point}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="flex flex-col items-center rounded-xl bg-surface-muted p-6 text-center lg:col-span-5">
+          <span className="grid h-12 w-12 place-items-center rounded-xl bg-sun-soft text-sun-ink">
+            <Icon name="workspace_premium" size={28} />
+          </span>
+          <p className="mt-3 font-display text-lg font-semibold text-ink">Find your pass</p>
+          <p className="mt-1 text-sm text-ink-muted">
+            Prices are on each subject and semester page. A pass unlocks instantly after payment.
+          </p>
+          <a href="#programs" className="btn btn-amber mt-5 w-full py-3 text-base">
+            Choose your program <Icon name="arrow_forward" size={18} />
+          </a>
+          <span className="mt-2 text-[11px] font-semibold text-ink-faint">Secure checkout by Razorpay · UPI accepted</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FreeAccessNotice() {
+  return (
+    <section id="passes" className="card scroll-mt-28 p-6 sm:p-10">
+      <span className="badge badge-leaf">Free for now</span>
+      <h2 className="section-title mt-3">Everything is free right now</h2>
+      <p className="mt-2 max-w-2xl text-ink-muted">
+        Every note, paper and mini project is open to read. You don&apos;t need an account, and there is nothing to pay.
+      </p>
+      <a href="#programs" className="btn btn-primary mt-5">
+        Choose your program <Icon name="arrow_forward" size={18} />
+      </a>
+    </section>
+  );
+}
+
 export default async function Home() {
-  const [programs, stats] = await Promise.all([getPrograms(), getSiteStats()]);
+  const [programs, stats, freeAccess] = await Promise.all([getPrograms(), getSiteStats(), getOpenAccess()]);
   const levels = [
     { title: 'Undergraduate programs (UG)', dot: 'bg-brand', programs: programs.filter((p) => p.level === 'UG') },
     { title: 'Postgraduate programs (PG)', dot: 'bg-sun', programs: programs.filter((p) => p.level === 'PG') },
@@ -214,40 +267,8 @@ export default async function Home() {
           </ol>
         </section>
 
-        {/* Passes */}
-        <section id="passes" className="card scroll-mt-28 p-6 sm:p-10">
-          <div className="grid items-center gap-8 lg:grid-cols-12">
-            <div className="lg:col-span-7">
-              <span className="badge badge-sun">★ Premium passes</span>
-              <h2 className="section-title mt-3">Unlock a subject, or a whole semester</h2>
-              <p className="mt-2 text-ink-muted">
-                Premium notes and books open in a watermarked reader on any device. Choose the pass that fits how much you
-                need: one subject, or every subject in your semester.
-              </p>
-              <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-                {PASS_POINTS.map((point) => (
-                  <li key={point} className="flex items-start gap-2 text-sm text-ink">
-                    <Icon name="check_circle" size={18} className="mt-px text-leaf" filled />
-                    {point}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="flex flex-col items-center rounded-xl bg-surface-muted p-6 text-center lg:col-span-5">
-              <span className="grid h-12 w-12 place-items-center rounded-xl bg-sun-soft text-sun-ink">
-                <Icon name="workspace_premium" size={28} />
-              </span>
-              <p className="mt-3 font-display text-lg font-semibold text-ink">Find your pass</p>
-              <p className="mt-1 text-sm text-ink-muted">
-                Prices are on each subject and semester page. A pass unlocks instantly after payment.
-              </p>
-              <a href="#programs" className="btn btn-amber mt-5 w-full py-3 text-base">
-                Choose your program <Icon name="arrow_forward" size={18} />
-              </a>
-              <span className="mt-2 text-[11px] font-semibold text-ink-faint">Secure checkout by Razorpay · UPI accepted</span>
-            </div>
-          </div>
-        </section>
+        {/* Passes, or during free access a note that everything is open */}
+        {freeAccess ? <FreeAccessNotice /> : <PassesSection />}
 
         {/* Updates */}
         <section id="updates" className="scroll-mt-28">

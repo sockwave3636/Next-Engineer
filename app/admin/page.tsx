@@ -13,6 +13,7 @@ import ProjectsTab from './_components/ProjectsTab';
 import ContributionsTab from './_components/ContributionsTab';
 import PostsTab from './_components/PostsTab';
 import MessagesTab from './_components/MessagesTab';
+import FreeAccessSwitch from './_components/FreeAccessSwitch';
 import MaterialLock from './_components/MaterialLock';
 
 type Tab = 'programs' | 'subjects' | 'projects' | 'uploads' | 'posts' | 'messages';
@@ -75,6 +76,7 @@ export default function AdminPanel() {
           </p>
         </div>
 
+        <FreeAccessSwitch />
         <MaterialLock />
 
         <div

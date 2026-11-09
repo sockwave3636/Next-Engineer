@@ -573,7 +573,7 @@ export default function PremiumReader({ title, code, premium = true, aiGenerated
 
             <p className="flex items-start gap-1.5 border-t border-line px-4 py-3 text-[11px] leading-relaxed text-ink-muted">
               <Icon name="shield" size={14} className="mt-px text-sun-ink" />
-              Read-only. Downloading, copying and printing are turned off, and every page carries your email.
+              Read-only. Downloading, copying and printing are turned off{watermark.includes('@') && ', and every page carries your email'}.
             </p>
           </aside>
         )}

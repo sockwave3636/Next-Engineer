@@ -81,6 +81,14 @@ export async function readMaterialLocked(): Promise<boolean> {
 // Cached with the catalog; flipping the switch revalidates CATALOG_TAG so it applies at once
 export const getMaterialLocked = unstable_cache(readMaterialLocked, ['material-locked'], CACHE);
 
+// The owner's free-access switch (settings/site.openAccess, flipped through /api/admin/open-access).
+// While it's on, anyone can read every file without an account and nothing is on sale.
+export async function readOpenAccess(): Promise<boolean> {
+  return (await adminDb().doc('settings/site').get()).get('openAccess') === true;
+}
+
+export const getOpenAccess = unstable_cache(readOpenAccess, ['open-access'], CACHE);
+
 export const getResources = unstable_cache(
   async (subjectId: string): Promise<Resource[]> => {
     const snapshot = await adminDb().collection('resources').where('subjectId', '==', subjectId).get();

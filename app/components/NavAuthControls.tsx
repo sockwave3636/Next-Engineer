@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { useAuthPrompt } from '../context/AuthPromptContext';
+import { useOpenAccess } from '../context/OpenAccessContext';
 import { usePasses } from '../context/PassContext';
 import Icon from './Icon';
 
@@ -12,10 +13,13 @@ export default function NavAuthControls() {
   const { user, logout } = useAuth();
   const { openAuthPrompt } = useAuthPrompt();
   const { passes } = usePasses();
+  const freeAccess = useOpenAccess();
   // Only owners sign in on the admin pages, so no sign-up there
   const onAdmin = usePathname()?.startsWith('/admin') ?? false;
 
   if (!user) {
+    // During free access visitors don't need an account; owners still sign in at /admin
+    if (freeAccess && !onAdmin) return null;
     return (
       <button
         onClick={() => openAuthPrompt(onAdmin ? { reason: 'Owner sign-in', allowSignUp: false } : {})}
