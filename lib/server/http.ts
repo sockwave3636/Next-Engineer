@@ -36,6 +36,12 @@ export function isOwnerToken(user: DecodedIdToken): boolean {
   return isOwnerEmail(user.email, user.email_verified);
 }
 
+export async function requireOwner(request: Request): Promise<DecodedIdToken> {
+  const user = await requireUser(request);
+  if (!isOwnerToken(user)) throw new HttpError(403, 'Only owners can change this.');
+  return user;
+}
+
 export async function readJson(request: Request): Promise<Record<string, unknown>> {
   try {
     const body = await request.json();

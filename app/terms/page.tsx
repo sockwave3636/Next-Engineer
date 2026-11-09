@@ -73,6 +73,27 @@ export default function TermsOfServicePage() {
             the <Link href="/contact">Contact</Link> page and we will correct it.
           </p>
 
+          <h2 id="sharing">
+            Sharing papers and notes for credits
+          </h2>
+          <p>
+            Signed-in students can upload AKTU question papers and their own handwritten notes. By uploading a file you confirm
+            that it is one of these, and you allow Next Engineer to show it to other students, free or as part of paid access,
+            and to edit or remove it. Do not upload textbooks, coaching material, files from other websites, someone
+            else&apos;s notes, or anything with personal details, adverts or links.
+          </p>
+          <ul>
+            <li>We check every file by hand. It goes live, and earns credits, only if we accept it. Usually only the first copy of a paper earns credits.</li>
+            <li>Honest mistakes are simply rejected. Deliberately uploading a fake or copied file gets a warning the first time, a 30-day ban from uploading the second time, and a permanent ban from uploading the third time.</li>
+            <li>If a file is later found to be fake or copied, we remove it and take back its credits. Penalties never affect a pass you paid for.</li>
+            <li>Credits have no cash value, cannot be transferred or refunded, can only be used on this site, and are capped each month. We may change how they work.</li>
+            <li>Files marked &quot;Shared by a student&quot; come from other students, and we do not check them for accuracy.</li>
+          </ul>
+          <p>
+            If you believe a file breaks your rights, use the Report button on that file or our{' '}
+            <Link href="/contact">Contact</Link> page, and we will review it and remove it if needed.
+          </p>
+
           <h2>
             Links
           </h2>

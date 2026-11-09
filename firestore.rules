@@ -46,6 +46,15 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Students' uploads and credits: read and changed only by the server (/api/contributions,
+    // /api/admin/contributions), so nobody can give themselves credits from the browser
+    match /submissions/{submissionId} {
+      allow read, write: if false;
+    }
+    match /contributors/{uid}/{document=**} {
+      allow read, write: if false;
+    }
+
     // Site switches; changed only by the server (/api/admin/material-lock)
     match /settings/{settingId} {
       allow read: if isOwner();

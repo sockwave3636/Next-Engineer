@@ -20,7 +20,8 @@ export default function PrivacyPolicyPage() {
           <p>
             We may collect basic information that you provide directly to us, such as your name and email address when you
             sign up, log in, or contact us. We also collect non-personal information such as device type, browser type,
-            and usage data to improve the platform.
+            and usage data to improve the platform. If you share a paper or notes for credits, we keep the file and link it to
+            your account while we check it. Other students see only the file, never your name or email.
           </p>
 
           <h2>

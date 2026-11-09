@@ -8,7 +8,9 @@ import { useAuthPrompt } from '@/app/context/AuthPromptContext';
 import { usePasses } from '@/app/context/PassContext';
 import PremiumReader from '../PremiumReader';
 import Icon, { IconName } from '../Icon';
+import ReportResource from './ReportResource';
 import RequestResource from './RequestResource';
+import ShareResource from './ShareResource';
 
 interface ResourceBrowserProps {
   resources: Resource[];
@@ -77,7 +79,12 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
     <section aria-labelledby="resources-heading">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 id="resources-heading" className="font-display text-xl font-semibold text-ink">Study material</h2>
-        {!locked && <RequestResource subjectId={subject.id} subjectCode={subject.code} subjectName={subject.name} />}
+        {!locked && (
+          <div className="flex flex-wrap gap-2">
+            <ShareResource subject={subject} />
+            <RequestResource subjectId={subject.id} subjectCode={subject.code} subjectName={subject.name} />
+          </div>
+        )}
       </div>
 
       {locked ? (
@@ -128,6 +135,16 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
                 Files marked <span className="font-semibold text-ink">AI-generated</span> were written with AI from the AKTU
                 syllabus. They can contain mistakes, so check formulas, derivations and key facts against your textbook or
                 class notes.
+              </span>
+            </p>
+          )}
+
+          {visible.some((r) => r.sharedByStudent) && (
+            <p className="mb-4 flex items-start gap-2 rounded-lg border border-line bg-surface-muted px-3 py-2.5 text-sm text-ink-muted">
+              <Icon name="group" size={18} className="mt-px text-brand" />
+              <span>
+                Files marked <span className="font-semibold text-ink">Shared by a student</span> come from other students. We check
+                that each one is genuine, but not every answer in it, so compare with your textbook or class notes.
               </span>
             </p>
           )}
@@ -186,6 +203,11 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
                                   <Icon name="auto_awesome" size={12} /> AI-generated
                                 </span>
                               )}
+                              {resource.sharedByStudent && (
+                                <span className="badge badge-muted">
+                                  <Icon name="group" size={12} /> Shared by a student
+                                </span>
+                              )}
                               {resource.unit && <span className="code text-[11px]">{unitLabel(resource.unit)}</span>}
                               {resource.session && (
                                 <span className="code text-[11px]">{resource.session === 'odd' ? 'Odd' : 'Even'} sem</span>
@@ -194,6 +216,9 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
                             </div>
                           </div>
                         </div>
+                        {resource.sharedByStudent && (
+                          <ReportResource resourceId={resource.id} title={resource.title} subjectId={subject.id} subjectCode={subject.code} />
+                        )}
                         {resource.url ? (
                           <a href={resource.url} target="_blank" rel="noopener noreferrer" className="btn btn-secondary w-full sm:w-auto">
                             Open <Icon name="open_in_new" size={16} />
@@ -223,6 +248,7 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
           code={subject.code}
           premium={reading.premium}
           aiGenerated={reading.aiGenerated}
+          sharedByStudent={reading.sharedByStudent}
           source={readerSource}
           watermark={user?.email || 'Next Engineer'}
           onClose={closeReader}

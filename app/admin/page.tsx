@@ -10,16 +10,18 @@ import AdminAccess from '../components/AdminAccess';
 import ProgramsTab from './_components/ProgramsTab';
 import SubjectsTab from './_components/SubjectsTab';
 import ProjectsTab from './_components/ProjectsTab';
+import ContributionsTab from './_components/ContributionsTab';
 import PostsTab from './_components/PostsTab';
 import MessagesTab from './_components/MessagesTab';
 import MaterialLock from './_components/MaterialLock';
 
-type Tab = 'programs' | 'subjects' | 'projects' | 'posts' | 'messages';
+type Tab = 'programs' | 'subjects' | 'projects' | 'uploads' | 'posts' | 'messages';
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'programs', label: 'Programs', icon: '🎓' },
   { id: 'subjects', label: 'Subjects and material', icon: '📘' },
   { id: 'projects', label: 'Mini projects', icon: '🛠️' },
+  { id: 'uploads', label: 'Student uploads', icon: '📤' },
   { id: 'posts', label: 'Blog and notices', icon: '📰' },
   { id: 'messages', label: 'Messages', icon: '✉️' },
 ];
@@ -99,6 +101,7 @@ export default function AdminPanel() {
         {activeTab === 'programs' && <ProgramsTab onOpenSubjects={openSubjects} />}
         {activeTab === 'subjects' && <SubjectsTab key={subjectsProgram} initialProgramId={subjectsProgram} />}
         {activeTab === 'projects' && <ProjectsTab />}
+        {activeTab === 'uploads' && <ContributionsTab />}
         {activeTab === 'posts' && <PostsTab />}
         {activeTab === 'messages' && <MessagesTab onUnreadChange={onUnreadChange} />}
       </main>

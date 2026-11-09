@@ -9,7 +9,7 @@ import { SITE_URL } from '@/lib/site-url';
 // Rebuilt hourly from the cached catalog
 export const revalidate = 3600;
 
-const STATIC_PAGES = ['/', '/about', '/contact', '/privacy-policy', '/terms', '/refund-policy'];
+const STATIC_PAGES = ['/', '/about', '/contact', '/contribute', '/privacy-policy', '/terms', '/refund-policy'];
 
 // Every public page: programs, branches, semesters, each subject at its canonical URL, and
 // the published mini projects

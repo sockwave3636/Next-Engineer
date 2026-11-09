@@ -332,6 +332,7 @@ export default function ResourceManager({ subject, onClose, onChanged }: Resourc
                           </span>
                         </span>
                         {resource.aiGenerated && <span className="badge badge-muted">AI-generated</span>}
+                        {resource.sharedByStudent && <span className="badge badge-muted">Shared by a student</span>}
                         {resource.premium && <span className="badge badge-leaf">⭐ Premium</span>}
                         <button onClick={() => setEditing(resource)} disabled={busy} className="btn btn-ghost btn-sm">
                           Edit

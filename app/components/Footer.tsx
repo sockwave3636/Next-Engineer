@@ -9,6 +9,7 @@ const LINK_GROUPS = [
       { href: '/#programs', label: 'All programs' },
       { href: '/search', label: 'Search subjects' },
       { href: '/projects', label: 'Mini projects' },
+      { href: '/contribute', label: 'Share and earn credits' },
       { href: '/#passes', label: 'Premium passes' },
       { href: '/#updates', label: 'Latest updates' },
     ],

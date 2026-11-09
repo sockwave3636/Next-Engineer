@@ -3,18 +3,13 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/firebase/admin';
 import { CATALOG_TAG } from '@/lib/catalog/server';
 import { toProject } from '@/lib/projects/types';
-import { errorResponse, HttpError, isOwnerToken, readJson, requireString, requireUser } from '@/lib/server/http';
+import { errorResponse, HttpError, readJson, requireOwner, requireString } from '@/lib/server/http';
 
 // The admin panel's Mini projects tab. Projects are server-only in Firestore (no client rules),
 // so owners list and change them through here with the Admin SDK.
 //
 // GET                                      -> { projects } including drafts
 // POST { id, published?: bool, price?: n }  -> { project }
-async function requireOwner(request: Request) {
-  const user = await requireUser(request);
-  if (!isOwnerToken(user)) throw new HttpError(403, 'Only owners can change this.');
-  return user;
-}
 
 export async function GET(request: Request) {
   try {

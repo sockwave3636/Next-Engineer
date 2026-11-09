@@ -69,6 +69,7 @@ export function toResource(id: string, d: Data, includePrivate = false): Resourc
     session: d.session ?? null,
     premium: !!d.premium,
     aiGenerated: d.aiGenerated === true,
+    sharedByStudent: d.sharedByStudent === true,
     // Files open only in the reader; older records may still carry a download link
     fileUrl: null,
     storagePath: includePrivate ? (d.storagePath ?? null) : null,

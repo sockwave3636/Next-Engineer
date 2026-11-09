@@ -2,18 +2,13 @@ import { revalidateTag } from 'next/cache';
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/firebase/admin';
 import { CATALOG_TAG, readMaterialLocked } from '@/lib/catalog/server';
-import { errorResponse, HttpError, isOwnerToken, readJson, requireUser } from '@/lib/server/http';
+import { errorResponse, HttpError, readJson, requireOwner } from '@/lib/server/http';
 
 // The admin panel's "Lock all material" switch. Owners only; written with the Admin SDK, so
 // the settings document needs no client write access.
 //
 // GET                    -> { locked }
 // POST { locked: bool }  -> { locked }
-async function requireOwner(request: Request) {
-  const user = await requireUser(request);
-  if (!isOwnerToken(user)) throw new HttpError(403, 'Only owners can change this.');
-  return user;
-}
 
 export async function GET(request: Request) {
   try {

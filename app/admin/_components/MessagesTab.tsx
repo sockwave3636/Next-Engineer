@@ -96,8 +96,9 @@ export default function MessagesTab({ onUnreadChange }: { onUnreadChange: (count
                     {' · '}
                     {message.createdAt?.toMillis ? new Date(message.createdAt.toMillis()).toLocaleString('en-IN') : ''}
                   </p>
-                  {message.pageUrl && (
-                    <Link href={message.pageUrl} className="link text-sm" target="_blank">
+                  {/* The sender's browser supplies this, so only ever link to a page on this site */}
+                  {/^\/(?![/\\])/.test(message.pageUrl ?? '') && (
+                    <Link href={message.pageUrl as string} className="link text-sm" target="_blank">
                       Open {message.subjectCode || 'subject'} page →
                     </Link>
                   )}

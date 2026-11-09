@@ -2,11 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { PDFDocumentLoadingTask, PDFDocumentProxy, RenderTask } from 'pdfjs-dist/legacy/build/pdf.mjs';
+import { openPdf } from '@/lib/pdf-open';
 import type { PdfByteSource } from '@/lib/premium-client';
 import Icon from './Icon';
 
-// PDF.js asks for bytes in chunks of this size; must stay below the API's 2 MB cap
-const CHUNK_BYTES = 512 * 1024;
 const MAX_PAGE_WIDTH = 900;
 const ZOOM_STEPS = [0.6, 0.8, 1, 1.25, 1.5, 2];
 const FIT_ZOOM = ZOOM_STEPS.indexOf(1);
@@ -19,6 +18,8 @@ interface PremiumReaderProps {
   premium?: boolean;
   // Adds "AI-generated" to the label under the title
   aiGenerated?: boolean;
+  // Adds "Shared by a student" to the label under the title
+  sharedByStudent?: boolean;
   source: PdfByteSource;
   // Drawn into every page, so a leaked screenshot points back to the account
   watermark: string;
@@ -171,7 +172,7 @@ function PdfPage({ doc, pageNumber, cssWidth, watermark, night, scrollRoot, regi
   );
 }
 
-export default function PremiumReader({ title, code, premium = true, aiGenerated = false, source, watermark, onClose }: PremiumReaderProps) {
+export default function PremiumReader({ title, code, premium = true, aiGenerated = false, sharedByStudent = false, source, watermark, onClose }: PremiumReaderProps) {
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
   const [error, setError] = useState('');
   const [zoomIndex, setZoomIndex] = useState(FIT_ZOOM);
@@ -200,25 +201,13 @@ export default function PremiumReader({ title, code, premium = true, aiGenerated
 
     (async () => {
       try {
-        const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-        pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/legacy/build/pdf.worker.min.mjs', import.meta.url).toString();
-        const size = await source.getSize();
-        const transport = new pdfjs.PDFDataRangeTransport(size, null);
-        transport.requestDataRange = (begin: number, end: number) => {
-          source
-            .getRange(begin, end)
-            .then((chunk) => transport.onDataRange(begin, chunk))
-            .catch((err) => {
-              if (!cancelled) setError(err instanceof Error ? err.message : 'Could not load this file.');
-              loadingTask?.destroy();
-            });
-        };
-        loadingTask = pdfjs.getDocument({
-          range: transport,
-          rangeChunkSize: CHUNK_BYTES,
-          disableAutoFetch: true,
-          disableStream: true,
+        loadingTask = await openPdf(source, (err) => {
+          if (!cancelled) setError(err instanceof Error ? err.message : 'Could not load this file.');
         });
+        if (cancelled) {
+          loadingTask.destroy();
+          return;
+        }
         const pdf = await loadingTask.promise;
         if (cancelled) return;
         setDoc(pdf);
@@ -378,7 +367,8 @@ export default function PremiumReader({ title, code, premium = true, aiGenerated
           </div>
           <p className={`flex items-center gap-1 text-[11px] font-semibold ${premium ? 'text-sun-ink' : 'text-leaf-ink'}`}>
             <Icon name={premium ? 'workspace_premium' : 'lock_open'} size={14} /> {premium ? 'Premium' : 'Free'}
-            {aiGenerated && ' · AI-generated'} · read-only
+            {aiGenerated && ' · AI-generated'}
+            {sharedByStudent && ' · Shared by a student'} · read-only
           </p>
         </div>
 

@@ -10,6 +10,7 @@ export const ICON_NAMES = [
   'auto_awesome',
   'auto_stories',
   'bar_chart',
+  'block',
   'campaign',
   'check_circle',
   'chevron_left',
@@ -24,7 +25,9 @@ export const ICON_NAMES = [
   'engineering',
   'event',
   'fit_screen',
+  'flag',
   'folder_zip',
+  'group',
   'handshake',
   'history_edu',
   'layers',
@@ -53,7 +56,10 @@ export const ICON_NAMES = [
   'tag',
   'terminal',
   'toc',
+  'toll',
+  'upload_file',
   'visibility',
+  'warning',
   'workspace_premium',
 ] as const;
 

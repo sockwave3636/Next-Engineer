@@ -114,6 +114,8 @@ export interface Resource {
   premium: boolean;
   // Written with AI; students see an "AI-generated" label on the file and in the reader
   aiGenerated: boolean;
+  // Uploaded by a student and accepted by an owner (see lib/contributions/rules.ts)
+  sharedByStudent: boolean;
   fileUrl: string | null;
   storagePath: string | null;
   // External link (videos, playlists, articles)

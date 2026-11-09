@@ -7,6 +7,7 @@ import { buyPass, CheckoutDismissedError } from '@/lib/premium-client';
 import { useAuth } from '../context/AuthContext';
 import { useAuthPrompt } from '../context/AuthPromptContext';
 import { usePasses } from '../context/PassContext';
+import CreditRedeem from './CreditRedeem';
 import Icon from './Icon';
 
 export interface PassOption {
@@ -122,6 +123,7 @@ export default function PassOptions({ options, subject }: PassOptionsProps) {
         })}
       </div>
       {error && <div className="alert alert-error mt-4">{error}</div>}
+      {subject && <CreditRedeem subjectId={subject.id} />}
       <p className="mt-4 text-xs text-ink-muted">
         One-time payment, no auto-renewal. Many notes are written with AI and carry an &quot;AI-generated&quot; label.
         By unlocking you agree to the{' '}

@@ -13,7 +13,7 @@ export class CheckoutDismissedError extends Error {
   }
 }
 
-async function postWithAuth<T>(url: string, body: unknown): Promise<T> {
+export async function postWithAuth<T>(url: string, body: unknown): Promise<T> {
   const currentUser = auth.currentUser;
   if (!currentUser) {
     throw new ApiError(401, 'Please sign in first.');
@@ -118,7 +118,7 @@ export interface PdfByteSource {
 
 // Uploaded files, free or premium, are only ever read through a view route, a range at a
 // time, so the browser never holds a file URL it could open or share
-function rangeSource(url: string, file: Record<string, string>): PdfByteSource {
+export function rangeSource(url: string, file: Record<string, string>): PdfByteSource {
   return {
     getSize: async () => (await postWithAuth<{ size: number }>(url, file)).size,
     getRange: async (start, end) => {

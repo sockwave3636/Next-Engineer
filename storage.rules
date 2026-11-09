@@ -27,6 +27,12 @@ service firebase.storage {
       allow read, write: if false;
     }
 
+    // Students' uploads awaiting a check: untrusted, so no browser can ever read or fetch them.
+    // Owners see them only as byte ranges in the on-site reader, via /api/admin/contributions/view.
+    match /submissions/{allPaths=**} {
+      allow read, write: if false;
+    }
+
     // Premium PDFs: no client can read them. Pass holders read them in the
     // in-site viewer, which streams byte ranges from /api/resources/view.
     match /premium/{allPaths=**} {
