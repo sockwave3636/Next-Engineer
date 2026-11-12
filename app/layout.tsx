@@ -6,10 +6,10 @@ import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthPromptProvider } from "./context/AuthPromptContext";
 import { PassProvider } from "./context/PassContext";
-import { OpenAccessProvider } from "./context/OpenAccessContext";
+import { ReadWithoutAccountProvider } from "./context/ReadWithoutAccountContext";
 import CookieConsent from "./components/CookieConsent";
 import { ICON_FONT_URL } from "./components/Icon";
-import { getOpenAccess } from "@/lib/catalog/server";
+import { getReadWithoutAccount } from "@/lib/catalog/server";
 import { SITE_URL } from "@/lib/site-url";
 
 const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
@@ -18,8 +18,9 @@ const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 const jakarta = Plus_Jakarta_Sans({ variable: "--font-jakarta", subsets: ["latin"], weight: ["500", "600", "700", "800"] });
 const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"], weight: ["400", "500", "600"] });
 
-// Runs before first paint so a saved dark theme doesn't flash light. Mirrors ThemeContext.
-const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t)}catch(e){}})();`;
+// Runs before first paint so a reader who picked dark doesn't see a flash of light. The site is
+// light unless they chose dark with the toggle. Mirrors ThemeContext.
+const themeScript = `(function(){try{var t=localStorage.getItem('theme-choice')==='dark'?'dark':'light';document.documentElement.setAttribute('data-theme',t);if(t==='dark'){var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content','#0f172a')}}catch(e){}})();`;
 
 export const metadata: Metadata = {
   // Absolute base for canonical and Open Graph URLs (see lib/site-url.ts)
@@ -39,11 +40,9 @@ export const metadata: Metadata = {
   },
 };
 
+// The phone's browser bar matches the light theme; ThemeContext switches it for dark
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#faf8ff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
-  ],
+  themeColor: "#faf8ff",
 };
 
 export default async function RootLayout({
@@ -51,8 +50,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // If this can't be read, the site behaves normally: sign-in and passes stay on
-  const openAccess = await getOpenAccess().catch(() => false);
+  // If this can't be read, readers sign in as usual
+  const readWithoutAccount = await getReadWithoutAccount().catch(() => false);
 
   return (
     // data-theme is set by themeScript before React hydrates
@@ -74,7 +73,7 @@ export default async function RootLayout({
           />
         )}
         <ThemeProvider>
-          <OpenAccessProvider open={openAccess}>
+          <ReadWithoutAccountProvider value={readWithoutAccount}>
             <AuthProvider>
               <PassProvider>
                 <AuthPromptProvider>
@@ -83,7 +82,7 @@ export default async function RootLayout({
                 </AuthPromptProvider>
               </PassProvider>
             </AuthProvider>
-          </OpenAccessProvider>
+          </ReadWithoutAccountProvider>
         </ThemeProvider>
       </body>
     </html>

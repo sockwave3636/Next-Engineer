@@ -11,33 +11,40 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+// Saved only when the reader presses the theme toggle. The site is light unless they chose dark.
+const CHOICE_KEY = 'theme-choice';
+// Colour of the phone's browser bar for each theme
+const BAR_COLOR: Record<Theme, string> = { light: '#faf8ff', dark: '#0f172a' };
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Check for saved theme preference or default to light mode
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else {
-      // Check system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
+    try {
+      // The old key also stored the phone's own dark setting, which no longer picks the theme
+      localStorage.removeItem('theme');
+      setTheme(localStorage.getItem(CHOICE_KEY) === 'dark' ? 'dark' : 'light');
+    } catch {
+      // Storage blocked: stay light
     }
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (mounted) {
-      // Update document class and localStorage
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('theme', theme);
-    }
+    if (!mounted) return;
+    document.documentElement.setAttribute('data-theme', theme);
+    document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => meta.setAttribute('content', BAR_COLOR[theme]));
   }, [theme, mounted]);
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+    const next: Theme = theme === 'light' ? 'dark' : 'light';
+    try {
+      localStorage.setItem(CHOICE_KEY, next);
+    } catch {
+      // Storage blocked: the choice lasts until the page closes
+    }
+    setTheme(next);
   };
 
   return (
@@ -54,4 +61,3 @@ export function useTheme() {
   }
   return context;
 }
-

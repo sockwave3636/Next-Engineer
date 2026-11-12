@@ -67,13 +67,19 @@ export async function setMaterialLock(locked: boolean): Promise<boolean> {
   return (await ownerRequest<{ locked: boolean }>('POST', '/api/admin/material-lock', { locked })).locked;
 }
 
-// Whether everything is open to everyone, with no sign-in and no payments
-export async function getOpenAccess(): Promise<boolean> {
-  return (await ownerRequest<{ open: boolean }>('GET', '/api/admin/open-access')).open;
+// Free access: `open` makes everything free with no payments; `signIn` says whether readers
+// still sign in first while it's on
+export interface FreeAccess {
+  open: boolean;
+  signIn: boolean;
 }
 
-export async function setOpenAccess(open: boolean): Promise<boolean> {
-  return (await ownerRequest<{ open: boolean }>('POST', '/api/admin/open-access', { open })).open;
+export function getFreeAccess(): Promise<FreeAccess> {
+  return ownerRequest<FreeAccess>('GET', '/api/admin/open-access');
+}
+
+export function setFreeAccess(change: { open: boolean } | { signIn: boolean }): Promise<FreeAccess> {
+  return ownerRequest<FreeAccess>('POST', '/api/admin/open-access', change);
 }
 
 // ---- Mini projects --------------------------------------------------------

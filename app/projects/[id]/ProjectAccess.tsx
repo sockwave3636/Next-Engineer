@@ -1,10 +1,11 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { rememberOpened, takeReadParam } from '@/lib/history/client';
 import { useAuth } from '@/app/context/AuthContext';
 import { useAuthPrompt } from '@/app/context/AuthPromptContext';
-import { useOpenAccess } from '@/app/context/OpenAccessContext';
+import { useReadWithoutAccount } from '@/app/context/ReadWithoutAccountContext';
 import { usePasses } from '@/app/context/PassContext';
 import Icon from '@/app/components/Icon';
 import PremiumReader from '@/app/components/PremiumReader';
@@ -37,10 +38,10 @@ function LockedMark() {
 // Price, Buy button and the project's files. Documents open in the read-only reader; the zip
 // downloads through a short-lived link. The server re-checks access on every request.
 export default function ProjectAccess({ project, locked, charging }: ProjectAccessProps) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { openAuthPrompt } = useAuthPrompt();
   const { activeUntil } = usePasses();
-  const freeAccess = useOpenAccess();
+  const readWithoutAccount = useReadWithoutAccount();
   const [buying, setBuying] = useState(false);
   const [justBought, setJustBought] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -72,15 +73,36 @@ export default function ProjectAccess({ project, locked, charging }: ProjectAcce
   };
 
   const open = (doc: ProjectDocument) => {
-    if (!user && !freeAccess) {
+    if (!user && !readWithoutAccount) {
       openAuthPrompt({ reason: doc.free || !charging ? `Sign in to read the ${doc.title.toLowerCase()}, free` : 'Sign in to open this project' });
       return;
     }
     setReading(doc);
+    // Adds it to the student's reading history (skipped for visitors without an account)
+    rememberOpened({
+      kind: 'project',
+      itemId: `${project.id}-${doc.id}`,
+      title: doc.title,
+      context: project.title,
+      label: 'Mini project',
+      page: window.location.pathname,
+      readId: doc.id,
+    });
   };
 
+  // A link from the History page (?read=<document id>) opens that document once sign-in has
+  // loaded. The id is taken off the address as it's used, so it opens once.
+  useEffect(() => {
+    if (loading) return;
+    const id = takeReadParam();
+    const doc = id ? project.documents.find((d) => d.id === id) : undefined;
+    if (doc && canOpen(doc)) open(doc);
+    // open and canOpen read the signed-in user, which is settled once loading is false
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
+
   const download = async () => {
-    if (!user && !freeAccess) {
+    if (!user && !readWithoutAccount) {
       openAuthPrompt({ reason: 'Sign in to download the project files' });
       return;
     }
@@ -121,7 +143,7 @@ export default function ProjectAccess({ project, locked, charging }: ProjectAcce
           <div>
             <p className="font-display font-semibold text-leaf-ink">This project is free</p>
             <p className="mt-0.5 text-sm text-leaf-ink/80">
-              {user || freeAccess ? 'Read the guide here and download the files below.' : 'Sign in to read the guide and download the files.'}
+              {user || readWithoutAccount ? 'Read the guide here and download the files below.' : 'Sign in to read the guide and download the files.'}
             </p>
           </div>
         </div>

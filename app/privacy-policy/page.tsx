@@ -23,6 +23,11 @@ export default function PrivacyPolicyPage() {
             and usage data to improve the platform. If you share a paper or notes for credits, we keep the file and link it to
             your account while we check it. Other students see only the file, never your name or email.
           </p>
+          <p>
+            When you are signed in, we save a list of the notes, papers and projects you open, with the time you opened them,
+            so you can find them again on your History page. Only you can see it, and you can remove any item or clear the
+            whole list there at any time.
+          </p>
 
           <h2>
             Cookies and Third-Party Services (including Google AdSense)

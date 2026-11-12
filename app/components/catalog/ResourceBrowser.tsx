@@ -1,11 +1,12 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Resource, RESOURCE_TYPES, ResourceType, Subject, formatBytes } from '@/lib/catalog/types';
 import { resourceSource } from '@/lib/premium-client';
+import { rememberOpened, takeReadParam } from '@/lib/history/client';
 import { useAuth } from '@/app/context/AuthContext';
 import { useAuthPrompt } from '@/app/context/AuthPromptContext';
-import { useOpenAccess } from '@/app/context/OpenAccessContext';
+import { useReadWithoutAccount } from '@/app/context/ReadWithoutAccountContext';
 import { usePasses } from '@/app/context/PassContext';
 import PremiumReader from '../PremiumReader';
 import Icon, { IconName } from '../Icon';
@@ -30,11 +31,22 @@ const TYPE_ICON: Record<ResourceType, IconName> = {
   book: 'menu_book',
 };
 
+// How one file of each type is named in the reading history
+const HISTORY_LABEL: Record<ResourceType, string> = {
+  notes: 'Notes',
+  pyq: 'Question paper',
+  important: 'Important questions',
+  syllabus: 'Syllabus',
+  lab: 'Lab file',
+  video: 'Video or link',
+  book: 'Book',
+};
+
 export default function ResourceBrowser({ resources, subject, locked = false }: ResourceBrowserProps) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { openAuthPrompt } = useAuthPrompt();
   const { hasAccess } = usePasses();
-  const freeAccess = useOpenAccess();
+  const readWithoutAccount = useReadWithoutAccount();
 
   const tabs = RESOURCE_TYPES.filter((t) => resources.some((r) => r.type === t.id));
   const [activeType, setActiveType] = useState<ResourceType | null>(tabs[0]?.id ?? null);
@@ -58,10 +70,23 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
   const readerSource = useMemo(() => (reading ? resourceSource(reading.id, !reading.sharedByStudent) : null), [reading]);
   const closeReader = useCallback(() => setReading(null), []);
 
+  // Adds the file to the student's reading history (skipped for visitors without an account)
+  const remember = (resource: Resource) =>
+    rememberOpened({
+      kind: 'resource',
+      itemId: resource.id,
+      title: resource.title,
+      context: `${subject.code} · ${subject.name}`,
+      label: HISTORY_LABEL[resource.type],
+      page: window.location.pathname,
+      readId: resource.id,
+    });
+
   // Every file opens in the read-only reader. Signing in is required so each page can carry
-  // the reader's email, except during free access; premium files also need a pass.
+  // the reader's email, unless the owners let visitors read without an account during free
+  // access; premium files also need a pass.
   const openFile = (resource: Resource) => {
-    if (!user && !freeAccess) {
+    if (!user && !readWithoutAccount) {
       openAuthPrompt({ reason: resource.premium ? 'Sign in to read premium notes' : 'Sign in to read notes, free' });
       return;
     }
@@ -70,7 +95,19 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
       return;
     }
     setReading(resource);
+    remember(resource);
   };
+
+  // A link from the History page (?read=<id>) opens its file once sign-in has loaded. The id is
+  // taken off the address as it's used, so it opens once.
+  useEffect(() => {
+    if (loading) return;
+    const id = takeReadParam();
+    const resource = id ? resources.find((r) => r.id === id) : undefined;
+    if (resource && !resource.url) openFile(resource);
+    // openFile reads the signed-in user, which is settled once loading is false
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   const unitLabel = (n: number) => {
     const title = subject.unitTitles[n - 1];
@@ -222,7 +259,13 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
                           <ReportResource resourceId={resource.id} title={resource.title} subjectId={subject.id} subjectCode={subject.code} />
                         )}
                         {resource.url ? (
-                          <a href={resource.url} target="_blank" rel="noopener noreferrer" className="btn btn-secondary w-full sm:w-auto">
+                          <a
+                            href={resource.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => remember(resource)}
+                            className="btn btn-secondary w-full sm:w-auto"
+                          >
                             Open <Icon name="open_in_new" size={16} />
                           </a>
                         ) : (

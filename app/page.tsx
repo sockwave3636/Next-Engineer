@@ -7,7 +7,7 @@ import BlogSlider from './components/BlogSlider';
 import MyPasses from './components/MyPasses';
 import ReaderPreview from './components/ReaderPreview';
 import Icon from './components/Icon';
-import { getOpenAccess, getPrograms, getSiteStats } from '@/lib/catalog/server';
+import { getOpenAccess, getPrograms, getReadWithoutAccount, getSiteStats } from '@/lib/catalog/server';
 import { programStyle, SYLLABUS_SESSION } from '@/lib/catalog/defaults';
 import { programPath } from '@/lib/catalog/routes';
 import type { Program } from '@/lib/catalog/types';
@@ -115,13 +115,15 @@ function PassesSection() {
   );
 }
 
-function FreeAccessNotice() {
+function FreeAccessNotice({ signIn }: { signIn: boolean }) {
   return (
     <section id="passes" className="card scroll-mt-28 p-6 sm:p-10">
       <span className="badge badge-leaf">Free for now</span>
       <h2 className="section-title mt-3">Everything is free right now</h2>
       <p className="mt-2 max-w-2xl text-ink-muted">
-        Every note, paper and mini project is open to read. You don&apos;t need an account, and there is nothing to pay.
+        {signIn
+          ? 'Every note, paper and mini project is open to read, and there is nothing to pay. Sign in with Google or email to start reading, and everything you open is saved in your history.'
+          : 'Every note, paper and mini project is open to read. You don’t need an account, and there is nothing to pay.'}
       </p>
       <a href="#programs" className="btn btn-primary mt-5">
         Choose your program <Icon name="arrow_forward" size={18} />
@@ -131,7 +133,12 @@ function FreeAccessNotice() {
 }
 
 export default async function Home() {
-  const [programs, stats, freeAccess] = await Promise.all([getPrograms(), getSiteStats(), getOpenAccess()]);
+  const [programs, stats, freeAccess, readWithoutAccount] = await Promise.all([
+    getPrograms(),
+    getSiteStats(),
+    getOpenAccess(),
+    getReadWithoutAccount(),
+  ]);
   const levels = [
     { title: 'Undergraduate programs (UG)', dot: 'bg-brand', programs: programs.filter((p) => p.level === 'UG') },
     { title: 'Postgraduate programs (PG)', dot: 'bg-sun', programs: programs.filter((p) => p.level === 'PG') },
@@ -268,7 +275,7 @@ export default async function Home() {
         </section>
 
         {/* Passes, or during free access a note that everything is open */}
-        {freeAccess ? <FreeAccessNotice /> : <PassesSection />}
+        {freeAccess ? <FreeAccessNotice signIn={!readWithoutAccount} /> : <PassesSection />}
 
         {/* Updates */}
         <section id="updates" className="scroll-mt-28">

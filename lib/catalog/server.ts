@@ -89,6 +89,21 @@ export async function readOpenAccess(): Promise<boolean> {
 
 export const getOpenAccess = unstable_cache(readOpenAccess, ['open-access'], CACHE);
 
+// During free access, whether visitors may also read without an account
+// (settings/site.freeWithoutSignIn). Off unless an owner turns it on, so readers sign in and
+// every page carries their email.
+export async function readFreeWithoutSignIn(): Promise<boolean> {
+  return (await adminDb().doc('settings/site').get()).get('freeWithoutSignIn') === true;
+}
+
+const getFreeWithoutSignIn = unstable_cache(readFreeWithoutSignIn, ['free-without-sign-in'], CACHE);
+
+// True when a visitor with no account can open files: free access is on and sign-in is turned off
+export async function getReadWithoutAccount(): Promise<boolean> {
+  const [open, withoutSignIn] = await Promise.all([getOpenAccess(), getFreeWithoutSignIn()]);
+  return open && withoutSignIn;
+}
+
 export const getResources = unstable_cache(
   async (subjectId: string): Promise<Resource[]> => {
     const snapshot = await adminDb().collection('resources').where('subjectId', '==', subjectId).get();

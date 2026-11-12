@@ -1,5 +1,5 @@
 import { DecodedIdToken } from 'firebase-admin/auth';
-import { getOpenAccess } from '@/lib/catalog/server';
+import { getReadWithoutAccount } from '@/lib/catalog/server';
 import { adminAuth } from '@/lib/firebase/admin';
 import { isOwnerEmail } from '@/lib/owners';
 
@@ -33,10 +33,11 @@ export async function requireUser(request: Request): Promise<DecodedIdToken> {
   }
 }
 
-// Who is asking, for the routes free access opens to everyone. Null means a visitor with no account.
-// Outside free access this is requireUser.
+// Who is asking, for the routes free access can open to everyone. Null means a visitor with no
+// account, which happens only while free access is on with sign-in turned off; otherwise this is
+// requireUser.
 export async function requireViewer(request: Request): Promise<DecodedIdToken | null> {
-  if (!(await getOpenAccess())) return requireUser(request);
+  if (!(await getReadWithoutAccount())) return requireUser(request);
   return requireUser(request).catch(() => null);
 }
 

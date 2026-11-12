@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { useAuthPrompt } from '../context/AuthPromptContext';
-import { useOpenAccess } from '../context/OpenAccessContext';
+import { useReadWithoutAccount } from '../context/ReadWithoutAccountContext';
 import { usePasses } from '../context/PassContext';
 import Icon from './Icon';
 
@@ -13,13 +13,14 @@ export default function NavAuthControls() {
   const { user, logout } = useAuth();
   const { openAuthPrompt } = useAuthPrompt();
   const { passes } = usePasses();
-  const freeAccess = useOpenAccess();
+  const readWithoutAccount = useReadWithoutAccount();
   // Only owners sign in on the admin pages, so no sign-up there
   const onAdmin = usePathname()?.startsWith('/admin') ?? false;
 
   if (!user) {
-    // During free access visitors don't need an account; owners still sign in at /admin
-    if (freeAccess && !onAdmin) return null;
+    // While visitors can read without an account there is nothing to sign in for; owners
+    // still sign in at /admin
+    if (readWithoutAccount && !onAdmin) return null;
     return (
       <button
         onClick={() => openAuthPrompt(onAdmin ? { reason: 'Owner sign-in', allowSignUp: false } : {})}
@@ -39,6 +40,10 @@ export default function NavAuthControls() {
           <Icon name="admin_panel_settings" size={16} /> Admin
         </Link>
       )}
+      <Link href="/history" className="btn btn-soft btn-sm" aria-label="Reading history" title="Reading history">
+        <Icon name="history" size={16} />
+        <span className="hidden sm:inline">History</span>
+      </Link>
       {/* Jumps to "Your passes" at the top of the home page */}
       {Object.keys(passes).length > 0 && (
         <Link href="/#my-passes" className="btn btn-soft btn-sm" aria-label="My passes" title="My passes">
