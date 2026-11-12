@@ -11,8 +11,9 @@ import { getPassExpiries } from './passes';
 // or a pass that covers its subject when it's marked premium, or when a subject or semester pass
 // for its subject is on sale (see lib/catalog/access.ts). During free access every file is open to
 // everyone, with or without an account.
-// Returns the Storage file; callers never hand its URL to the browser.
-export async function getReadableResource(viewer: DecodedIdToken | null, resourceId: string) {
+// Returns the Storage file. `direct` asks for a short-lived link to it, which files shared by
+// students never get: they are only ever streamed through the site.
+export async function getReadableResource(viewer: DecodedIdToken | null, resourceId: string, direct = false) {
   const owner = viewer !== null && isOwnerToken(viewer);
   // The admin panel's master lock shuts every file for everyone but owners
   if (!owner && (await getMaterialLocked())) {
@@ -23,6 +24,9 @@ export async function getReadableResource(viewer: DecodedIdToken | null, resourc
   const resource = (await db.collection('resources').doc(resourceId).get()).data();
   if (!resource || !resource.storagePath) {
     throw new HttpError(404, 'This file no longer exists.');
+  }
+  if (direct && resource.sharedByStudent === true) {
+    throw new HttpError(403, 'This file only opens through the site.', 'LINK_NOT_ALLOWED');
   }
 
   if (!owner && !(await getOpenAccess())) {

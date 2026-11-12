@@ -55,7 +55,7 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
           .sort((a, b) => b.localeCompare(a))
           .map((year) => ({ title: year, items: visible.filter((r) => (r.year || 'Other') === year) }));
 
-  const readerSource = useMemo(() => (reading ? resourceSource(reading.id) : null), [reading]);
+  const readerSource = useMemo(() => (reading ? resourceSource(reading.id, !reading.sharedByStudent) : null), [reading]);
   const closeReader = useCallback(() => setReading(null), []);
 
   // Every file opens in the read-only reader. Signing in is required so each page can carry

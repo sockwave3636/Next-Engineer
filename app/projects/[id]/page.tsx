@@ -11,6 +11,12 @@ import { Project, projectImagePath, projectLevel, projectPath } from '@/lib/proj
 // Cached with the catalog; admin edits expire it through /api/revalidate
 export const revalidate = 86400;
 
+// Each page is rendered on its first visit and then served from the cache until the daily
+// refresh or an edit in Admin, instead of running on every visit
+export async function generateStaticParams() {
+  return [];
+}
+
 type Params = Promise<{ id: string }>;
 
 // "B.Tech CSE, IT · Semester 3", one line per program the project suits

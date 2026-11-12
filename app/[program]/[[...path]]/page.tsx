@@ -26,6 +26,12 @@ import { ALL_BRANCHES, Branch, DEFAULT_BRANCH_ID, Program, Subject, passOnSale, 
 // Pages are cached; admin edits expire the 'catalog' cache tag through /api/revalidate
 export const revalidate = 86400;
 
+// Each page is rendered on its first visit and then served from the cache until the daily
+// refresh or an edit in Admin, instead of running on every visit
+export async function generateStaticParams() {
+  return [];
+}
+
 type Params = Promise<{ program: string; path?: string[] }>;
 
 function semesterPassOption(program: Program, branch: Branch, semester: number): PassOption[] {

@@ -3,9 +3,24 @@ import { HttpError } from './http';
 
 // Keeps every response well under Vercel's 4.5 MB function response limit
 const MAX_CHUNK_BYTES = 2 * 1024 * 1024;
+// How long the reader's direct link to a file stays valid; the reader asks for a new one when it runs out
+const LINK_MINUTES = 15;
+
+// A short-lived link the reader fetches byte ranges from directly, so the file's bytes don't pass
+// through this server (Vercel bills for every byte that does). Callers check access first.
+//
+// -> { url, size }
+export async function fileLinkResponse(file: File): Promise<Response> {
+  const [[metadata], [url]] = await Promise.all([
+    file.getMetadata(),
+    file.getSignedUrl({ version: 'v4', action: 'read', expires: Date.now() + LINK_MINUTES * 60 * 1000 }),
+  ]);
+  return Response.json({ url, size: Number(metadata.size) }, { headers: { 'Cache-Control': 'private, no-store' } });
+}
 
 // Serves a private Storage file to the in-site reader a byte range at a time, so the browser
-// never gets a file URL. Callers check access first; every request goes through them again.
+// never gets a file URL. Used for files that must never have a link (students' uploads).
+// Callers check access first; every request goes through them again.
 //
 // body without start/end -> { size }
 // body { start, end }    -> bytes [start, end)

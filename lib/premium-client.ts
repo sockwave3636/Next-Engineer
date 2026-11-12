@@ -134,8 +134,8 @@ async function postForFile(url: string, body: unknown): Promise<Response> {
   return response;
 }
 
-// Uploaded files, free or premium, are only ever read through a view route, a range at a
-// time, so the browser never holds a file URL it could open or share
+// Reads a file through a view route a range at a time, so the browser never holds a file URL.
+// Used for files that must never get a link: students' uploads and Admin review.
 export function rangeSource(url: string, file: Record<string, string>): PdfByteSource {
   return {
     getSize: async () => ((await (await postForFile(url, file)).json()) as { size: number }).size,
@@ -143,12 +143,42 @@ export function rangeSource(url: string, file: Record<string, string>): PdfByteS
   };
 }
 
-export function resourceSource(resourceId: string): PdfByteSource {
-  return rangeSource('/api/resources/view', { resourceId });
+// Reads a file straight from Storage through a short-lived link that the view route hands out
+// after checking access, so the bytes don't pass through this site's server. A link that has
+// run out is swapped for a new one.
+function linkSource(url: string, file: Record<string, string>): PdfByteSource {
+  let link: Promise<{ url: string; size: number }> | null = null;
+  const getLink = (fresh: boolean) => {
+    if (fresh || !link) {
+      const request = postForFile(url, { ...file, link: true }).then((r) => r.json() as Promise<{ url: string; size: number }>);
+      request.catch(() => {
+        if (link === request) link = null;
+      });
+      link = request;
+    }
+    return link;
+  };
+  return {
+    getSize: async () => (await getLink(false)).size,
+    getRange: async (start, end) => {
+      for (const fresh of [false, true]) {
+        const response = await fetch((await getLink(fresh)).url, { headers: { Range: `bytes=${start}-${end - 1}` } });
+        if (response.ok) return new Uint8Array(await response.arrayBuffer());
+        // Storage answers 400 or 403 once a link has expired
+        if (response.status !== 400 && response.status !== 403) break;
+      }
+      throw new ApiError(502, 'Could not load this file. Please try again.');
+    },
+  };
+}
+
+// `direct` is false for files shared by students, which never get a link
+export function resourceSource(resourceId: string, direct = true): PdfByteSource {
+  return (direct ? linkSource : rangeSource)('/api/resources/view', { resourceId });
 }
 
 export function projectDocumentSource(projectId: string, documentId: string): PdfByteSource {
-  return rangeSource('/api/projects/view', { projectId, documentId });
+  return linkSource('/api/projects/view', { projectId, documentId });
 }
 
 // Starts the download of a bought project's zip through a short-lived signed link

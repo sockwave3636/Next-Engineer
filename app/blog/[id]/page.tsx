@@ -9,6 +9,12 @@ import { formatPostDate } from '@/lib/format';
 
 export const revalidate = 86400;
 
+// Each page is rendered on its first visit and then served from the cache until the daily
+// refresh or an edit in Admin, instead of running on every visit
+export async function generateStaticParams() {
+  return [];
+}
+
 type Params = Promise<{ id: string }>;
 
 const TYPE_STYLES: Record<string, { icon: IconName; badge: string }> = {
