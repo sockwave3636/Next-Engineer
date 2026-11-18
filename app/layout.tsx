@@ -10,8 +10,10 @@ import { ReadWithoutAccountProvider } from "./context/ReadWithoutAccountContext"
 import CookieConsent from "./components/CookieConsent";
 import { ICON_FONT_URL } from "./components/Icon";
 import WhatsNewBar from "./components/WhatsNewBar";
+import DropdownMessage from "./components/DropdownMessage";
 import { getReadWithoutAccount } from "@/lib/catalog/server";
 import { getAnnouncement } from "@/lib/announcement/server";
+import { getDropdownMessage } from "@/lib/messages/server";
 import { DISMISSED_KEY } from "@/lib/announcement/types";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -40,7 +42,10 @@ export const metadata: Metadata = {
     description: "Unit-wise notes, previous year papers and important questions for AKTU students.",
     type: "website",
     siteName: "Next Engineer",
+    locale: "en_IN",
   },
+  // Shared links show the big preview picture (app/opengraph-image.tsx)
+  twitter: { card: "summary_large_image" },
 };
 
 // The phone's browser bar matches the light theme; ThemeContext switches it for dark
@@ -53,10 +58,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // If these can't be read, readers sign in as usual and no announcement shows
-  const [readWithoutAccount, announcement] = await Promise.all([
+  // If these can't be read, readers sign in as usual and no announcement or message shows
+  const [readWithoutAccount, announcement, dropdown] = await Promise.all([
     getReadWithoutAccount().catch(() => false),
     getAnnouncement().catch(() => null),
+    getDropdownMessage().catch(() => null),
   ]);
   // Hides the "What's new" bar before first paint if this browser already closed this one
   const announcementScript = announcement
@@ -65,7 +71,7 @@ export default async function RootLayout({
 
   return (
     // data-theme is set by themeScript before React hydrates
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en-IN" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         {announcementScript && <script dangerouslySetInnerHTML={{ __html: announcementScript }} />}
@@ -91,6 +97,7 @@ export default async function RootLayout({
                   {announcement && <WhatsNewBar announcement={announcement} />}
                   {children}
                   <CookieConsent />
+                  {dropdown && <DropdownMessage message={dropdown} />}
                 </AuthPromptProvider>
               </PassProvider>
             </AuthProvider>

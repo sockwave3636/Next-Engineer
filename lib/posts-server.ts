@@ -45,3 +45,15 @@ export const getPost = unstable_cache(
   ['post'],
   { tags: [CATALOG_TAG], revalidate: 86400 }
 );
+
+// Published posts for the sitemap: id and when it last changed (milliseconds)
+export const getPublishedPostDates = unstable_cache(
+  async (): Promise<{ id: string; changedAt: number }[]> => {
+    const snapshot = await adminDb().collection('blogPosts').get();
+    return snapshot.docs
+      .filter((doc) => doc.get('published') !== false)
+      .map((doc) => ({ id: doc.id, changedAt: toMillis(doc.get('updatedAt')) || toMillis(doc.get('createdAt')) }));
+  },
+  ['published-post-dates'],
+  { tags: [CATALOG_TAG], revalidate: 86400 }
+);

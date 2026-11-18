@@ -93,6 +93,10 @@ export default function ShareResource({ subject }: { subject: Pick<Subject, 'id'
               For <span className="font-bold text-ink">{subject.code}</span>. Every accepted file earns about {CREDITS_PER_FILE} credits.{' '}
               <Link href="/contribute" className="link">How it works</Link>
             </p>
+            <p className="-mt-2 mb-5 flex items-start gap-2 rounded-lg bg-brand-soft px-3 py-2.5 text-sm text-brand-ink">
+              <Icon name="handshake" size={18} className="mt-px shrink-0" />
+              <span>Please share only the original paper or your own notes. Other students revise from it, so a fake or edited file can mislead them.</span>
+            </p>
 
             {user && !user.emailVerified ? (
               <div className="space-y-4">

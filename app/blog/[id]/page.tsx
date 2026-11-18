@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import PageShell from '@/app/components/PageShell';
 import Breadcrumbs from '@/app/components/Breadcrumbs';
+import JsonLd from '@/app/components/JsonLd';
+import { SITE_URL } from '@/lib/site-url';
 import PostGallery from './PostGallery';
 import Icon, { IconName } from '@/app/components/Icon';
 import { getPost } from '@/lib/posts-server';
@@ -31,11 +33,14 @@ async function loadPost(params: Params) {
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const post = await loadPost(params);
+  // A post's own picture when it has one, otherwise the site's (setting openGraph here replaces
+  // the site-wide one, so it has to be named again)
+  const picture = post.mediaUrls[0] ?? (post.mediaType === 'image' ? post.mediaUrl : null) ?? '/opengraph-image';
   return {
     title: post.title,
     description: post.description,
     alternates: { canonical: `/blog/${post.id}` },
-    openGraph: { title: post.title, description: post.description, type: 'article' },
+    openGraph: { title: post.title, description: post.description, type: 'article', images: [picture] },
   };
 }
 
@@ -48,6 +53,19 @@ export default async function BlogPostPage({ params }: { params: Params }) {
     <PageShell>
       <div className="container-page max-w-3xl py-10">
         <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Updates', href: '/#updates' }, { label: post.title }]} />
+        <JsonLd
+          data={{
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: post.title,
+            description: post.description,
+            ...(post.createdAt ? { datePublished: new Date(post.createdAt).toISOString() } : {}),
+            ...(images[0] ? { image: images[0] } : {}),
+            mainEntityOfPage: `${SITE_URL}/blog/${post.id}`,
+            author: { '@type': 'Organization', name: post.author || 'Next Engineer', url: SITE_URL },
+            publisher: { '@type': 'Organization', name: 'Next Engineer', logo: { '@type': 'ImageObject', url: `${SITE_URL}/apple-icon.png` } },
+          }}
+        />
 
         <article className="card overflow-hidden">
           {post.mediaType === 'image' && images.length > 0 && <PostGallery images={images} title={post.title} />}

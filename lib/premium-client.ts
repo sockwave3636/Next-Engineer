@@ -143,18 +143,23 @@ export function rangeSource(url: string, file: Record<string, string>): PdfByteS
   };
 }
 
-// Reads a file straight from Storage through a short-lived link that the view route hands out
-// after checking access, so the bytes don't pass through this site's server. A link that has
-// run out is swapped for a new one.
+// Links from the view route last 15 minutes; a fresh one is fetched a little before that
+const LINK_REFRESH_MS = 12 * 60 * 1000;
+
+// Reads a file straight from storage (Cloudflare R2, or Firebase Storage for files not copied
+// there yet) through a short-lived link that the view route hands out after checking access, so
+// the bytes don't pass through this site's server. A link that has run out is swapped for a new one.
 function linkSource(url: string, file: Record<string, string>): PdfByteSource {
   let link: Promise<{ url: string; size: number }> | null = null;
+  let linkedAt = 0;
   const getLink = (fresh: boolean) => {
-    if (fresh || !link) {
+    if (fresh || !link || Date.now() - linkedAt > LINK_REFRESH_MS) {
       const request = postForFile(url, { ...file, link: true }).then((r) => r.json() as Promise<{ url: string; size: number }>);
       request.catch(() => {
         if (link === request) link = null;
       });
       link = request;
+      linkedAt = Date.now();
     }
     return link;
   };
@@ -162,9 +167,16 @@ function linkSource(url: string, file: Record<string, string>): PdfByteSource {
     getSize: async () => (await getLink(false)).size,
     getRange: async (start, end) => {
       for (const fresh of [false, true]) {
-        const response = await fetch((await getLink(fresh)).url, { headers: { Range: `bytes=${start}-${end - 1}` } });
+        let response: Response;
+        try {
+          response = await fetch((await getLink(fresh)).url, { headers: { Range: `bytes=${start}-${end - 1}` } });
+        } catch {
+          // R2 refuses an expired link without CORS headers, so the browser reports a network
+          // error instead of a 403: try once more with a fresh link
+          continue;
+        }
         if (response.ok) return new Uint8Array(await response.arrayBuffer());
-        // Storage answers 400 or 403 once a link has expired
+        // Firebase Storage answers 400 or 403 once a link has expired
         if (response.status !== 400 && response.status !== 403) break;
       }
       throw new ApiError(502, 'Could not load this file. Please try again.');

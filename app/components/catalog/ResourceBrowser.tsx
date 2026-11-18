@@ -140,7 +140,10 @@ export default function ResourceBrowser({ resources, subject, locked = false }: 
         <div className="card card-pad flex flex-col items-center text-center">
           <Icon name="layers" size={40} className="text-ink-faint" />
           <p className="mt-3 font-display text-lg font-semibold text-ink">Material for this subject is on its way</p>
-          <p className="mt-1 text-ink-muted">Need something specific? Use “Request a resource” above.</p>
+          <p className="mt-1 max-w-md text-ink-muted">
+            Our team is finding notes and papers for it and will add them as soon as possible. Have an original paper or your own notes?
+            Use “Share a file” above, or “Request a resource” to tell us what you need.
+          </p>
         </div>
       ) : (
         <>

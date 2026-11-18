@@ -7,7 +7,9 @@ import BlogSlider from './components/BlogSlider';
 import MyPasses from './components/MyPasses';
 import ReaderPreview from './components/ReaderPreview';
 import Icon from './components/Icon';
+import JsonLd from './components/JsonLd';
 import { getOpenAccess, getPrograms, getReadWithoutAccount, getSiteStats } from '@/lib/catalog/server';
+import { SITE_URL } from '@/lib/site-url';
 import { programStyle, SYLLABUS_SESSION } from '@/lib/catalog/defaults';
 import { programPath } from '@/lib/catalog/routes';
 import type { Program } from '@/lib/catalog/types';
@@ -153,6 +155,19 @@ export default async function Home() {
 
   return (
     <PageShell>
+      {/* The site's name and logo for search results */}
+      <JsonLd
+        data={[
+          { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Next Engineer', url: SITE_URL },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'Next Engineer',
+            url: SITE_URL,
+            logo: `${SITE_URL}/apple-icon.png`,
+          },
+        ]}
+      />
       <div className="container-page space-y-14 pt-6">
         {/* A signed-in student's passes come first, so they don't have to search for what they bought.
             Renders nothing for everyone else. */}

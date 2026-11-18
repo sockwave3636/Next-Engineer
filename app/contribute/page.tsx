@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageShell from '../components/PageShell';
 import PageIntro from '../components/PageIntro';
+import Icon from '../components/Icon';
 import ContributeDashboard from './ContributeDashboard';
 import { BAN_DAYS, CREDITS_PER_FILE, MAX_WAITING_FILES, MONTHLY_CREDIT_CAP, REDEEM_COST, REDEEM_DAYS } from '@/lib/contributions/rules';
 
@@ -26,6 +27,22 @@ export default function ContributePage() {
           title="Share papers and notes, earn credits"
           description="Got a recent AKTU paper or good handwritten notes? Share them with other students and unlock subjects without paying."
         />
+
+        <section className="mb-8 flex gap-4 rounded-2xl border border-brand/30 bg-brand-soft p-5" aria-labelledby="team-request">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-surface text-brand-ink">
+            <Icon name="handshake" size={24} />
+          </span>
+          <div>
+            <h2 id="team-request" className="font-display font-semibold text-brand-ink">
+              A request from our team
+            </h2>
+            <p className="mt-1 text-sm leading-relaxed text-brand-ink">
+              Please share only original papers and your own notes, never fake, edited or copied files. Other students revise from what
+              you share, so every genuine file helps someone prepare. Our team is also finding notes and papers for more subjects and
+              adding them as soon as we can.
+            </p>
+          </div>
+        </section>
 
         <ContributeDashboard />
 

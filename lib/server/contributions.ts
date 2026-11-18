@@ -2,6 +2,7 @@ import { revalidateTag } from 'next/cache';
 import { DecodedIdToken } from 'firebase-admin/auth';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { adminBucket, adminDb } from '@/lib/firebase/admin';
+import { deleteMirrorOf } from './r2';
 import { subjectOnSale } from '@/lib/catalog/access';
 import { toSubject } from '@/lib/catalog/convert';
 import { CATALOG_TAG, getBranches, getMaterialLocked, getOpenAccess, getResources } from '@/lib/catalog/server';
@@ -472,6 +473,11 @@ export async function removeContribution(id: unknown, body: Data): Promise<void>
     }
     tx.update(ref, { status: 'removed' satisfies ContributionStatus, reason, deliberate, creditsAwarded: 0, reviewedAt: now });
   });
-  if (storagePath) await adminBucket().file(storagePath).delete({ ignoreNotFound: true });
+  if (storagePath) {
+    const file = adminBucket().file(storagePath);
+    // Its R2 copy goes too, so a file taken down for being fake or copied doesn't linger anywhere
+    await deleteMirrorOf(file);
+    await file.delete({ ignoreNotFound: true });
+  }
   revalidateTag(CATALOG_TAG, { expire: 0 });
 }
