@@ -38,6 +38,7 @@ import { LayerPreview, Path } from './Layers';
 import { OthersPresence } from './Cursors';
 import { PALETTE, SelectionBox, SelectionTools } from './Selection';
 import Toolbar from './Toolbar';
+import BoardTour, { useBoardTour } from './BoardTour';
 import TopBar from './TopBar';
 
 const BLACK = PALETTE[0];
@@ -65,6 +66,7 @@ export default function Canvas({ board, onBoardChange }: { board: BoardSummary; 
   const [camera, setCamera] = useState<Camera>({ x: 0, y: 0 });
   const [lastUsedColor, setLastUsedColor] = useState<Color>(BLACK);
   const [full, setFull] = useState(false);
+  const tour = useBoardTour();
   const history = useHistory();
   const canUndo = useCanUndo();
   const canRedo = useCanRedo();
@@ -312,7 +314,7 @@ export default function Canvas({ board, onBoardChange }: { board: BoardSummary; 
         backgroundPosition: `${camera.x}px ${camera.y}px`,
       }}
     >
-      <TopBar board={board} onBoardChange={onBoardChange} />
+      <TopBar board={board} onBoardChange={onBoardChange} onHelp={tour.start} />
       <Toolbar
         canvasState={canvasState}
         setCanvasState={setCanvasState}
@@ -322,6 +324,7 @@ export default function Canvas({ board, onBoardChange }: { board: BoardSummary; 
         redo={history.redo}
       />
       <SelectionTools camera={camera} setLastUsedColor={setLastUsedColor} />
+      {tour.open && <BoardTour onFinish={tour.finish} />}
 
       {full && (
         <div className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2 rounded-lg bg-sun-soft px-4 py-2 text-sm font-semibold text-sun-ink shadow-lift" role="status">

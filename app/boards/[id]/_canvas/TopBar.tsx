@@ -11,7 +11,7 @@ import { BOARD_TITLE_MAX, BoardSummary } from '@/lib/boards/types';
 const MAX_FACES = 4;
 
 // Top of the board: back to the list, the board's name, sharing, who's here and the connection
-export default function TopBar({ board, onBoardChange }: { board: BoardSummary; onBoardChange: (board: BoardSummary) => void }) {
+export default function TopBar({ board, onBoardChange, onHelp }: { board: BoardSummary; onBoardChange: (board: BoardSummary) => void; onHelp: () => void }) {
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(board.title);
   const [sharingOpen, setSharingOpen] = useState(false);
@@ -88,8 +88,11 @@ export default function TopBar({ board, onBoardChange }: { board: BoardSummary; 
 
       <div className="pointer-events-auto relative flex items-center gap-1.5 rounded-xl border border-line bg-surface p-1.5 shadow-lift">
         <Faces />
+        <button type="button" onClick={onHelp} className="grid h-9 w-9 place-items-center rounded-lg text-ink-muted hover:bg-surface-muted hover:text-ink" aria-label="How boards work" title="How boards work">
+          <Icon name="help" size={20} />
+        </button>
         {(board.isOwner || board.shared) && (
-          <button type="button" onClick={() => setSharingOpen((open) => !open)} className="btn btn-primary btn-sm" aria-expanded={sharingOpen}>
+          <button type="button" onClick={() => setSharingOpen((open) => !open)} className="btn btn-primary btn-sm" aria-expanded={sharingOpen} data-tour="share">
             <Icon name="share" size={16} /> <span className="hidden sm:inline">Share</span>
           </button>
         )}
@@ -133,7 +136,7 @@ function Faces() {
   const more = others.length - shown.length;
 
   return (
-    <div className="flex -space-x-2 pr-1" aria-label={`${others.length + 1} on this board`}>
+    <div className="flex -space-x-2 pr-1" aria-label={`${others.length + 1} on this board`} data-tour="people">
       {shown.map(({ connectionId, info }) => (
         <Face key={connectionId} name={info?.name || 'Student'} color={connectionIdToColor(connectionId)} />
       ))}

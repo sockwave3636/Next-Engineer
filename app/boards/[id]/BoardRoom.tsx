@@ -23,6 +23,10 @@ export default function BoardRoom({ id }: { id: string }) {
   const [problem, setProblem] = useState<{ title: string; text: string } | null>(null);
   const uid = user?.uid;
 
+  // Liveblocks adds its "Powered by Liveblocks" badge to the page once a board connects and never
+  // takes it away, so without this it follows the student onto every page they open next
+  useEffect(() => () => document.getElementById('liveblocks-badge')?.remove(), []);
+
   useEffect(() => {
     if (!uid) return;
     let cancelled = false;

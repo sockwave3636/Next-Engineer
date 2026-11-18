@@ -9,7 +9,10 @@ import { PassProvider } from "./context/PassContext";
 import { ReadWithoutAccountProvider } from "./context/ReadWithoutAccountContext";
 import CookieConsent from "./components/CookieConsent";
 import { ICON_FONT_URL } from "./components/Icon";
+import WhatsNewBar from "./components/WhatsNewBar";
 import { getReadWithoutAccount } from "@/lib/catalog/server";
+import { getAnnouncement } from "@/lib/announcement/server";
+import { DISMISSED_KEY } from "@/lib/announcement/types";
 import { SITE_URL } from "@/lib/site-url";
 
 const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
@@ -50,14 +53,22 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // If this can't be read, readers sign in as usual
-  const readWithoutAccount = await getReadWithoutAccount().catch(() => false);
+  // If these can't be read, readers sign in as usual and no announcement shows
+  const [readWithoutAccount, announcement] = await Promise.all([
+    getReadWithoutAccount().catch(() => false),
+    getAnnouncement().catch(() => null),
+  ]);
+  // Hides the "What's new" bar before first paint if this browser already closed this one
+  const announcementScript = announcement
+    ? `(function(){try{if(localStorage.getItem(${JSON.stringify(DISMISSED_KEY)})===${JSON.stringify(announcement.id)})document.documentElement.classList.add('wn-dismissed')}catch(e){}})();`
+    : null;
 
   return (
     // data-theme is set by themeScript before React hydrates
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {announcementScript && <script dangerouslySetInnerHTML={{ __html: announcementScript }} />}
         {/* Icon font, subset to the icons the site uses (see components/Icon.tsx) */}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="stylesheet" href={ICON_FONT_URL} />
@@ -77,6 +88,7 @@ export default async function RootLayout({
             <AuthProvider>
               <PassProvider>
                 <AuthPromptProvider>
+                  {announcement && <WhatsNewBar announcement={announcement} />}
                   {children}
                   <CookieConsent />
                 </AuthPromptProvider>

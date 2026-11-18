@@ -39,6 +39,7 @@ export const ICON_NAMES = [
   'folder_zip',
   'group',
   'handshake',
+  'help',
   'history',
   'history_edu',
   'layers',

@@ -15,6 +15,7 @@ import PostsTab from './_components/PostsTab';
 import MessagesTab from './_components/MessagesTab';
 import FreeAccessSwitch from './_components/FreeAccessSwitch';
 import MaterialLock from './_components/MaterialLock';
+import AnnouncementEditor from './_components/AnnouncementEditor';
 
 type Tab = 'programs' | 'subjects' | 'projects' | 'uploads' | 'posts' | 'messages';
 
@@ -78,6 +79,7 @@ export default function AdminPanel() {
 
         <FreeAccessSwitch />
         <MaterialLock />
+        <AnnouncementEditor />
 
         <div
           role="tablist"
